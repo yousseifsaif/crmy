@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>Yousseif-CRM</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+
+<style>
+  :root{
+    --ink:#1B1D1B;--muted:#73705F;--bg:#F6F2E9;--surface:#FFFFFF;
+    --primary:#1F3B36;--primary-2:#2C5048;--primary-soft:#E4ECE9;
+    --accent:#C8893D;--accent-soft:#F1DFB9;--line:#E6DFCE;
+    --good:#2F7D5C;--bad:#AD4128;--radius:12px;
+    --shadow-sm:0 1px 2px rgba(27,29,27,.06);
+    --shadow-md:0 10px 28px rgba(27,29,27,.08);
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:'Tajawal',sans-serif;direction:rtl;}
+  h1,h2,h3,.brand,.tabbtn,.section-title{font-family:'Cairo',sans-serif;}
+
+  .topbar{background:var(--primary);color:#fff;padding:16px 28px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+  .brand{font-weight:800;font-size:19px;display:flex;align-items:center;gap:8px;}
+  .brand .dot{color:var(--accent);}
+  .topbar-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .tabs{display:flex;gap:8px;background:rgba(255,255,255,.08);padding:4px;border-radius:999px;}
+  .tabbtn{background:transparent;border:none;color:#EFE9DA;padding:9px 18px;border-radius:999px;cursor:pointer;font-size:13.5px;font-weight:700;transition:.18s;}
+  .tabbtn.active{background:var(--accent);color:var(--primary);}
+
+  .wrap{max-width:1180px;margin:0 auto;padding:26px 20px 60px;}
+  .panel{display:none;}
+  .panel.active{display:block;}
+
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px;margin-bottom:18px;box-shadow:var(--shadow-sm);}
+  .card h3{margin:0 0 14px;font-size:16.5px;color:var(--primary);}
+
+  .grid{display:grid;gap:12px;}
+  .grid.cols-4{grid-template-columns:repeat(4,1fr);}
+  .grid.cols-3{grid-template-columns:repeat(3,1fr);}
+  .grid.cols-2{grid-template-columns:repeat(2,1fr);}
+  @media(max-width:760px){.grid.cols-4,.grid.cols-3,.grid.cols-2{grid-template-columns:1fr;}}
+
+  label{display:block;font-size:12.5px;color:var(--muted);margin-bottom:5px;font-weight:700;}
+  input,select{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:8px;font-family:'Tajawal',sans-serif;font-size:14px;background:#FCFBF7;color:var(--ink);}
+  input:focus,select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft);}
+  textarea{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:8px;font-family:'Tajawal',sans-serif;font-size:14px;background:#FCFBF7;color:var(--ink);resize:vertical;min-height:70px;}
+
+  .btn{display:inline-block;background:var(--primary);color:#fff;border:none;padding:10px 20px;border-radius:8px;font-weight:700;cursor:pointer;font-family:'Tajawal',sans-serif;font-size:13.5px;transition:.15s;}
+  .btn:hover{background:var(--primary-2);}
+  .btn.gold{background:var(--accent);color:var(--primary);}
+  .btn.gold:hover{background:#D89C56;}
+  .btn.ghost{background:#fff;color:var(--primary);border:1px solid var(--line);}
+  .btn.ghost:hover{border-color:var(--accent);}
+  .btn.danger{background:transparent;color:var(--bad);border:1px solid var(--bad);}
+  .btn.small{padding:6px 13px;font-size:12px;}
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+
+  /* search */
+  #search-results{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:16px;align-items:start;}
+  .proj-card{border:1px solid var(--line);border-radius:var(--radius);background:#fff;box-shadow:var(--shadow-sm);overflow:hidden;}
+  .proj-card-head{background:var(--primary-soft);padding:14px 16px;border-bottom:1px solid var(--line);}
+  .proj-title{font-family:'Cairo',sans-serif;font-weight:800;font-size:15.5px;color:var(--primary);}
+  .tag{display:inline-block;background:var(--accent-soft);color:#7A521E;font-size:11.5px;padding:3px 10px;border-radius:999px;font-weight:700;margin-top:6px;}
+  .unit-row{padding:12px 16px;border-top:1px solid var(--line);}
+  .unit-row .price{font-weight:800;color:var(--primary);font-family:'Cairo',sans-serif;font-size:14px;}
+  .empty{text-align:center;padding:50px 20px;color:var(--muted);grid-column:1/-1;}
+
+  .plan-pill{border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin-top:8px;cursor:pointer;transition:.15s;background:#FCFBF7;}
+  .plan-pill:hover{border-color:var(--accent);}
+  .plan-pill.afford{border-right:4px solid var(--good);}
+  .plan-pill.noafford{border-right:4px solid var(--bad);opacity:.85;}
+
+  table{width:100%;border-collapse:collapse;font-size:13px;margin-top:10px;}
+  table th,table td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:right;}
+  table th{background:var(--primary-soft);font-family:'Cairo',sans-serif;color:var(--primary-2);}
+
+  /* admin */
+  .lockscreen{max-width:380px;margin:80px auto;}
+  .admin-layout{display:grid;grid-template-columns:300px 1fr;gap:18px;align-items:start;}
+  @media(max-width:880px){.admin-layout{grid-template-columns:1fr;}}
+  .admin-side{position:sticky;top:16px;}
+  .admin-project-item{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;padding:11px 12px;border:1px solid var(--line);border-radius:8px;margin-bottom:8px;cursor:pointer;background:#fff;transition:.15s;}
+  .admin-project-item:hover{border-color:var(--accent);}
+  .admin-project-item.active-project{border-color:var(--accent);background:var(--accent-soft);}
+  .current-badge{display:inline-block;font-size:10.5px;background:var(--good);color:#fff;padding:2px 8px;border-radius:999px;margin-bottom:4px;}
+
+  .section-title{font-weight:800;font-size:14.5px;color:var(--primary-2);margin:18px 0 8px;border-right:4px solid var(--accent);padding-right:8px;}
+  .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--primary);color:#fff;padding:10px 22px;border-radius:8px;font-size:13px;z-index:9999;box-shadow:var(--shadow-md);max-width:90vw;text-align:center;}
+  .close-x{cursor:pointer;color:var(--bad);font-weight:800;border:none;background:none;font-size:13px;}
+  .inline-form{background:var(--bg);border:1px dashed var(--accent-soft);border-radius:8px;padding:14px;margin-top:10px;}
+  .helpline{font-size:11.5px;color:var(--muted);margin-top:4px;}
+
+  /* leads */
+  .name-gate{max-width:380px;margin:60px auto;}
+  .lead-card{border:1px solid var(--line);border-radius:var(--radius);background:#fff;box-shadow:var(--shadow-sm);padding:14px 16px;margin-bottom:12px;}
+  .lead-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;}
+  .lead-name{font-family:'Cairo',sans-serif;font-weight:800;font-size:15px;color:var(--primary);}
+  .status-badge{font-size:11px;font-weight:800;padding:3px 11px;border-radius:999px;white-space:nowrap;}
+  .status-جديد{background:#E4ECE9;color:var(--primary-2);}
+  .status-تواصل_أول{background:#EAE3D2;color:#7A6A33;}
+  .status-مهتم{background:var(--accent-soft);color:#7A521E;}
+  .status-حجز{background:#DCEFE4;color:var(--good);}
+  .status-اعتذر{background:#F4DFD8;color:var(--bad);}
+  .lead-meta{font-size:12.5px;color:var(--muted);margin-top:3px;}
+  .current-sales-pill{background:rgba(255,255,255,.12);color:#EFE9DA;font-size:12px;padding:6px 14px;border-radius:999px;display:flex;align-items:center;gap:8px;}
+  .current-sales-pill button{background:none;border:none;color:var(--accent-soft);cursor:pointer;font-size:11.5px;font-weight:700;text-decoration:underline;}
+
+  /* loading overlay */
+  #loading-overlay{position:fixed;inset:0;background:var(--primary);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:99999;color:#fff;gap:16px;transition:opacity .4s;}
+  #loading-overlay.hidden{opacity:0;pointer-events:none;}
+  .spinner{width:40px;height:40px;border:4px solid rgba(255,255,255,.2);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  /* firebase setup banner */
+  #setup-banner{background:#2C1B0E;color:#F1DFB9;padding:14px 20px;font-size:13px;text-align:center;display:none;}
+  #setup-banner a{color:var(--accent);font-weight:700;}
+
+  /* print */
+  #print-area{display:none;}
+  @media print{
+    body *{visibility:hidden;}
+    #print-area, #print-area *{visibility:visible;}
+    #print-area{display:block;position:absolute;top:0;right:0;left:0;padding:30px;}
+  }
+  .quote-paper{font-family:'Tajawal',sans-serif;}
+  .quote-head{text-align:center;border-bottom:3px solid var(--accent);padding-bottom:14px;margin-bottom:18px;}
+  .quote-head h1{font-family:'Cairo',sans-serif;color:var(--primary);margin:0 0 6px;}
+  .quote-table{width:100%;border-collapse:collapse;margin-bottom:16px;}
+  .quote-table th,.quote-table td{border:1px solid var(--line);padding:8px 12px;text-align:right;}
+  .quote-table th{background:var(--primary-soft);width:160px;}
+  .quote-foot{font-size:12px;color:var(--muted);margin-top:20px;border-top:1px solid var(--line);padding-top:10px;}
+</style>
+</head>
+<body>
+
+<div id="loading-overlay">
+  <div class="spinner"></div>
+  <div style="font-family:'Cairo',sans-serif;font-weight:700;">جاري التحميل...</div>
+</div>
+
+<div id="setup-banner">
+  ⚠️ Firebase غير مُعدَّل بعد — البيانات مش هتتحفظ. اتبع <a href="#" onclick="showSetupHelp()">خطوات الإعداد</a> وحط الـ config بتاعك في الكود.
+</div>
+
+<div class="topbar">
+  <div class="brand"><span class="dot">●</span> Yousseif-CRM</div>
+  <div class="topbar-right">
+    <span class="current-sales-pill" id="sales-pill" style="display:none;"></span>
+    <div class="tabs">
+      <button class="tabbtn active" data-tab="search">Search Unit</button>
+      <button class="tabbtn" data-tab="leads">العملاء</button>
+      <button class="tabbtn" data-tab="admin">Admin</button>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- SEARCH -->
+  <div class="panel active" id="panel-search">
+    <div class="card">
+      <h3>دوّر على المشروع المناسب للعميل</h3>
+      <div class="grid cols-4">
+        <div><label>المنطقة</label><select id="f-area"><option value="">الكل</option></select></div>
+        <div><label>نوع الوحدة</label>
+          <select id="f-type">
+            <option value="">الكل</option>
+            <option>كمبوند</option><option>عمارات</option><option>فيلات</option><option>تجاري</option>
+          </select>
+        </div>
+        <div><label>الميزانية القصوى (سعر الوحدة)</label><input id="f-budget" type="number" placeholder="مثلاً 3500000"></div>
+        <div><label>المقدم المتاح عند العميل</label><input id="f-down" type="number" placeholder="مثلاً 500000"></div>
+      </div>
+      <div style="margin-top:14px;">
+        <button class="btn gold" id="btn-search">بحث</button>
+        <button class="btn ghost" id="btn-reset">تصفير</button>
+      </div>
+    </div>
+    <div id="search-results"></div>
+  </div>
+
+  <!-- LEADS -->
+  <div class="panel" id="panel-leads">
+    <div class="name-gate" id="name-gate">
+      <div class="card">
+        <h3>مين حضرتك؟</h3>
+        <p class="helpline">اكتب اسمك مرة واحدة، وهتشوف بيها عملاءك بس.</p>
+        <label>اسمك</label>
+        <input id="sales-name-input" placeholder="مثلاً: أحمد محمد">
+        <div style="margin-top:12px;"><button class="btn gold" id="btn-set-name">دخول</button></div>
+      </div>
+    </div>
+    <div id="leads-area" style="display:none;">
+      <div class="card">
+        <div class="row" style="justify-content:space-between;">
+          <h3 style="margin:0;">عملائي (<span id="lead-count">0</span>)</h3>
+          <button class="btn gold small" id="btn-new-lead">+ إضافة عميل</button>
+        </div>
+        <div id="new-lead-form"></div>
+      </div>
+      <div id="leads-list"></div>
+    </div>
+  </div>
+
+  <!-- ADMIN -->
+  <div class="panel" id="panel-admin">
+    <div class="lockscreen" id="admin-lock">
+      <div class="card">
+        <h3>Admin LOG-IN</h3>
+        <label>Password</label>
+        <input id="admin-pass" type="password" placeholder="********">
+        <div style="margin-top:12px;"><button class="btn gold" id="btn-unlock">login</button></div>
+        <p class="helpline" id="lock-error" style="color:var(--bad);"></p>
+      </div>
+    </div>
+    <div id="admin-area" style="display:none;">
+      <div class="admin-layout">
+        <div class="admin-side">
+          <div class="card">
+            <div class="row" style="justify-content:space-between;margin-bottom:10px;">
+              <h3 style="margin:0;">المشاريع (<span id="proj-count">0</span>)</h3>
+            </div>
+            <input id="proj-filter" placeholder="بحث باسم المشروع أو المنطقة...">
+            <button class="btn gold small" id="btn-new-project" style="width:100%;margin-top:10px;">+ إضافة مشروع جديد</button>
+            <div id="new-project-form"></div>
+            <div id="admin-project-list" style="margin-top:14px;"></div>
+          </div>
+        </div>
+        <div id="project-detail"></div>
+      </div>
+
+      <div class="card" style="margin-top:20px;">
+        <div class="row" style="justify-content:space-between;margin-bottom:10px;">
+          <h3 style="margin:0;">كل العملاء (<span id="all-leads-count">0</span>)</h3>
+        </div>
+        <div class="grid cols-2">
+          <div><label>فلتر بالحالة</label>
+            <select id="admin-lead-status-filter">
+              <option value="">الكل</option>
+              <option>جديد</option><option>تواصل أول</option><option>مهتم</option><option>حجز</option><option>اعتذر</option>
+            </select>
+          </div>
+          <div><label>فلتر بالسيلز</label><select id="admin-lead-sales-filter"><option value="">الكل</option></select></div>
+        </div>
+        <div id="admin-leads-list" style="margin-top:12px;"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div id="print-area"></div>
+
+<script>
+/* ============================================================
+   🔥 FIREBASE CONFIG — ضع config بتاعك هنا بعد إعداد Firebase
+   ============================================================ */
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyCtRlAM8ewvC8dhoo0jFu3-ZkBqbu5e3uk",
+  authDomain: "yousseif-crm.firebaseapp.com",
+  projectId: "yousseif-crm",
+  storageBucket: "yousseif-crm.firebasestorage.app",
+  messagingSenderId: "685540440514",
+  appId: "1:685540440514:web:4e285cebca37fe03ef3e5b"
+};
+/* ============================================================ */
+
+const ADMIN_PASSWORD = "seatibiza2001";
+const LEAD_STATUSES = ["جديد","تواصل أول","مهتم","حجز","اعتذر"];
+const FREQ_LABELS = {monthly:"شهري",quarterly:"كل 3 شهور",semiannual:"كل 6 شهور",annual:"سنوي"};
+const FREQ_PER_YEAR = {monthly:12,quarterly:4,semiannual:2,annual:1};
+
+let projects = [];
+let leads = [];
+let adminUnlocked = false;
+let activeProjectId = null;
+let customMilestonesDraft = [];
+let currentSalesName = null;
+let db = null;
+let firebaseReady = false;
+
+/* ---- utils ---- */
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+function money(n){ return (Number(n)||0).toLocaleString('ar-EG')+' ج.م'; }
+function esc(s){ return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function statusClass(s){ return 'status-'+String(s||'').replace(/\s+/g,'_'); }
+function byId(id){ return document.getElementById(id); }
+function toast(msg){
+  document.querySelectorAll('.toast').forEach(t=>t.remove());
+  const t=document.createElement('div'); t.className='toast'; t.textContent=msg;
+  document.body.appendChild(t); setTimeout(()=>t.remove(),2500);
+}
+function hideLoading(){ byId('loading-overlay').classList.add('hidden'); }
+
+/* ---- Firebase init ---- */
+function isFirebaseConfigured(){
+  return FIREBASE_CONFIG.apiKey && !FIREBASE_CONFIG.apiKey.startsWith('PASTE_');
+}
+
+function showSetupHelp(){
+  alert('خطوات الإعداد:\n1. روح console.firebase.google.com\n2. أنشئ مشروع جديد\n3. Enable Firestore Database (test mode)\n4. Project Settings → Add Web App → انسخ firebaseConfig\n5. حط القيم بتاعتك في المتغير FIREBASE_CONFIG في الكود');
+}
+
+async function initFirebase(){
+  if(!isFirebaseConfigured()){
+    byId('setup-banner').style.display='block';
+    hideLoading();
+    // fallback to localStorage so the app still works during setup
+    loadFromLocalStorage();
+    return;
+  }
+  try{
+    firebase.initializeApp(FIREBASE_CONFIG);
+    db = firebase.firestore();
+    firebaseReady = true;
+    await loadAll();
+    hideLoading();
+  }catch(err){
+    console.error('Firebase error:', err);
+    toast('خطأ في الاتصال بـ Firebase — بيشغل من الذاكرة المحلية');
+    loadFromLocalStorage();
+    hideLoading();
+  }
+}
+
+/* ---- Storage: Firebase ---- */
+async function loadAll(){
+  try{
+    const [pDoc, lDoc] = await Promise.all([
+      db.collection('appdata').doc('projects').get(),
+      db.collection('appdata').doc('leads').get()
+    ]);
+    projects = pDoc.exists ? (pDoc.data().list || []) : [];
+    leads    = lDoc.exists ? (lDoc.data().list || []) : [];
+    refreshAreaOptions();
+  }catch(e){
+    toast('تعذّر تحميل البيانات، تحقق من اتصالك');
+  }
+}
+
+async function saveProjects(){
+  if(firebaseReady){
+    try{ await db.collection('appdata').doc('projects').set({list: projects}); }
+    catch(e){ toast('خطأ في حفظ المشاريع'); }
+  } else {
+    localStorage.setItem('ycrm_projects', JSON.stringify(projects));
+  }
+}
+
+async function saveLeads(){
+  if(firebaseReady){
+    try{ await db.collection('appdata').doc('leads').set({list: leads}); }
+    catch(e){ toast('خطأ في حفظ العملاء'); }
+  } else {
+    localStorage.setItem('ycrm_leads', JSON.stringify(leads));
+  }
+}
+
+/* ---- localStorage fallback (during setup) ---- */
+function loadFromLocalStorage(){
+  try{ projects = JSON.parse(localStorage.getItem('ycrm_projects')||'[]'); }catch(e){ projects=[]; }
+  try{ leads    = JSON.parse(localStorage.getItem('ycrm_leads')||'[]'); }catch(e){ leads=[]; }
+  refreshAreaOptions();
+}
+
+/* ---- tabs ---- */
+document.querySelectorAll('.tabbtn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.tabbtn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    byId('panel-'+btn.dataset.tab).classList.add('active');
+    if(btn.dataset.tab==='leads') renderLeadsPanel();
+  });
+});
+
+/* ---- sales name gate ---- */
+function updateSalesPill(){
+  const pill=byId('sales-pill');
+  if(currentSalesName){
+    pill.style.display='flex';
+    pill.innerHTML=`سيلز: <strong>${esc(currentSalesName)}</strong> <button id="btn-change-name">تغيير</button>`;
+    byId('btn-change-name').addEventListener('click',()=>{ currentSalesName=null; updateSalesPill(); renderLeadsPanel(); });
+  } else { pill.style.display='none'; pill.innerHTML=''; }
+}
+
+byId('btn-set-name').addEventListener('click',()=>{
+  const v=byId('sales-name-input').value.trim();
+  if(!v){ toast('اكتب اسمك'); return; }
+  currentSalesName=v; updateSalesPill(); renderLeadsPanel();
+});
+
+function renderLeadsPanel(){
+  if(!currentSalesName){
+    byId('name-gate').style.display='block'; byId('leads-area').style.display='none'; return;
+  }
+  byId('name-gate').style.display='none'; byId('leads-area').style.display='block';
+  renderMyLeadsList();
+}
+
+/* ---- admin lock ---- */
+byId('btn-unlock').addEventListener('click',()=>{
+  const v=byId('admin-pass').value;
+  if(v===ADMIN_PASSWORD){
+    adminUnlocked=true;
+    byId('admin-lock').style.display='none';
+    byId('admin-area').style.display='block';
+    renderAdminProjectList(); renderProjectDetail(); renderAdminLeadsList();
+  } else { byId('lock-error').textContent='كلمة المرور غلط'; }
+});
+
+/* ---- area options ---- */
+function refreshAreaOptions(){
+  const sel=byId('f-area');
+  const areas=[...new Set(projects.map(p=>p.area).filter(Boolean))];
+  sel.innerHTML='<option value="">الكل</option>'+areas.map(a=>`<option>${esc(a)}</option>`).join('');
+}
+
+/* ---- search ---- */
+byId('btn-search').addEventListener('click', runSearch);
+byId('btn-reset').addEventListener('click',()=>{
+  byId('f-area').value=''; byId('f-type').value='';
+  byId('f-budget').value=''; byId('f-down').value='';
+  byId('search-results').innerHTML='';
+});
+
+function runSearch(){
+  const area=byId('f-area').value, type=byId('f-type').value;
+  const budget=parseFloat(byId('f-budget').value)||null;
+  const down=parseFloat(byId('f-down').value)||0;
+
+  const matched=projects.filter(p=>{
+    if(area && p.area!==area) return false;
+    if(type && p.type!==type) return false;
+    return true;
+  }).map(p=>({...p,_units:(p.units||[]).filter(u=>!budget||Number(u.price)<=budget)}))
+    .filter(p=>!budget||p._units.length>0);
+
+  const box=byId('search-results');
+  if(!matched.length){ box.innerHTML=`<div class="empty">مفيش مشاريع متطابقة. جرّب توسّع الميزانية.</div>`; return; }
+  box.innerHTML=matched.map(p=>{
+    const unitsHtml=(p._units||[]).map(u=>`
+      <div class="unit-row">
+        <div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;">
+          <div>
+            <div style="font-weight:700;">${esc(u.category)}</div>
+            <div class="helpline">الدور: ${esc(u.floor)||'-'} | الفيو: ${esc(u.view)||'-'} | الموقع: ${esc(u.location)||'-'}</div>
+          </div>
+          <span class="price">${money(u.price)}</span>
+        </div>
+        <button class="btn ghost small" style="margin-top:8px;" data-act="show-plans" data-project="${p.id}" data-unit="${u.id}" data-down="${down}">أنظمة السداد</button>
+        <div data-plans-for="${p.id}-${u.id}"></div>
+      </div>`).join('')||`<div class="helpline" style="padding:10px;">لا توجد وحدات مدخلة بعد.</div>`;
+    return `
+      <div class="proj-card">
+        <div class="proj-card-head">
+          <div class="proj-title">${esc(p.name)}</div>
+          <div class="helpline">${esc(p.area)}${p.developer?' | المطور: '+esc(p.developer):''}</div>
+          ${p.type?`<span class="tag">${esc(p.type)}</span>`:''}
+        </div>${unitsHtml}
+      </div>`;
+  }).join('');
+}
+
+function showPlans(projectId, unitId, downAvailable){
+  const p=projects.find(x=>x.id===projectId), u=p.units.find(x=>x.id===unitId);
+  const plans=p.plans||[];
+  const target=document.querySelector(`[data-plans-for="${projectId}-${unitId}"]`);
+  if(!plans.length){ target.innerHTML=`<div class="helpline" style="padding:6px 0;">لا توجد أنظمة سداد مدخلة.</div>`; return; }
+  target.innerHTML=plans.map(plan=>{
+    const req=u.price*(plan.downPaymentPercent/100), can=downAvailable>=req;
+    return `
+      <div class="plan-pill ${can?'afford':'noafford'}" data-act="toggle-schedule" data-project="${projectId}" data-unit="${unitId}" data-plan="${plan.id}">
+        <div class="row" style="justify-content:space-between;">
+          <strong>${esc(plan.name)}</strong>
+          <span style="font-size:11.5px;font-weight:700;color:${can?'var(--good)':'var(--bad)'};">${can?'المقدم متاح ✓':'يحتاج مقدم أكبر'}</span>
+        </div>
+        <div class="helpline">مقدم ${plan.downPaymentPercent}% = ${money(req)}${plan.maintenanceFeePercent?' | صيانة '+plan.maintenanceFeePercent+'%':''}</div>
+        <div class="schedule-box"></div>
+      </div>`;
+  }).join('');
+}
+
+function toggleSchedule(el, projectId, unitId, planId){
+  const p=projects.find(x=>x.id===projectId), u=p.units.find(x=>x.id===unitId), plan=p.plans.find(x=>x.id===planId);
+  const box=el.querySelector('.schedule-box');
+  if(box.innerHTML){ box.innerHTML=''; return; }
+  box.innerHTML=buildScheduleTable(u.price,plan)+
+    `<button class="btn gold small" style="margin-top:10px;" data-act="export-pdf" data-project="${projectId}" data-unit="${unitId}" data-plan="${planId}">📄 تصدير عرض سعر PDF</button>`;
+}
+
+function buildScheduleTable(price, plan){
+  const down=price*(plan.downPaymentPercent/100);
+  let rows=`<tr><td>مقدم</td><td>${money(down)}</td><td>عند العقد</td></tr>`;
+  if(plan.type==='equal'){
+    const rem=price-down, perYear=FREQ_PER_YEAR[plan.frequency]||12;
+    const count=Math.max(1,Math.round((plan.years||1)*perYear));
+    rows+=`<tr><td>باقي على ${count} دفعة (${FREQ_LABELS[plan.frequency]||'-'})</td><td>${money(rem/count)} / دفعة</td><td>على مدار ${plan.years} سنة</td></tr>`;
+  } else {
+    (plan.milestones||[]).forEach(m=>{
+      rows+=`<tr><td>${esc(m.label)||'دفعة'}</td><td>${money(price*(m.percent/100))} (${m.percent}%)</td><td>بعد ${m.months} شهر</td></tr>`;
+    });
+  }
+  if(plan.deliveryYears) rows+=`<tr><td>التسليم</td><td>-</td><td>بعد ${plan.deliveryYears} سنة</td></tr>`;
+  return `<table><tr><th>البند</th><th>القيمة</th><th>التوقيت</th></tr>${rows}</table>`;
+}
+
+function exportQuotePDF(projectId, unitId, planId){
+  const p=projects.find(x=>x.id===projectId), u=p.units.find(x=>x.id===unitId), plan=p.plans.find(x=>x.id===planId);
+  const today=new Date().toLocaleDateString('ar-EG');
+  byId('print-area').innerHTML=`
+    <div class="quote-paper">
+      <div class="quote-head"><h1>عرض سعر</h1><p>${esc(p.name)} — ${esc(p.area)}</p><p class="helpline">تاريخ العرض: ${today}</p></div>
+      <table class="quote-table">
+        <tr><th>الوحدة</th><td>${esc(u.category)}</td></tr>
+        <tr><th>الدور</th><td>${esc(u.floor)||'-'}</td></tr>
+        <tr><th>الفيو</th><td>${esc(u.view)||'-'}</td></tr>
+        <tr><th>الموقع</th><td>${esc(u.location)||'-'}</td></tr>
+        <tr><th>سعر الوحدة</th><td>${money(u.price)}</td></tr>
+        <tr><th>نظام السداد</th><td>${esc(plan.name)}</td></tr>
+      </table>
+      ${buildScheduleTable(u.price,plan)}
+      <p class="quote-foot">هذا العرض غير ملزم وقابل للتغيير حسب توفر الوحدة وسياسة المطور وقت الحجز.</p>
+    </div>`;
+  window.print();
+}
+
+/* ---- leads ---- */
+byId('btn-new-lead').addEventListener('click',()=>showLeadForm(null));
+byId('admin-lead-status-filter').addEventListener('change', renderAdminLeadsList);
+byId('admin-lead-sales-filter').addEventListener('change', renderAdminLeadsList);
+
+function projectOptionsHtml(selectedId){
+  return '<option value="">بدون مشروع محدد</option>'+
+    projects.map(p=>`<option value="${p.id}" ${p.id===selectedId?'selected':''}>${esc(p.name)}</option>`).join('');
+}
+
+function showLeadForm(leadId){
+  const lead=leadId?leads.find(l=>l.id===leadId):null;
+  byId('new-lead-form').innerHTML=`
+    <div class="inline-form">
+      <div class="grid cols-2">
+        <div><label>اسم العميل</label><input id="ld-name" value="${esc(lead?lead.name:'')}"></div>
+        <div><label>رقم التليفون</label><input id="ld-phone" value="${esc(lead?lead.phone:'')}"></div>
+      </div>
+      <div class="grid cols-2" style="margin-top:10px;">
+        <div><label>المشروع المهتم بيه</label><select id="ld-project">${projectOptionsHtml(lead?lead.projectId:'')}</select></div>
+        <div><label>الوحدة/الفئة</label><input id="ld-unit" value="${esc(lead?lead.unitNote||'':'')}" placeholder="مثلاً: شقة 150م دور 3"></div>
+      </div>
+      <div class="grid cols-2" style="margin-top:10px;">
+        <div><label>حالة المتابعة</label>
+          <select id="ld-status">${LEAD_STATUSES.map(s=>`<option ${lead&&lead.status===s?'selected':''}>${s}</option>`).join('')}</select>
+        </div>
+        <div><label>ملاحظات</label><input id="ld-notes" value="${esc(lead?lead.notes||'':'')}"></div>
+      </div>
+      <div style="margin-top:10px;">
+        <button class="btn gold small" id="btn-save-lead">حفظ</button>
+        <button class="btn ghost small" data-act="cancel-lead-form">إلغاء</button>
+      </div>
+    </div>`;
+  byId('btn-save-lead').addEventListener('click',()=>saveLead(leadId));
+}
+
+async function saveLead(leadId){
+  const name=byId('ld-name').value.trim(), phone=byId('ld-phone').value.trim();
+  if(!name||!phone){ toast('اكتب اسم العميل ورقم التليفون'); return; }
+  const data={name,phone,projectId:byId('ld-project').value||null,
+    unitNote:byId('ld-unit').value.trim(),status:byId('ld-status').value,
+    notes:byId('ld-notes').value.trim(),salesName:currentSalesName,updatedAt:Date.now()};
+  if(leadId){ Object.assign(leads.find(l=>l.id===leadId),data); }
+  else { leads.push({id:uid(),createdAt:Date.now(),...data}); }
+  await saveLeads();
+  byId('new-lead-form').innerHTML='';
+  renderMyLeadsList();
+  if(adminUnlocked) renderAdminLeadsList();
+  toast('تم حفظ العميل');
+}
+
+async function deleteLead(leadId){
+  if(!confirm('متأكد عايز تمسح العميل ده؟')) return;
+  leads=leads.filter(l=>l.id!==leadId);
+  await saveLeads();
+  renderMyLeadsList();
+  if(adminUnlocked) renderAdminLeadsList();
+}
+
+async function updateLeadStatus(leadId, status){
+  const lead=leads.find(l=>l.id===leadId);
+  lead.status=status; lead.updatedAt=Date.now();
+  await saveLeads();
+  renderMyLeadsList();
+  if(adminUnlocked) renderAdminLeadsList();
+}
+
+function leadCardHtml(lead, showSalesName){
+  const proj=projects.find(p=>p.id===lead.projectId);
+  return `
+    <div class="lead-card">
+      <div class="lead-head">
+        <div>
+          <div class="lead-name">${esc(lead.name)}</div>
+          <div class="lead-meta">${esc(lead.phone)}${proj?' | '+esc(proj.name):''}${lead.unitNote?' | '+esc(lead.unitNote):''}</div>
+          ${showSalesName?`<div class="lead-meta">السيلز: ${esc(lead.salesName)}</div>`:''}
+          ${lead.notes?`<div class="lead-meta">📝 ${esc(lead.notes)}</div>`:''}
+        </div>
+        <span class="status-badge ${statusClass(lead.status)}">${esc(lead.status)}</span>
+      </div>
+      <div class="row" style="margin-top:10px;">
+        <select data-act="change-status" data-lead="${lead.id}" style="width:auto;">
+          ${LEAD_STATUSES.map(s=>`<option ${lead.status===s?'selected':''}>${s}</option>`).join('')}
+        </select>
+        <button class="btn ghost small" data-act="edit-lead" data-lead="${lead.id}">تعديل</button>
+        <button class="btn danger small" data-act="delete-lead" data-lead="${lead.id}">حذف</button>
+      </div>
+    </div>`;
+}
+
+function renderMyLeadsList(){
+  if(!currentSalesName) return;
+  const mine=leads.filter(l=>l.salesName===currentSalesName).sort((a,b)=>b.updatedAt-a.updatedAt);
+  byId('lead-count').textContent=mine.length;
+  byId('leads-list').innerHTML=mine.length?mine.map(l=>leadCardHtml(l,false)).join(''):`<div class="empty">لسه مفيش عملاء مسجلين باسمك.</div>`;
+}
+
+function renderAdminLeadsList(){
+  const sf=byId('admin-lead-status-filter').value, slf=byId('admin-lead-sales-filter').value;
+  const salesNames=[...new Set(leads.map(l=>l.salesName).filter(Boolean))];
+  byId('admin-lead-sales-filter').innerHTML='<option value="">الكل</option>'+salesNames.map(n=>`<option ${n===slf?'selected':''}>${esc(n)}</option>`).join('');
+  const filtered=leads.filter(l=>{
+    if(sf&&l.status!==sf) return false;
+    if(slf&&l.salesName!==slf) return false;
+    return true;
+  }).sort((a,b)=>b.updatedAt-a.updatedAt);
+  byId('all-leads-count').textContent=leads.length;
+  byId('admin-leads-list').innerHTML=filtered.length?filtered.map(l=>leadCardHtml(l,true)).join(''):`<div class="empty">مفيش عملاء مطابقين للفلتر.</div>`;
+}
+
+/* ---- admin projects ---- */
+byId('btn-new-project').addEventListener('click',()=>{
+  byId('new-project-form').innerHTML=`
+    <div class="inline-form">
+      <div class="grid cols-2">
+        <div><label>اسم المشروع</label><input id="np-name"></div>
+        <div><label>المنطقة</label><input id="np-area" value="حدائق أكتوبر"></div>
+        <div><label>المطور</label><input id="np-dev"></div>
+        <div><label>النوع</label><select id="np-type"><option>كمبوند</option><option>عمارات</option><option>فيلات</option><option>تجاري</option></select></div>
+      </div>
+      <div style="margin-top:10px;">
+        <button class="btn gold small" id="btn-save-new-project">حفظ المشروع</button>
+        <button class="btn ghost small" data-act="cancel-new-project">إلغاء</button>
+      </div>
+    </div>`;
+  byId('btn-save-new-project').addEventListener('click', addProject);
+});
+byId('proj-filter').addEventListener('input', renderAdminProjectList);
+
+async function addProject(){
+  const name=byId('np-name').value.trim();
+  if(!name){ toast('اكتب اسم المشروع'); return; }
+  const np={id:uid(),name,area:byId('np-area').value.trim(),developer:byId('np-dev').value.trim(),type:byId('np-type').value,units:[],plans:[]};
+  projects.push(np);
+  await saveProjects();
+  byId('new-project-form').innerHTML='';
+  activeProjectId=np.id;
+  renderAdminProjectList(); refreshAreaOptions(); renderProjectDetail();
+  byId('project-detail').scrollIntoView({behavior:'smooth',block:'start'});
+  toast('تم إضافة المشروع');
+}
+
+function renderAdminProjectList(){
+  byId('proj-count').textContent=projects.length;
+  const q=(byId('proj-filter').value||'').trim().toLowerCase();
+  const list=byId('admin-project-list');
+  const filtered=projects.filter(p=>!q||(p.name+' '+p.area).toLowerCase().includes(q));
+  if(!projects.length){ list.innerHTML=`<div class="empty">لسه مفيش مشاريع.</div>`; return; }
+  if(!filtered.length){ list.innerHTML=`<div class="helpline" style="padding:10px;">مفيش نتائج.</div>`; return; }
+  list.innerHTML=filtered.map(p=>`
+    <div class="admin-project-item ${p.id===activeProjectId?'active-project':''}" data-act="open-project" data-project="${p.id}">
+      <div>
+        ${p.id===activeProjectId?'<span class="current-badge">مفتوح دلوقتي</span><br>':''}
+        <strong>${esc(p.name)}</strong>
+        <div class="helpline">${esc(p.area)} ${p.type?'| '+esc(p.type):''} | ${(p.units||[]).length} وحدة | ${(p.plans||[]).length} نظام سداد</div>
+      </div>
+      <button class="close-x" data-act="delete-project" data-project="${p.id}">✕</button>
+    </div>`).join('');
+}
+
+async function deleteProject(id){
+  if(!confirm('متأكد عايز تمسح المشروع ده؟')) return;
+  projects=projects.filter(p=>p.id!==id);
+  await saveProjects();
+  if(activeProjectId===id) activeProjectId=null;
+  renderAdminProjectList(); refreshAreaOptions(); renderProjectDetail();
+  toast('تم الحذف');
+}
+
+function openProjectDetail(id){ activeProjectId=id; renderAdminProjectList(); renderProjectDetail(); }
+
+function renderProjectDetail(){
+  const p=projects.find(x=>x.id===activeProjectId), box=byId('project-detail');
+  if(!p){ box.innerHTML=`<div class="card"><div class="empty">دوس على مشروع من القائمة علشان تعدّل فيه.</div></div>`; return; }
+  box.innerHTML=`
+    <div class="card">
+      <h3><span class="current-badge">مفتوح دلوقتي</span> ${esc(p.name)}</h3>
+      <div class="section-title">الوحدات (${(p.units||[]).length})</div>
+      <div id="units-table"></div>
+      <div class="row" style="margin-top:8px;">
+        <button class="btn ghost small" data-act="add-unit">+ إضافة وحدة</button>
+        <button class="btn ghost small" data-act="upload-excel">⬆ رفع من إكسيل</button>
+        <button class="btn ghost small" data-act="download-template">⬇ تحميل النموذج</button>
+        <input type="file" id="excel-file-input" accept=".xlsx,.xls,.csv" style="display:none;">
+      </div>
+      <p class="helpline">أعمدة الإكسيل: الفئة، الدور، الفيو، الموقع، السعر</p>
+      <div id="unit-form"></div>
+      <div class="section-title">أنظمة السداد (${(p.plans||[]).length})</div>
+      <div id="plans-table"></div>
+      <button class="btn ghost small" data-act="add-plan" style="margin-top:8px;">+ إضافة نظام سداد</button>
+      <div id="plan-form"></div>
+    </div>`;
+  renderUnitsTable(p); renderPlansTable(p);
+  byId('excel-file-input').addEventListener('change', handleExcelUpload);
+}
+
+function renderUnitsTable(p){
+  const el=byId('units-table');
+  if(!p.units||!p.units.length){ el.innerHTML=`<p class="helpline">لا توجد وحدات.</p>`; return; }
+  el.innerHTML=`<table><tr><th>الفئة</th><th>الدور</th><th>الفيو</th><th>الموقع</th><th>السعر</th><th></th></tr>
+    ${p.units.map(u=>`<tr>
+      <td>${esc(u.category)}</td><td>${esc(u.floor)||'-'}</td><td>${esc(u.view)||'-'}</td><td>${esc(u.location)||'-'}</td><td>${money(u.price)}</td>
+      <td><button class="btn ghost small" data-act="edit-unit" data-unit="${u.id}">تعديل</button>
+          <button class="btn danger small" data-act="delete-unit" data-unit="${u.id}">حذف</button></td>
+    </tr>`).join('')}</table>`;
+}
+
+function showUnitForm(unitId){
+  const p=projects.find(x=>x.id===activeProjectId), u=unitId?p.units.find(x=>x.id===unitId):null;
+  byId('unit-form').innerHTML=`
+    <div class="inline-form">
+      <div class="grid cols-4">
+        <div><label>فئة/وصف الوحدة</label><input id="u-category" value="${esc(u?u.category:'')}" placeholder="مثلاً: شقة 150م"></div>
+        <div><label>الدور</label><input id="u-floor" value="${esc(u?u.floor||'':'')}"></div>
+        <div><label>الفيو</label><input id="u-view" value="${esc(u?u.view||'':'')}" placeholder="حديقة / شارع"></div>
+        <div><label>الموقع</label><input id="u-location" value="${esc(u?u.location||'':'')}"></div>
+      </div>
+      <div class="grid cols-2" style="margin-top:10px;"><div><label>السعر</label><input id="u-price" type="number" value="${u?u.price:''}"></div></div>
+      <div style="margin-top:10px;">
+        <button class="btn gold small" id="btn-save-unit">حفظ</button>
+        <button class="btn ghost small" data-act="cancel-unit-form">إلغاء</button>
+      </div>
+    </div>`;
+  byId('btn-save-unit').addEventListener('click',()=>saveUnit(unitId));
+}
+
+async function saveUnit(unitId){
+  const p=projects.find(x=>x.id===activeProjectId);
+  const category=byId('u-category').value.trim(), price=parseFloat(byId('u-price').value);
+  if(!category||!price){ toast('اكتب الفئة والسعر'); return; }
+  const data={category,price,floor:byId('u-floor').value.trim(),view:byId('u-view').value.trim(),location:byId('u-location').value.trim()};
+  if(unitId){ Object.assign(p.units.find(x=>x.id===unitId),data); }
+  else { p.units=p.units||[]; p.units.push({id:uid(),...data}); }
+  await saveProjects();
+  byId('unit-form').innerHTML=''; renderProjectDetail(); renderAdminProjectList(); toast('تم الحفظ');
+}
+
+async function deleteUnit(unitId){
+  const p=projects.find(x=>x.id===activeProjectId);
+  p.units=p.units.filter(u=>u.id!==unitId);
+  await saveProjects(); renderProjectDetail(); renderAdminProjectList();
+}
+
+function renderPlansTable(p){
+  const el=byId('plans-table');
+  if(!p.plans||!p.plans.length){ el.innerHTML=`<p class="helpline">لا توجد أنظمة سداد.</p>`; return; }
+  el.innerHTML=`<table><tr><th>الاسم</th><th>المقدم</th><th>النوع</th><th>التفاصيل</th><th></th></tr>
+    ${p.plans.map(pl=>`<tr>
+      <td>${esc(pl.name)}</td><td>${pl.downPaymentPercent}%</td>
+      <td>${pl.type==='equal'?'أقساط متساوية':'دفعات مخصصة'}</td>
+      <td>${pl.type==='equal'?(pl.years+' سنة - '+(FREQ_LABELS[pl.frequency]||'')):((pl.milestones||[]).length+' دفعة')}</td>
+      <td><button class="btn ghost small" data-act="edit-plan" data-plan="${pl.id}">تعديل</button>
+          <button class="btn danger small" data-act="delete-plan" data-plan="${pl.id}">حذف</button></td>
+    </tr>`).join('')}</table>`;
+}
+
+function showPlanForm(planId){
+  const p=projects.find(x=>x.id===activeProjectId), pl=planId?p.plans.find(x=>x.id===planId):null;
+  const type=pl?pl.type:'equal';
+  byId('plan-form').innerHTML=`
+    <div class="inline-form">
+      <div class="grid cols-4">
+        <div><label>اسم النظام</label><input id="pl-name" value="${esc(pl?pl.name:'')}" placeholder="مثلاً: 10% مقدم - 8 سنين"></div>
+        <div><label>نسبة المقدم %</label><input id="pl-down" type="number" value="${pl?pl.downPaymentPercent:''}"></div>
+        <div><label>رسوم الصيانة %</label><input id="pl-maint" type="number" value="${pl?pl.maintenanceFeePercent||'':''}"></div>
+        <div><label>التسليم (سنين)</label><input id="pl-delivery" type="number" value="${pl?pl.deliveryYears||'':''}"></div>
+      </div>
+      <div style="margin-top:10px;"><label>نوع السداد</label>
+        <select id="pl-type">
+          <option value="equal" ${type==='equal'?'selected':''}>أقساط متساوية</option>
+          <option value="custom" ${type==='custom'?'selected':''}>دفعات مخصصة</option>
+        </select>
+      </div>
+      <div id="pl-type-fields" style="margin-top:10px;"></div>
+      <div style="margin-top:12px;">
+        <button class="btn gold small" id="btn-save-plan">حفظ النظام</button>
+        <button class="btn ghost small" data-act="cancel-plan-form">إلغاء</button>
+      </div>
+    </div>`;
+  byId('pl-type').addEventListener('change',()=>renderPlanTypeFields(byId('pl-type').value,null));
+  byId('btn-save-plan').addEventListener('click',()=>savePlan(planId));
+  renderPlanTypeFields(type,pl);
+}
+
+function renderPlanTypeFields(type,pl){
+  const box=byId('pl-type-fields');
+  if(type==='equal'){
+    box.innerHTML=`<div class="grid cols-2">
+      <div><label>سنين التقسيط</label><input id="pl-years" type="number" value="${pl&&pl.years?pl.years:''}"></div>
+      <div><label>دورية الدفع</label><select id="pl-freq">
+        <option value="monthly" ${pl&&pl.frequency==='monthly'?'selected':''}>شهري</option>
+        <option value="quarterly" ${pl&&pl.frequency==='quarterly'?'selected':''}>كل 3 شهور</option>
+        <option value="semiannual" ${pl&&pl.frequency==='semiannual'?'selected':''}>كل 6 شهور</option>
+        <option value="annual" ${pl&&pl.frequency==='annual'?'selected':''}>سنوي</option>
+      </select></div>
+    </div>`;
+  } else {
+    customMilestonesDraft=(pl&&pl.milestones)?JSON.parse(JSON.stringify(pl.milestones)):[];
+    box.innerHTML=`<div id="milestones-list"></div>
+      <button type="button" class="btn ghost small" data-act="add-milestone">+ إضافة دفعة</button>
+      <p class="helpline">مجموع النسب لازم يوصل 100%.</p>`;
+    renderMilestonesList();
+  }
+}
+
+function renderMilestonesList(){
+  byId('milestones-list').innerHTML=customMilestonesDraft.map((m,i)=>`
+    <div class="row" style="margin-bottom:6px;" data-milestone-idx="${i}">
+      <input placeholder="اسم الدفعة" value="${esc(m.label)}" data-field="label" style="flex:2;">
+      <input type="number" placeholder="نسبة %" value="${m.percent||''}" data-field="percent" style="flex:1;">
+      <input type="number" placeholder="بعد كام شهر" value="${m.months||''}" data-field="months" style="flex:1;">
+      <button type="button" class="close-x" data-act="remove-milestone" data-idx="${i}">✕</button>
+    </div>`).join('')||`<p class="helpline">لسه مفيش دفعات.</p>`;
+  byId('milestones-list').querySelectorAll('input').forEach(inp=>{
+    inp.addEventListener('change',e=>{
+      const row=e.target.closest('[data-milestone-idx]'), i=Number(row.dataset.milestoneIdx), field=e.target.dataset.field;
+      customMilestonesDraft[i][field]=field==='label'?e.target.value:(parseFloat(e.target.value)||0);
+    });
+  });
+}
+
+async function savePlan(planId){
+  const p=projects.find(x=>x.id===activeProjectId);
+  const name=byId('pl-name').value.trim(), down=parseFloat(byId('pl-down').value), type=byId('pl-type').value;
+  if(!name||isNaN(down)){ toast('اكتب اسم النظام ونسبة المقدم'); return; }
+  const data={name,downPaymentPercent:down,type,maintenanceFeePercent:parseFloat(byId('pl-maint').value)||0,deliveryYears:parseFloat(byId('pl-delivery').value)||0};
+  if(type==='equal'){ data.years=parseFloat(byId('pl-years').value)||1; data.frequency=byId('pl-freq').value; }
+  else { data.milestones=customMilestonesDraft; }
+  if(planId){ Object.assign(p.plans.find(x=>x.id===planId),data); }
+  else { p.plans=p.plans||[]; p.plans.push({id:uid(),...data}); }
+  await saveProjects();
+  byId('plan-form').innerHTML=''; renderProjectDetail(); renderAdminProjectList(); toast('تم حفظ نظام السداد');
+}
+
+async function deletePlan(planId){
+  const p=projects.find(x=>x.id===activeProjectId);
+  p.plans=p.plans.filter(x=>x.id!==planId);
+  await saveProjects(); renderProjectDetail(); renderAdminProjectList();
+}
+
+/* ---- excel ---- */
+function downloadUnitsTemplate(){
+  const ws=XLSX.utils.aoa_to_sheet([['الفئة','الدور','الفيو','الموقع','السعر'],['شقة 150م - 3 غرف','3','حديقة','قريب من المدخل',3200000]]);
+  const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'وحدات');
+  XLSX.writeFile(wb,'نموذج_رفع_الوحدات.xlsx');
+}
+
+function handleExcelUpload(e){
+  const file=e.target.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=function(evt){
+    let added=0,skipped=0;
+    try{
+      const wb=XLSX.read(new Uint8Array(evt.target.result),{type:'array'});
+      const rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:''});
+      const p=projects.find(x=>x.id===activeProjectId);
+      if(!p){ toast('افتح مشروع الأول'); return; }
+      rows.forEach(r=>{
+        const cat=r['الفئة']??r['category']??'', price=parseFloat(r['السعر']??r['price']??'');
+        if(!cat||!price||isNaN(price)){ skipped++; return; }
+        p.units.push({id:uid(),category:String(cat).trim(),price,
+          floor:String(r['الدور']??r['floor']??'').trim(),
+          view:String(r['الفيو']??r['view']??'').trim(),
+          location:String(r['الموقع']??r['location']??'').trim()});
+        added++;
+      });
+      saveProjects().then(()=>{ renderProjectDetail(); renderAdminProjectList(); refreshAreaOptions();
+        toast(`تم رفع ${added} وحدة${skipped?' (وتجاهل '+skipped+' صف ناقص)':''}`);
+      });
+    }catch(err){ toast('خطأ في قراءة الملف'); }
+    e.target.value='';
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+/* ---- event delegation ---- */
+document.addEventListener('click',e=>{
+  const el=e.target.closest('[data-act]'); if(!el) return;
+  const {act,project:projectId,unit:unitId,plan:planId,lead:leadId,idx}=el.dataset;
+  switch(act){
+    case 'open-project': openProjectDetail(projectId); break;
+    case 'delete-project': e.stopPropagation(); deleteProject(projectId); break;
+    case 'cancel-new-project': byId('new-project-form').innerHTML=''; break;
+    case 'add-unit': showUnitForm(null); break;
+    case 'edit-unit': showUnitForm(unitId); break;
+    case 'delete-unit': deleteUnit(unitId); break;
+    case 'cancel-unit-form': byId('unit-form').innerHTML=''; break;
+    case 'add-plan': showPlanForm(null); break;
+    case 'edit-plan': showPlanForm(planId); break;
+    case 'delete-plan': deletePlan(planId); break;
+    case 'cancel-plan-form': byId('plan-form').innerHTML=''; break;
+    case 'add-milestone': customMilestonesDraft.push({label:'',percent:0,months:0}); renderMilestonesList(); break;
+    case 'remove-milestone': customMilestonesDraft.splice(Number(idx),1); renderMilestonesList(); break;
+    case 'upload-excel': byId('excel-file-input').click(); break;
+    case 'download-template': downloadUnitsTemplate(); break;
+    case 'show-plans': showPlans(projectId,unitId,Number(el.dataset.down)||0); break;
+    case 'toggle-schedule': toggleSchedule(el,projectId,unitId,planId); break;
+    case 'export-pdf': e.stopPropagation(); exportQuotePDF(projectId,unitId,planId); break;
+    case 'cancel-lead-form': byId('new-lead-form').innerHTML=''; break;
+    case 'edit-lead': showLeadForm(leadId); byId('new-lead-form')?.scrollIntoView({behavior:'smooth'}); break;
+    case 'delete-lead': deleteLead(leadId); break;
+  }
+});
+
+document.addEventListener('change',e=>{
+  const el=e.target.closest('[data-act="change-status"]');
+  if(el) updateLeadStatus(el.dataset.lead,el.value);
+});
+
+/* ---- init ---- */
+initFirebase();
+</script>
+</body>
+</html>
