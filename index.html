@@ -9,8 +9,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
 <!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 
 <style>
   :root{
@@ -189,11 +187,14 @@
   <div class="panel" id="panel-leads">
     <div class="name-gate" id="name-gate">
       <div class="card">
-        <h3>مين حضرتك؟</h3>
-        <p class="helpline">اكتب اسمك مرة واحدة، وهتشوف بيها عملاءك بس.</p>
-        <label>اسمك</label>
-        <input id="sales-name-input" placeholder="مثلاً: أحمد محمد">
+        <h3>تسجيل دخول</h3>
+        <p class="helpline">ادخل بيانات حسابك اللي أنشأه الأدمن.</p>
+        <label>اسم المستخدم</label>
+        <input id="sales-name-input" placeholder="اسمك">
+        <label style="margin-top:10px;">كلمة المرور</label>
+        <input id="sales-pass-input" type="password" placeholder="********">
         <div style="margin-top:12px;"><button class="btn gold" id="btn-set-name">دخول</button></div>
+        <p class="helpline" id="sales-login-error" style="color:var(--bad);margin-top:8px;"></p>
       </div>
     </div>
     <div id="leads-area" style="display:none;">
@@ -237,6 +238,15 @@
 
       <div class="card" style="margin-top:20px;">
         <div class="row" style="justify-content:space-between;margin-bottom:10px;">
+          <h3 style="margin:0;">👥 مستخدمي السيلز (<span id="sales-users-count">0</span>)</h3>
+          <button class="btn gold small" id="btn-add-sales-user">+ إضافة مستخدم</button>
+        </div>
+        <div id="add-sales-user-form"></div>
+        <div id="sales-users-list" style="margin-top:10px;"></div>
+      </div>
+
+      <div class="card" style="margin-top:20px;">
+        <div class="row" style="justify-content:space-between;margin-bottom:10px;">
           <h3 style="margin:0;">كل العملاء (<span id="all-leads-count">0</span>)</h3>
         </div>
         <div class="grid cols-2">
@@ -257,7 +267,11 @@
 
 <div id="print-area"></div>
 
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
 <script>
+window.addEventListener("load", function(){
 /* ============================================================
    🔥 FIREBASE CONFIG — ضع config بتاعك هنا بعد إعداد Firebase
    ============================================================ */
@@ -278,6 +292,7 @@ const FREQ_PER_YEAR = {monthly:12,quarterly:4,semiannual:2,annual:1};
 
 let projects = [];
 let leads = [];
+let salesUsers = [];
 let adminUnlocked = false;
 let activeProjectId = null;
 let customMilestonesDraft = [];
@@ -332,12 +347,14 @@ async function initFirebase(){
 /* ---- Storage: Firebase ---- */
 async function loadAll(){
   try{
-    const [pDoc, lDoc] = await Promise.all([
+    const [pDoc, lDoc, uDoc] = await Promise.all([
       db.collection('appdata').doc('projects').get(),
-      db.collection('appdata').doc('leads').get()
+      db.collection('appdata').doc('leads').get(),
+      db.collection('appdata').doc('salesusers').get()
     ]);
-    projects = pDoc.exists ? (pDoc.data().list || []) : [];
-    leads    = lDoc.exists ? (lDoc.data().list || []) : [];
+    projects   = pDoc.exists ? (pDoc.data().list || []) : [];
+    leads      = lDoc.exists ? (lDoc.data().list || []) : [];
+    salesUsers = uDoc.exists ? (uDoc.data().list || []) : [];
     refreshAreaOptions();
   }catch(e){
     toast('تعذّر تحميل البيانات، تحقق من اتصالك');
@@ -362,10 +379,20 @@ async function saveLeads(){
   }
 }
 
+async function saveSalesUsers(){
+  if(firebaseReady){
+    try{ await db.collection('appdata').doc('salesusers').set({list: salesUsers}); }
+    catch(e){ toast('خطأ في حفظ المستخدمين'); }
+  } else {
+    localStorage.setItem('ycrm_salesusers', JSON.stringify(salesUsers));
+  }
+}
+
 /* ---- localStorage fallback (during setup) ---- */
 function loadFromLocalStorage(){
-  try{ projects = JSON.parse(localStorage.getItem('ycrm_projects')||'[]'); }catch(e){ projects=[]; }
-  try{ leads    = JSON.parse(localStorage.getItem('ycrm_leads')||'[]'); }catch(e){ leads=[]; }
+  try{ projects    = JSON.parse(localStorage.getItem('ycrm_projects')||'[]'); }catch(e){ projects=[]; }
+  try{ leads       = JSON.parse(localStorage.getItem('ycrm_leads')||'[]'); }catch(e){ leads=[]; }
+  try{ salesUsers  = JSON.parse(localStorage.getItem('ycrm_salesusers')||'[]'); }catch(e){ salesUsers=[]; }
   refreshAreaOptions();
 }
 
@@ -390,10 +417,20 @@ function updateSalesPill(){
   } else { pill.style.display='none'; pill.innerHTML=''; }
 }
 
-byId('btn-set-name').addEventListener('click',()=>{
-  const v=byId('sales-name-input').value.trim();
-  if(!v){ toast('اكتب اسمك'); return; }
-  currentSalesName=v; updateSalesPill(); renderLeadsPanel();
+byId('btn-set-name').addEventListener('click', async ()=>{
+  const name = byId('sales-name-input').value.trim();
+  const pass = byId('sales-pass-input').value.trim();
+  if(!name||!pass){ toast('اكتب اسمك وكلمة المرور'); return; }
+  byId('sales-login-error').textContent = '';
+  // find user in salesUsers list
+  const user = salesUsers.find(u => u.name === name && u.password === pass);
+  if(!user){
+    byId('sales-login-error').textContent = 'اسم المستخدم أو كلمة المرور غلط';
+    return;
+  }
+  currentSalesName = name;
+  updateSalesPill();
+  renderLeadsPanel();
 });
 
 function renderLeadsPanel(){
@@ -411,7 +448,8 @@ byId('btn-unlock').addEventListener('click',()=>{
     adminUnlocked=true;
     byId('admin-lock').style.display='none';
     byId('admin-area').style.display='block';
-    renderAdminProjectList(); renderProjectDetail(); renderAdminLeadsList();
+    renderAdminProjectList(); renderProjectDetail(); renderAdminLeadsList(); renderSalesUsersList();
+    byId('btn-add-sales-user').addEventListener('click', showAddSalesUserForm);
   } else { byId('lock-error').textContent='كلمة المرور غلط'; }
 });
 
@@ -626,6 +664,62 @@ function renderMyLeadsList(){
   const mine=leads.filter(l=>l.salesName===currentSalesName).sort((a,b)=>b.updatedAt-a.updatedAt);
   byId('lead-count').textContent=mine.length;
   byId('leads-list').innerHTML=mine.length?mine.map(l=>leadCardHtml(l,false)).join(''):`<div class="empty">لسه مفيش عملاء مسجلين باسمك.</div>`;
+}
+
+/* ---- sales users management ---- */
+function renderSalesUsersList(){
+  const list = salesUsers;
+  byId('sales-users-count').textContent = list.length;
+  const el = byId('sales-users-list');
+  if(!list.length){
+    el.innerHTML = `<p class="helpline">لسه مفيش مستخدمين. دوس "+ إضافة مستخدم".</p>`;
+    return;
+  }
+  el.innerHTML = list.map(u => `
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:8px;margin-bottom:6px;background:#fff;">
+      <div>
+        <strong>${esc(u.name)}</strong>
+        <span class="helpline" style="margin-right:10px;">كلمة المرور: ${esc(u.password)}</span>
+      </div>
+      <button class="btn danger small" data-act="delete-sales-user" data-uid="${u.id}">حذف</button>
+    </div>
+  `).join('');
+}
+
+function showAddSalesUserForm(){
+  byId('add-sales-user-form').innerHTML = `
+    <div class="inline-form">
+      <div class="grid cols-2">
+        <div><label>اسم المستخدم</label><input id="su-name" placeholder="مثلاً: أحمد محمد"></div>
+        <div><label>كلمة المرور</label><input id="su-pass" placeholder="اكتب كلمة مرور"></div>
+      </div>
+      <div style="margin-top:10px;">
+        <button class="btn gold small" id="btn-save-sales-user">حفظ المستخدم</button>
+        <button class="btn ghost small" data-act="cancel-sales-user-form">إلغاء</button>
+      </div>
+    </div>
+  `;
+  byId('btn-save-sales-user').addEventListener('click', saveSalesUser);
+}
+
+async function saveSalesUser(){
+  const name = byId('su-name').value.trim();
+  const password = byId('su-pass').value.trim();
+  if(!name || !password){ toast('اكتب الاسم وكلمة المرور'); return; }
+  if(salesUsers.find(u => u.name === name)){ toast('الاسم ده موجود بالفعل، اختار اسم تاني'); return; }
+  salesUsers.push({ id: uid(), name, password, createdAt: Date.now() });
+  await saveSalesUsers();
+  byId('add-sales-user-form').innerHTML = '';
+  renderSalesUsersList();
+  toast('تم إضافة المستخدم');
+}
+
+async function deleteSalesUser(userId){
+  if(!confirm('متأكد عايز تمسح المستخدم ده؟')) return;
+  salesUsers = salesUsers.filter(u => u.id !== userId);
+  await saveSalesUsers();
+  renderSalesUsersList();
+  toast('تم الحذف');
 }
 
 function renderAdminLeadsList(){
@@ -932,6 +1026,8 @@ document.addEventListener('click',e=>{
     case 'cancel-lead-form': byId('new-lead-form').innerHTML=''; break;
     case 'edit-lead': showLeadForm(leadId); byId('new-lead-form')?.scrollIntoView({behavior:'smooth'}); break;
     case 'delete-lead': deleteLead(leadId); break;
+    case 'delete-sales-user': deleteSalesUser(el.dataset.uid); break;
+    case 'cancel-sales-user-form': byId('add-sales-user-form').innerHTML=''; break;
   }
 });
 
@@ -941,7 +1037,10 @@ document.addEventListener('change',e=>{
 });
 
 /* ---- init ---- */
+// Firebase loaded above - safe to call directly
 initFirebase();
+}); // end window.onload
 </script>
+
 </body>
 </html>
