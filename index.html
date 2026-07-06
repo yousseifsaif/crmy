@@ -67,7 +67,35 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent);
 .btn.green{background:var(--good);color:#fff;}
 .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
 
-/* ---- search results ---- */
+/* ---- project listing cards ---- */
+#search-results{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:18px;align-items:start;margin-top:14px;}
+.proj-listing-card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-sm);overflow:hidden;transition:.15s;}
+.proj-listing-card:hover{box-shadow:var(--shadow-md);}
+.proj-img-wrap{position:relative;height:190px;background:var(--primary-soft);overflow:hidden;}
+.proj-img{width:100%;height:100%;object-fit:cover;display:block;}
+.proj-img-placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:48px;color:var(--line);}
+.proj-type-tag{position:absolute;top:10px;right:10px;background:var(--accent);color:var(--primary);font-size:11px;font-weight:800;padding:3px 10px;border-radius:999px;font-family:'Cairo',sans-serif;}
+.proj-listing-body{padding:14px 16px;}
+.proj-listing-title{font-family:'Cairo',sans-serif;font-weight:800;font-size:17px;color:var(--primary);margin-bottom:4px;}
+.proj-listing-dev{font-size:12.5px;color:var(--muted);margin-bottom:2px;}
+.proj-listing-loc{font-size:12.5px;color:var(--muted);margin-bottom:6px;}
+.proj-listing-desc{font-size:12.5px;color:var(--ink);line-height:1.6;margin-bottom:8px;border-right:3px solid var(--accent-soft);padding-right:8px;}
+.proj-listing-stats{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:10px;}
+.proj-stat{background:var(--primary-soft);color:var(--primary-2);font-size:11.5px;font-weight:700;padding:4px 10px;border-radius:6px;font-family:'Cairo',sans-serif;}
+.proj-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;}
+.units-dropdown{background:var(--bg);border-top:1px solid var(--line);padding:10px 14px;display:none;}
+
+/* ---- search results (old small cards - keep for compatibility) ---- */
+.proj-card{border:1px solid var(--line);border-radius:var(--radius);background:#fff;box-shadow:var(--shadow-sm);overflow:hidden;}
+.proj-card-head{background:var(--primary-soft);padding:12px 14px;border-bottom:1px solid var(--line);}
+.proj-title{font-family:'Cairo',sans-serif;font-weight:800;font-size:15px;color:var(--primary);}
+.tag{display:inline-block;background:var(--accent-soft);color:#7A521E;font-size:11px;padding:2px 9px;border-radius:999px;font-weight:700;margin-top:5px;}
+.unit-row{padding:10px 14px;border-top:1px solid var(--line);}
+.price{font-weight:800;color:var(--primary);font-family:'Cairo',sans-serif;}
+.plan-pill{border:1px solid var(--line);border-radius:8px;padding:9px 11px;margin-top:7px;cursor:pointer;transition:.15s;background:#FCFBF7;}
+.plan-pill:hover{border-color:var(--accent);}
+.plan-pill.afford{border-right:4px solid var(--good);}
+.plan-pill.noafford{border-right:4px solid var(--bad);opacity:.8;}
 #search-results{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px;align-items:start;margin-top:14px;}
 .proj-card{border:1px solid var(--line);border-radius:var(--radius);background:#fff;box-shadow:var(--shadow-sm);overflow:hidden;}
 .proj-card-head{background:var(--primary-soft);padding:12px 14px;border-bottom:1px solid var(--line);}
@@ -234,7 +262,12 @@ table th{background:var(--primary-soft);font-family:'Cairo',sans-serif;color:var
   <div id="pipeline-area" style="display:none;">
     <div class="row" style="justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
       <div class="row"><h3 style="margin:0;font-family:'Cairo',sans-serif;">Pipeline</h3></div>
-      <button class="btn gold sm" data-act="new-lead-btn">+ عميل جديد</button>
+      <div class="row">
+        <button class="btn ghost sm" data-act="upload-my-leads-excel">⬆ رفع عملاء من إكسيل</button>
+        <button class="btn ghost sm" data-act="download-leads-template">⬇ نموذج</button>
+        <input type="file" id="my-leads-excel-input" accept=".xlsx,.xls,.csv" style="display:none;">
+        <button class="btn gold sm" data-act="new-lead-btn">+ عميل جديد</button>
+      </div>
     </div>
     <div class="kanban-wrap"><div class="kanban-board" id="kanban-board"></div></div>
   </div>
@@ -399,7 +432,7 @@ const FIREBASE_CONFIG = {
 const ADMIN_PASSWORD = "seatibiza2001";
 const LEAD_STATUSES = ["جديد","تواصل أول","مهتم","حجز","اعتذر"];
 const VISIT_STATUSES = ["تمت","لم تتم","تأجلت","العميل لم يحضر"];
-const SOURCE_COLORS = {PersonalClient:"#25D366",Campin:"#25D366",Property:"#25D366",Facebook:"#1877F2",Instagram:"#E1306C",Call:"#2F7D5C",};
+const SOURCE_COLORS = {WhatsApp:"#25D366",Facebook:"#1877F2",Instagram:"#E1306C",Call:"#2F7D5C",Referral:"#C8893D","Walk-in":"#6B7280"};
 const FREQ_LABELS = {monthly:"شهري",quarterly:"كل 3 شهور",semiannual:"كل 6 شهور",annual:"سنوي"};
 const FREQ_PER_YEAR = {monthly:12,quarterly:4,semiannual:2,annual:1};
 const COL_BG = {"جديد":"var(--primary-soft)","تواصل أول":"#EAE3D2","مهتم":"var(--accent-soft)","حجز":"#DCEFE4","اعتذر":"#F4DFD8"};
@@ -832,8 +865,14 @@ function runSearch(){
   const box=byId('search-results');
   if(!matched.length){box.innerHTML=`<div class="empty" style="grid-column:1/-1;">مفيش مشاريع متطابقة.</div>`;return;}
   box.innerHTML=matched.map(p=>{
-    const units=(p._units||[]).map(u=>`
-      <div class="unit-row">
+    const allUnits=p._units||[];
+    const prices=allUnits.map(u=>u.price).filter(Boolean);
+    const minP=prices.length?Math.min(...prices):null, maxP=prices.length?Math.max(...prices):null;
+    const imgHtml=p.image
+      ?`<img src="${p.image}" class="proj-img" alt="${esc(p.name)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="proj-img-placeholder" style="display:none;">🏢</div>`
+      :`<div class="proj-img-placeholder">🏢</div>`;
+    const unitRows=allUnits.map(u=>`
+      <div class="unit-row" style="padding:10px 14px;">
         <div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;">
           <div><div style="font-weight:700;">${esc(u.category)}</div>
           <div class="helpline">الدور: ${esc(u.floor)||'-'} | الفيو: ${esc(u.view)||'-'} | الموقع: ${esc(u.location)||'-'}</div></div>
@@ -841,14 +880,33 @@ function runSearch(){
         </div>
         <button class="btn ghost sm" style="margin-top:7px;" data-act="show-plans" data-project="${p.id}" data-unit="${u.id}" data-down="${down}">أنظمة السداد</button>
         <div data-plans-for="${p.id}-${u.id}"></div>
-      </div>`).join('')||'<div class="helpline" style="padding:10px;">لا توجد وحدات.</div>';
-    return `<div class="proj-card">
-      <div class="proj-card-head">
-        <div class="proj-title">${esc(p.name)}</div>
-        <div class="helpline">${esc(p.area)}${p.developer?' | '+esc(p.developer):''}</div>
-        ${p.type?`<span class="tag">${esc(p.type)}</span>`:''}
-      </div>${units}</div>`;
+      </div>`).join('')||'<div class="helpline" style="padding:12px;">لا توجد وحدات مدخلة.</div>';
+    return `<div class="proj-listing-card">
+      <div class="proj-img-wrap">${imgHtml}${p.type?`<span class="proj-type-tag">${esc(p.type)}</span>`:''}</div>
+      <div class="proj-listing-body">
+        <div class="proj-listing-title">${esc(p.name)}</div>
+        ${p.developer?`<div class="proj-listing-dev">🏗 ${esc(p.developer)}</div>`:''}
+        ${(p.location||p.area)?`<div class="proj-listing-loc">📍 ${esc(p.location||p.area)}</div>`:''}
+        ${p.description?`<div class="proj-listing-desc">${esc(p.description.slice(0,140))}${p.description.length>140?'...':''}</div>`:''}
+        <div class="proj-listing-stats">
+          <span class="proj-stat">${allUnits.length} وحدة متاحة</span>
+          ${minP?`<span class="proj-stat">يبدأ من ${money(minP)}</span>`:''}
+          ${(maxP&&maxP!==minP)?`<span class="proj-stat">حتى ${money(maxP)}</span>`:''}
+        </div>
+        <div class="proj-actions">
+          ${p.locationUrl?`<a href="${esc(p.locationUrl)}" target="_blank" class="btn ghost sm">🗺 الخريطة</a>`:''}
+          <button class="btn gold sm" data-act="toggle-units" data-project="${p.id}" style="flex:1;">عرض الوحدات والأسعار (${allUnits.length})</button>
+        </div>
+      </div>
+      <div class="units-dropdown" id="units-for-${p.id}">${unitRows}</div>
+    </div>`;
   }).join('');
+}
+
+function toggleUnits(projectId){
+  const el=byId('units-for-'+projectId);
+  if(!el)return;
+  el.style.display=el.style.display==='block'?'none':'block';
 }
 
 function showPlans(projectId,unitId,down){
@@ -924,19 +982,43 @@ byId('btn-new-project').addEventListener('click',()=>{
       <div><label>المنطقة</label><input id="np-area" value="حدائق أكتوبر"></div>
       <div><label>المطور</label><input id="np-dev"></div>
       <div><label>النوع</label><select id="np-type"><option>كمبوند</option><option>عمارات</option><option>فيلات</option><option>تجاري</option></select></div>
+      <div><label>الموقع (مثلاً: المحور، حدائق أكتوبر)</label><input id="np-location" placeholder="الموقع التفصيلي"></div>
+      <div><label>لينك الموقع على الخريطة (اختياري)</label><input id="np-location-url" placeholder="https://maps.google.com/..."></div>
     </div>
-    <div class="row" style="margin-top:8px;">
+    <div style="margin-top:8px;"><label>وصف المشروع (اختياري)</label><textarea id="np-desc" placeholder="تفاصيل المشروع، المميزات، الخدمات..." style="min-height:60px;"></textarea></div>
+    <div style="margin-top:8px;"><label>صورة المشروع (اختياري)</label>
+      <input type="file" id="np-image-file" accept="image/*" style="margin-bottom:4px;">
+      <div id="np-image-preview" style="margin-top:6px;"></div>
+    </div>
+    <div class="row" style="margin-top:10px;">
       <button class="btn gold sm" id="btn-save-new-project">حفظ</button>
       <button class="btn ghost sm" data-act="cancel-new-project">إلغاء</button>
     </div>
   </div>`;
+  byId('np-image-file').addEventListener('change', async (e)=>{
+    const file=e.target.files[0]; if(!file)return;
+    const compressed = await compressImage(file,500,0.65);
+    byId('np-image-preview').innerHTML=`<img src="${compressed}" style="max-width:100%;max-height:120px;border-radius:6px;object-fit:cover;">`;
+    byId('np-image-preview').dataset.b64=compressed;
+  });
   byId('btn-save-new-project').addEventListener('click',addProject);
 });
 byId('proj-filter').addEventListener('input',renderAdminProjectList);
 
 async function addProject(){
   const name=byId('np-name').value.trim(); if(!name){toast('اكتب اسم المشروع');return;}
-  const np={id:uid(),name,area:byId('np-area').value.trim(),developer:byId('np-dev').value.trim(),type:byId('np-type').value,units:[],plans:[]};
+  const imgEl=byId('np-image-preview');
+  const np={
+    id:uid(),name,
+    area:byId('np-area').value.trim(),
+    developer:byId('np-dev').value.trim(),
+    type:byId('np-type').value,
+    location:byId('np-location').value.trim(),
+    locationUrl:byId('np-location-url').value.trim(),
+    description:byId('np-desc').value.trim(),
+    image: imgEl?.dataset?.b64||null,
+    units:[],plans:[]
+  };
   projects.push(np); await saveProjects();
   byId('new-project-form').innerHTML=''; activeProjectId=np.id;
   renderAdminProjectList(); refreshAreaOptions(); renderProjectDetail();
@@ -967,7 +1049,23 @@ function renderProjectDetail(){
   const p=projects.find(x=>x.id===activeProjectId),box=byId('project-detail');
   if(!p){box.innerHTML=`<div class="card"><div class="empty">دوس على مشروع من القائمة.</div></div>`;return;}
   box.innerHTML=`<div class="card">
-    <h3><span class="current-badge">مفتوح</span> ${esc(p.name)}</h3>
+    <div style="display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap;margin-bottom:14px;">
+      <div style="flex:1;min-width:200px;">
+        <h3 style="margin:0 0 6px;"><span class="current-badge">مفتوح</span> ${esc(p.name)}</h3>
+        ${p.developer?`<div class="helpline">🏗 ${esc(p.developer)}</div>`:''}
+        ${p.location?`<div class="helpline">📍 ${esc(p.location)}</div>`:''}
+        ${p.locationUrl?`<a href="${esc(p.locationUrl)}" target="_blank" class="btn ghost sm" style="margin-top:6px;">🗺 الموقع على الخريطة</a>`:''}
+        ${p.description?`<div style="font-size:12.5px;color:var(--ink);margin-top:8px;line-height:1.7;background:var(--bg);padding:8px;border-radius:6px;">${esc(p.description)}</div>`:''}
+      </div>
+      ${p.image?`<div style="flex:0 0 160px;"><img src="${p.image}" style="width:160px;height:110px;object-fit:cover;border-radius:8px;border:1px solid var(--line);"><br>
+        <label style="margin-top:6px;cursor:pointer;"><input type="file" id="proj-img-update" accept="image/*" style="display:none;">
+        <span class="btn ghost sm" style="display:inline-block;margin-top:4px;">تغيير الصورة</span></label></div>`
+      :`<div style="flex:0 0 160px;">
+        <label style="cursor:pointer;display:block;width:160px;height:110px;background:var(--bg);border:2px dashed var(--line);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;">
+          <input type="file" id="proj-img-update" accept="image/*" style="display:none;">
+          <span style="font-size:24px;">📷</span><span class="helpline">إضافة صورة</span>
+        </label></div>`}
+    </div>
     <div class="section-title">الوحدات (${(p.units||[]).length})</div>
     <div id="units-table"></div>
     <div class="row" style="margin-top:7px;">
@@ -985,6 +1083,14 @@ function renderProjectDetail(){
   </div>`;
   renderUnitsTable(p); renderPlansTable(p);
   byId('excel-file-input').addEventListener('change',handleExcelUpload);
+  const imgUpd = byId('proj-img-update');
+  if(imgUpd){
+    imgUpd.addEventListener('change', async (e)=>{
+      const file=e.target.files[0]; if(!file)return;
+      const compressed = await compressImage(file,500,0.65);
+      p.image=compressed; await saveProjects(); renderProjectDetail(); toast('تم تحديث الصورة');
+    });
+  }
 }
 function renderUnitsTable(p){
   const el=byId('units-table');
@@ -1267,6 +1373,15 @@ document.addEventListener('click',e=>{
     case 'delete-sales-user': deleteSalesUser(uid2); break;
     case 'cancel-su-form': byId('add-sales-user-form').innerHTML=''; break;
     case 'cal-day-click': calDayClick(date); break;
+    case 'toggle-units': toggleUnits(projectId); break;
+    case 'upload-my-leads-excel':
+      const mli=byId('my-leads-excel-input');
+      if(mli){
+        mli.onchange=null;
+        mli.addEventListener('change',handleMyLeadsExcelUpload,{once:true});
+        mli.click();
+      }
+      break;
   }
 });
 
@@ -1274,6 +1389,59 @@ document.addEventListener('change',e=>{
   const el=e.target.closest('[data-act]');if(!el)return;
   if(el.dataset.act==='change-visit-status') changeVisitStatus(currentModalLeadId,el.dataset.vid,el.value);
 });
+
+/* ---- MY LEADS EXCEL IMPORT (for sales users) ---- */
+function handleMyLeadsExcelUpload(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=function(evt){
+    let added=0,skipped=0;
+    try{
+      const wb=XLSX.read(new Uint8Array(evt.target.result),{type:'array'});
+      const rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:''});
+      rows.forEach(r=>{
+        const name=String(r['اسم العميل']??r['name']??'').trim(),phone=String(r['رقم التليفون']??r['phone']??'').trim();
+        if(!name||!phone){skipped++;return;}
+        const projName=String(r['اسم المشروع']??'').trim();
+        const proj=projName?projects.find(p=>p.name===projName):null;
+        const rawStatus=String(r['حالة المتابعة']??'').trim();
+        leads.push({id:uid(),name,phone,
+          nationalId:String(r['الرقم القومي']??'').trim(),
+          email:String(r['البريد الإلكتروني']??'').trim(),
+          source:String(r['مصدر العميل']??'').trim(),
+          projectId:proj?proj.id:null,
+          unitNote:String(r['الوحدة/الفئة']??'').trim(),
+          status:LEAD_STATUSES.includes(rawStatus)?rawStatus:'جديد',
+          notes:String(r['ملاحظات']??'').trim(),
+          salesName:currentSalesName,
+          rating:0,visits:[],createdAt:Date.now(),updatedAt:Date.now()});
+        added++;
+      });
+      saveLeads().then(()=>{renderKanban();toast(`تم رفع ${added} عميل${skipped?' (تجاهل '+skipped+')':''}`)});
+    }catch(err){toast('خطأ في قراءة الملف');}
+    e.target.value='';
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+/* ---- COMPRESS IMAGE ---- */
+function compressImage(file, maxW=500, quality=0.65){
+  return new Promise(resolve=>{
+    const img=new Image(), reader=new FileReader();
+    reader.onload=e=>{
+      img.onload=()=>{
+        const canvas=document.createElement('canvas');
+        let w=img.width, h=img.height;
+        if(w>maxW){h=Math.round(h*maxW/w);w=maxW;}
+        canvas.width=w; canvas.height=h;
+        canvas.getContext('2d').drawImage(img,0,0,w,h);
+        resolve(canvas.toDataURL('image/jpeg',quality));
+      };
+      img.src=e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
 
 /* ---- INIT ---- */
 initFirebase();
