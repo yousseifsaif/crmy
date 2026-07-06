@@ -200,6 +200,36 @@ table th{background:var(--primary-soft);font-family:'Cairo',sans-serif;color:var
 @keyframes spin{to{transform:rotate(360deg)}}
 #setup-banner{background:#2C1B0E;color:#F1DFB9;padding:12px 18px;font-size:13px;text-align:center;display:none;}
 #setup-banner a{color:var(--accent);font-weight:700;cursor:pointer;}
+/* ===== RESPONSIVE ===== */
+@media(max-width:900px){
+  .admin-layout{grid-template-columns:1fr;}
+  .admin-side{position:static;}
+}
+@media(max-width:700px){
+  .topbar{padding:10px 14px;gap:8px;}
+  .brand{font-size:16px;}
+  .tabs{gap:3px;padding:3px;}
+  .tabbtn{padding:6px 10px;font-size:12px;}
+  .wrap{padding:14px 10px 50px;}
+  .grid.g4{grid-template-columns:repeat(2,1fr);}
+  .grid.g3{grid-template-columns:repeat(2,1fr);}
+  #search-results{grid-template-columns:1fr;}
+  .proj-img-wrap{height:160px;}
+  .kanban-board{gap:10px;}
+  .kanban-col{flex:0 0 210px;}
+  .modal-overlay{padding:0;align-items:flex-end;}
+  .modal-box{border-radius:14px 14px 0 0;max-height:92vh;overflow-y:auto;}
+  .cal-grid{gap:2px;}
+  .cal-day{min-height:42px;}
+}
+@media(max-width:420px){
+  .tabbtn{padding:5px 7px;font-size:11px;}
+  .kanban-col{flex:0 0 185px;}
+  .grid.g4{grid-template-columns:1fr;}
+  .modal-box{max-height:96vh;}
+  .btn{padding:8px 14px;font-size:12.5px;}
+  .btn.sm{padding:5px 9px;font-size:11.5px;}
+}
 #print-area{display:none;}
 @media print{body *{visibility:hidden;}#print-area,#print-area *{visibility:visible;}#print-area{display:block;position:absolute;top:0;right:0;left:0;padding:30px;}}
 .quote-paper{font-family:'Tajawal',sans-serif;}
@@ -642,7 +672,7 @@ function openLeadModal(leadId, defaultStatus){
   modalRating = lead?.rating||0;
 
   byId('modal-title').textContent = lead ? `${lead.name}` : 'عميل جديد';
-  byId('btn-delete-lead').style.display = lead ? 'inline-flex' : 'none';
+  byId('btn-delete-lead').style.display = (lead && adminUnlocked) ? 'inline-flex' : 'none';
 
   byId('ld-name').value   = lead?.name||'';
   byId('ld-phone').value  = lead?.phone||'';
@@ -945,15 +975,44 @@ function buildScheduleTable(price,plan){
 }
 function exportQuotePDF(projectId,unitId,planId){
   const p=projects.find(x=>x.id===projectId),u=p.units.find(x=>x.id===unitId),plan=p.plans.find(x=>x.id===planId);
+  const salesUser=salesUsers.find(s=>s.name===currentSalesName)||null;
+  const downAmt=u.price*(plan.downPaymentPercent/100);
+  const remaining=u.price-downAmt;
+  let monthlyInstallment=null;
+  if(plan.type==='equal'){
+    const perY=FREQ_PER_YEAR[plan.frequency]||12;
+    const cnt=Math.max(1,Math.round((plan.years||1)*perY));
+    monthlyInstallment=remaining/cnt;
+  }
   byId('print-area').innerHTML=`<div class="quote-paper">
-    <div class="quote-head"><h1>عرض سعر</h1><p>${esc(p.name)} — ${esc(p.area)}</p><p class="helpline">${new Date().toLocaleDateString('ar-EG')}</p></div>
+    ${p.image?`<img src="${p.image}" style="width:100%;max-height:200px;object-fit:cover;border-radius:8px;margin-bottom:14px;">` : ''}
+    <div class="quote-head">
+      <h1>عرض سعر</h1>
+      <p style="font-size:18px;font-weight:700;">${esc(p.name)}</p>
+      <p>${esc(p.area)}${p.location?' — '+esc(p.location):''}</p>
+      <p class="helpline">تاريخ العرض: ${new Date().toLocaleDateString('ar-EG')}</p>
+    </div>
     <table class="quote-table">
-      <tr><th>الوحدة</th><td>${esc(u.category)}</td></tr>
-      <tr><th>الدور</th><td>${esc(u.floor)||'-'}</td></tr>
-      <tr><th>الفيو</th><td>${esc(u.view)||'-'}</td></tr>
-      <tr><th>سعر الوحدة</th><td>${money(u.price)}</td></tr>
+      <tr><th>الوحدة</th><td><strong>${esc(u.category)}</strong></td></tr>
+      ${u.floor?`<tr><th>الدور</th><td>${esc(u.floor)}</td></tr>`:''}
+      ${u.view?`<tr><th>الفيو</th><td>${esc(u.view)}</td></tr>`:''}
+      ${u.location?`<tr><th>الموقع</th><td>${esc(u.location)}</td></tr>`:''}
+      ${u.area?`<tr><th>المساحة</th><td>${u.area} م²</td></tr>`:''}
+      ${u.pricePerMeter?`<tr><th>سعر المتر</th><td>${money(u.pricePerMeter)}</td></tr>`:''}
+      <tr><th>سعر الوحدة</th><td><strong style="font-size:16px;">${money(u.price)}</strong></td></tr>
       <tr><th>نظام السداد</th><td>${esc(plan.name)}</td></tr>
-    </table>${buildScheduleTable(u.price,plan)}
+      <tr><th>المقدم (${plan.downPaymentPercent}%)</th><td><strong>${money(downAmt)}</strong></td></tr>
+      ${plan.maintenanceFeePercent?`<tr><th>رسوم الصيانة (${plan.maintenanceFeePercent}%)</th><td>${money(u.price*plan.maintenanceFeePercent/100)}</td></tr>`:''}
+      ${monthlyInstallment?`<tr style="background:#E4ECE9;"><th>القسط ${FREQ_LABELS[plan.frequency]||''}</th><td><strong style="font-size:15px;color:var(--good);">${money(monthlyInstallment)}</strong></td></tr>`:''}
+      ${plan.deliveryYears?`<tr><th>التسليم</th><td>بعد ${plan.deliveryYears} سنة</td></tr>`:''}
+    </table>
+    ${buildScheduleTable(u.price,plan)}
+    ${salesUser?`<div style="margin-top:20px;padding:12px;background:#F6F2E9;border-radius:8px;border-right:4px solid var(--accent);">
+      <div style="font-family:'Cairo',sans-serif;font-weight:800;font-size:14px;margin-bottom:6px;">بيانات مندوب المبيعات</div>
+      <div>الاسم: <strong>${esc(salesUser.name)}</strong></div>
+      ${salesUser.phone?`<div>التليفون: <strong>${esc(salesUser.phone)}</strong></div>`:''}
+      ${salesUser.email?`<div>البريد: <strong>${esc(salesUser.email)}</strong></div>`:''}
+    </div>`:''}
     <p class="quote-foot">هذا العرض غير ملزم وقابل للتغيير حسب توفر الوحدة وسياسة المطور وقت الحجز.</p>
   </div>`; window.print();
 }
@@ -1004,6 +1063,60 @@ byId('btn-new-project').addEventListener('click',()=>{
   byId('btn-save-new-project').addEventListener('click',addProject);
 });
 byId('proj-filter').addEventListener('input',renderAdminProjectList);
+
+function editProject(){
+  const p=projects.find(x=>x.id===activeProjectId); if(!p)return;
+  const box=byId('project-detail');
+  const existingCard=box.querySelector('.card');
+  const editFormHtml=`<div class="inline-form" id="edit-proj-form">
+    <div class="grid g2">
+      <div><label>اسم المشروع</label><input id="ep-name" value="${p.name}"></div>
+      <div><label>المنطقة</label><input id="ep-area" value="${p.area||''}"></div>
+      <div><label>المطور</label><input id="ep-dev" value="${p.developer||''}"></div>
+      <div><label>النوع</label><select id="ep-type">
+        <option ${p.type==='كمبوند'?'selected':''}>كمبوند</option>
+        <option ${p.type==='عمارات'?'selected':''}>عمارات</option>
+        <option ${p.type==='فيلات'?'selected':''}>فيلات</option>
+        <option ${p.type==='تجاري'?'selected':''}>تجاري</option>
+      </select></div>
+      <div><label>الموقع التفصيلي</label><input id="ep-location" value="${p.location||''}"></div>
+      <div><label>لينك الخريطة</label><input id="ep-location-url" value="${p.locationUrl||''}"></div>
+    </div>
+    <div style="margin-top:8px;"><label>وصف المشروع</label>
+      <textarea id="ep-desc" style="min-height:60px;">${p.description||''}</textarea></div>
+    <div style="margin-top:8px;"><label>تغيير صورة المشروع</label>
+      <input type="file" id="ep-image-file" accept="image/*">
+      ${p.image?`<img id="ep-img-preview" src="${p.image}" style="max-width:100%;max-height:100px;border-radius:6px;margin-top:6px;">`:'<div id="ep-img-preview"></div>'}
+    </div>
+    <div class="row" style="margin-top:10px;">
+      <button class="btn gold sm" id="btn-save-edit-proj">حفظ التعديلات</button>
+      <button class="btn ghost sm" data-act="cancel-edit-project">إلغاء</button>
+    </div>
+  </div>`;
+  const existing=byId('edit-proj-form');
+  if(existing){existing.remove();return;}
+  existingCard.insertAdjacentHTML('beforeend',editFormHtml);
+  byId('ep-image-file').addEventListener('change',async(e)=>{
+    const file=e.target.files[0];if(!file)return;
+    const compressed=await compressImage(file,500,0.65);
+    byId('ep-img-preview').src=compressed;
+    byId('ep-img-preview').dataset.b64=compressed;
+  });
+  byId('btn-save-edit-proj').addEventListener('click',async()=>{
+    p.name=byId('ep-name').value.trim()||p.name;
+    p.area=byId('ep-area').value.trim();
+    p.developer=byId('ep-dev').value.trim();
+    p.type=byId('ep-type').value;
+    p.location=byId('ep-location').value.trim();
+    p.locationUrl=byId('ep-location-url').value.trim();
+    p.description=byId('ep-desc').value.trim();
+    const imgPrev=byId('ep-img-preview');
+    if(imgPrev?.dataset?.b64) p.image=imgPrev.dataset.b64;
+    await saveProjects();
+    renderAdminProjectList();refreshAreaOptions();renderProjectDetail();
+    toast('تم حفظ التعديلات');
+  });
+}
 
 async function addProject(){
   const name=byId('np-name').value.trim(); if(!name){toast('اكتب اسم المشروع');return;}
@@ -1056,6 +1169,7 @@ function renderProjectDetail(){
         ${p.location?`<div class="helpline">📍 ${esc(p.location)}</div>`:''}
         ${p.locationUrl?`<a href="${esc(p.locationUrl)}" target="_blank" class="btn ghost sm" style="margin-top:6px;">🗺 الموقع على الخريطة</a>`:''}
         ${p.description?`<div style="font-size:12.5px;color:var(--ink);margin-top:8px;line-height:1.7;background:var(--bg);padding:8px;border-radius:6px;">${esc(p.description)}</div>`:''}
+        <button class="btn ghost sm" data-act="edit-project" style="margin-top:8px;">✏️ تعديل بيانات المشروع</button>
       </div>
       ${p.image?`<div style="flex:0 0 160px;"><img src="${p.image}" style="width:160px;height:110px;object-fit:cover;border-radius:8px;border:1px solid var(--line);"><br>
         <label style="margin-top:6px;cursor:pointer;"><input type="file" id="proj-img-update" accept="image/*" style="display:none;">
@@ -1095,10 +1209,14 @@ function renderProjectDetail(){
 function renderUnitsTable(p){
   const el=byId('units-table');
   if(!p.units?.length){el.innerHTML=`<p class="helpline">لا توجد وحدات.</p>`;return;}
-  el.innerHTML=`<table><tr><th>الفئة</th><th>الدور</th><th>الفيو</th><th>الموقع</th><th>السعر</th><th></th></tr>
-    ${p.units.map(u=>`<tr><td>${esc(u.category)}</td><td>${esc(u.floor)||'-'}</td><td>${esc(u.view)||'-'}</td><td>${esc(u.location)||'-'}</td><td>${money(u.price)}</td>
-    <td><button class="btn ghost sm" data-act="edit-unit" data-unit="${u.id}">تعديل</button>
-        <button class="btn danger sm" data-act="delete-unit" data-unit="${u.id}">حذف</button></td></tr>`).join('')}</table>`;
+  el.innerHTML=`<table><tr><th>الفئة</th><th>الدور</th><th>الفيو</th><th>الموقع</th><th>المساحة</th><th>سعر المتر</th><th>السعر</th><th></th></tr>
+    ${p.units.map(u=>`<tr>
+      <td>${esc(u.category)}</td><td>${esc(u.floor)||'-'}</td><td>${esc(u.view)||'-'}</td><td>${esc(u.location)||'-'}</td>
+      <td>${u.area?u.area+' م²':'-'}</td><td>${u.pricePerMeter?money(u.pricePerMeter)+'/م':'-'}</td>
+      <td>${money(u.price)}</td>
+      <td><button class="btn ghost sm" data-act="edit-unit" data-unit="${u.id}">تعديل</button>
+          <button class="btn danger sm" data-act="delete-unit" data-unit="${u.id}">حذف</button></td>
+    </tr>`).join('')}</table>`;
 }
 function showUnitForm(unitId){
   const p=projects.find(x=>x.id===activeProjectId),u=unitId?p.units.find(x=>x.id===unitId):null;
@@ -1109,7 +1227,14 @@ function showUnitForm(unitId){
       <div><label>الفيو</label><input id="u-view" value="${esc(u?.view||'')}"></div>
       <div><label>الموقع</label><input id="u-location" value="${esc(u?.location||'')}"></div>
     </div>
-    <div class="grid g2" style="margin-top:8px;"><div><label>السعر</label><input id="u-price" type="number" value="${u?.price||''}"></div></div>
+    <div class="grid g2" style="margin-top:8px;">
+      <div><label>السعر الإجمالي</label><input id="u-price" type="number" value="${u?.price||''}" placeholder="مثلاً 2500000"></div>
+      <div><label>المساحة م² (اختياري)</label><input id="u-area" type="number" value="${u?.area||''}" placeholder="مثلاً 150"></div>
+    </div>
+    <div class="grid g2" style="margin-top:8px;">
+      <div><label>سعر المتر (اختياري - أو احسبه تلقائياً)</label><input id="u-ppm" type="number" value="${u?.pricePerMeter||''}" placeholder="يُحسب تلقائياً لو دخلت المساحة"></div>
+    </div>
+    <p class="helpline" style="margin-top:4px;">لو دخلت السعر الإجمالي والمساحة، سعر المتر هيتحسب تلقائياً.</p>
     <div class="row" style="margin-top:8px;">
       <button class="btn gold sm" id="btn-save-unit">حفظ</button>
       <button class="btn ghost sm" data-act="cancel-unit-form">إلغاء</button>
@@ -1121,7 +1246,10 @@ async function saveUnit(unitId){
   const p=projects.find(x=>x.id===activeProjectId);
   const cat=byId('u-category').value.trim(),price=parseFloat(byId('u-price').value);
   if(!cat||!price){toast('اكتب الفئة والسعر');return;}
-  const data={category:cat,price,floor:byId('u-floor').value.trim(),view:byId('u-view').value.trim(),location:byId('u-location').value.trim()};
+  const area=parseFloat(byId('u-area').value)||null;
+  const manualPpm=parseFloat(byId('u-ppm').value)||null;
+  const pricePerMeter=manualPpm||(area?Math.round(price/area):null);
+  const data={category:cat,price,floor:byId('u-floor').value.trim(),view:byId('u-view').value.trim(),location:byId('u-location').value.trim(),area,pricePerMeter};
   if(unitId){Object.assign(p.units.find(x=>x.id===unitId),data);}
   else{p.units=p.units||[];p.units.push({id:uid(),...data});}
   await saveProjects(); byId('unit-form').innerHTML=''; renderProjectDetail(); renderAdminProjectList(); toast('تم الحفظ');
@@ -1219,8 +1347,13 @@ function renderSalesUsersList(){
   byId('sales-users-count').textContent=salesUsers.length;
   const el=byId('sales-users-list');
   if(!salesUsers.length){el.innerHTML=`<p class="helpline">لسه مفيش مستخدمين.</p>`;return;}
-  el.innerHTML=salesUsers.map(u=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 11px;border:1px solid var(--line);border-radius:8px;margin-bottom:6px;background:#fff;">
-    <div><strong>${esc(u.name)}</strong> <span class="helpline" style="margin-right:8px;">كلمة المرور: ${esc(u.password)}</span></div>
+  el.innerHTML=salesUsers.map(u=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 11px;border:1px solid var(--line);border-radius:8px;margin-bottom:6px;background:#fff;flex-wrap:wrap;gap:6px;">
+    <div>
+      <strong>${esc(u.name)}</strong>
+      ${u.phone?`<span class="helpline" style="margin-right:8px;">📱 ${esc(u.phone)}</span>`:''}
+      ${u.email?`<span class="helpline" style="margin-right:8px;">✉️ ${esc(u.email)}</span>`:''}
+      <span class="helpline" style="margin-right:8px;">🔑 ${esc(u.password)}</span>
+    </div>
     <button class="btn danger sm" data-act="delete-sales-user" data-uid="${u.id}">حذف</button>
   </div>`).join('');
 }
@@ -1229,6 +1362,8 @@ function showAddSalesUserForm(){
     <div class="grid g2">
       <div><label>اسم المستخدم</label><input id="su-name" placeholder="مثلاً: أحمد محمد"></div>
       <div><label>كلمة المرور</label><input id="su-pass" placeholder="كلمة مرور"></div>
+      <div><label>رقم الموبايل</label><input id="su-phone" placeholder="01xxxxxxxxx"></div>
+      <div><label>البريد الإلكتروني</label><input id="su-email" placeholder="example@mail.com"></div>
     </div>
     <div class="row" style="margin-top:8px;">
       <button class="btn gold sm" id="btn-save-su">حفظ المستخدم</button>
@@ -1241,7 +1376,7 @@ async function saveSalesUser(){
   const name=byId('su-name').value.trim(),pass=byId('su-pass').value.trim();
   if(!name||!pass){toast('اكتب الاسم وكلمة المرور');return;}
   if(salesUsers.find(u=>u.name===name)){toast('الاسم ده موجود بالفعل');return;}
-  salesUsers.push({id:uid(),name,password:pass,createdAt:Date.now()});
+  salesUsers.push({id:uid(),name,password:pass,phone:byId('su-phone').value.trim(),email:byId('su-email').value.trim(),createdAt:Date.now()});
   await saveSalesUsers(); byId('add-sales-user-form').innerHTML=''; renderSalesUsersList(); toast('تم إضافة المستخدم');
 }
 async function deleteSalesUser(userId){
@@ -1259,17 +1394,26 @@ function renderAdminLeadsList(){
   byId('all-leads-count').textContent=leads.length;
   byId('admin-leads-list').innerHTML=filtered.length?filtered.map(l=>{
     const proj=projects.find(p=>p.id===l.projectId);
+    const histHtml=(l.transferHistory||[]).map(h=>`<span style="font-size:10.5px;color:var(--muted);">نُقل من ${esc(h.from)} ← ${esc(h.to)} (${new Date(h.date).toLocaleDateString('ar-EG')})</span>`).join('<br>');
+    const salesOptions=salesUsers.map(u=>`<option value="${esc(u.name)}" ${u.name===l.salesName?'selected':''}>${esc(u.name)}</option>`).join('');
     return `<div class="card" style="margin-bottom:10px;padding:12px 14px;">
       <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;">
-        <div>
+        <div style="flex:1;">
           <div style="font-weight:700;font-family:'Cairo',sans-serif;">${esc(l.name)}</div>
           <div class="helpline">${esc(l.phone)}${l.email?' | '+esc(l.email):''}${proj?' | '+esc(proj.name):''}${l.unitNote?' | '+esc(l.unitNote):''}</div>
-          <div class="helpline">السيلز: ${esc(l.salesName)}${l.source?' | '+esc(l.source):''}${l.followUpDate?' | Follow Up: '+new Date(l.followUpDate).toLocaleDateString('ar-EG'):''}</div>
+          <div class="helpline">السيلز: <strong>${esc(l.salesName)}</strong>${l.source?' | '+esc(l.source):''}${l.followUpDate?' | Follow Up: '+new Date(l.followUpDate).toLocaleDateString('ar-EG'):''}</div>
+          ${histHtml?`<div style="margin-top:4px;">${histHtml}</div>`:''}
           ${l.notes?`<div class="helpline">📝 ${esc(l.notes)}</div>`:''}
         </div>
-        <div class="row">
+        <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;">
           ${starsHtml(l.rating||0,13)}
           <span class="status-badge ${statusClass(l.status)}">${esc(l.status)}</span>
+          <button class="btn ghost sm" data-act="open-lead-modal" data-lead-id="${l.id}">تعديل</button>
+          <div class="row" style="gap:4px;">
+            <select id="transfer-sel-${l.id}" style="font-size:11px;padding:4px 7px;width:auto;">${salesOptions}</select>
+            <button class="btn sm" style="background:var(--primary-2);" data-act="transfer-lead" data-lead-id="${l.id}">نقل</button>
+          </div>
+          <button class="btn danger sm" data-act="admin-delete-lead" data-lead-id="${l.id}">🗑 حذف</button>
         </div>
       </div>
     </div>`;
@@ -1374,6 +1518,10 @@ document.addEventListener('click',e=>{
     case 'cancel-su-form': byId('add-sales-user-form').innerHTML=''; break;
     case 'cal-day-click': calDayClick(date); break;
     case 'toggle-units': toggleUnits(projectId); break;
+    case 'edit-project': editProject(); break;
+    case 'cancel-edit-project': byId('edit-proj-form')?.remove(); break;
+    case 'transfer-lead': transferLead(leadId||el.dataset.leadId); break;
+    case 'admin-delete-lead': adminDeleteLead(leadId||el.dataset.leadId); break;
     case 'upload-my-leads-excel':
       const mli=byId('my-leads-excel-input');
       if(mli){
@@ -1389,6 +1537,23 @@ document.addEventListener('change',e=>{
   const el=e.target.closest('[data-act]');if(!el)return;
   if(el.dataset.act==='change-visit-status') changeVisitStatus(currentModalLeadId,el.dataset.vid,el.value);
 });
+
+/* ---- TRANSFER LEAD ---- */
+async function transferLead(leadId){
+  const lead=leads.find(l=>l.id===leadId); if(!lead)return;
+  const sel=byId('transfer-sel-'+leadId); if(!sel)return;
+  const newSales=sel.value;
+  if(newSales===lead.salesName){toast('العميل ده بالفعل مع نفس السيلز');return;}
+  lead.transferHistory=lead.transferHistory||[];
+  lead.transferHistory.push({from:lead.salesName,to:newSales,date:Date.now()});
+  lead.salesName=newSales; lead.updatedAt=Date.now();
+  await saveLeads(); renderAdminLeadsList(); toast(`تم نقل العميل إلى ${newSales}`);
+}
+async function adminDeleteLead(leadId){
+  if(!confirm('متأكد حذف العميل ده نهائياً؟'))return;
+  leads=leads.filter(l=>l.id!==leadId);
+  await saveLeads(); renderAdminLeadsList(); toast('تم الحذف');
+}
 
 /* ---- MY LEADS EXCEL IMPORT (for sales users) ---- */
 function handleMyLeadsExcelUpload(e){
