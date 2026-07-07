@@ -200,6 +200,118 @@ table th{background:var(--primary-soft);font-family:'Cairo',sans-serif;color:var
 @keyframes spin{to{transform:rotate(360deg)}}
 #setup-banner{background:#2C1B0E;color:#F1DFB9;padding:12px 18px;font-size:13px;text-align:center;display:none;}
 #setup-banner a{color:var(--accent);font-weight:700;cursor:pointer;}
+
+/* ===== SEARCH REDESIGN ===== */
+.search-page{display:flex;flex-direction:column;gap:0;}
+
+/* Filter bar */
+.filter-bar{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;margin-bottom:12px;box-shadow:var(--shadow-sm);}
+.filter-row{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;}
+.filter-row+.filter-row{margin-top:10px;padding-top:10px;border-top:1px solid var(--line);}
+.filter-field{display:flex;flex-direction:column;gap:4px;flex:1;min-width:130px;}
+.filter-field label{font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;}
+.filter-field select,.filter-field input{padding:8px 10px;font-size:13px;}
+.chip-group{display:flex;gap:5px;flex-wrap:wrap;align-items:center;}
+.chip-label{font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-left:4px;white-space:nowrap;}
+.chip{background:#fff;border:1px solid var(--line);border-radius:999px;padding:5px 12px;font-size:12.5px;font-weight:700;cursor:pointer;color:var(--ink);transition:.15s;font-family:'Tajawal',sans-serif;white-space:nowrap;}
+.chip:hover{border-color:var(--accent);}
+.chip.active{background:var(--primary);color:#fff;border-color:var(--primary);}
+.adv-filters{display:none;background:var(--bg);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;margin-bottom:12px;animation:fadeSlideIn .3s ease;}
+.adv-filters.open{display:block;}
+.slider-wrap{display:flex;flex-direction:column;gap:4px;}
+.range-input{-webkit-appearance:none;appearance:none;width:100%;height:5px;border-radius:3px;background:var(--line);outline:none;}
+.range-input::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:18px;height:18px;border-radius:50%;background:var(--accent);cursor:pointer;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.2);}
+.range-input::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--accent);cursor:pointer;border:2px solid #fff;}
+.range-val{font-size:12px;font-weight:700;color:var(--primary);text-align:center;}
+
+/* Results bar */
+.results-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;}
+.results-count{font-family:'Cairo',sans-serif;font-weight:800;font-size:15px;color:var(--primary);}
+.results-count span{color:var(--accent);}
+
+/* Property cards grid */
+#search-results{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;align-items:start;margin-top:0;}
+.prop-card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-sm);overflow:hidden;transition:.2s;animation:fadeSlideIn .4s ease both;}
+.prop-card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px);}
+.prop-img-area{position:relative;height:176px;overflow:hidden;}
+.prop-img-area img{width:100%;height:100%;object-fit:cover;display:block;transition:.3s;}
+.prop-card:hover .prop-img-area img{transform:scale(1.04);}
+.prop-img-placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:52px;}
+.prop-gradient-1{background:linear-gradient(135deg,#1F3B36 0%,#2C5048 100%);}
+.prop-gradient-2{background:linear-gradient(135deg,#2C3E50 0%,#3498db 100%);}
+.prop-gradient-3{background:linear-gradient(135deg,#8B4513 0%,#C8893D 100%);}
+.prop-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,transparent 40%,rgba(0,0,0,.55) 100%);}
+.prop-top-badges{position:absolute;top:10px;right:10px;display:flex;gap:5px;flex-wrap:wrap;}
+.prop-top-badge{background:rgba(255,255,255,.92);color:var(--primary);font-size:11px;font-weight:800;padding:3px 9px;border-radius:999px;font-family:'Cairo',sans-serif;}
+.prop-top-badge.gold{background:var(--accent);color:var(--primary);}
+.prop-top-badge.green{background:var(--good);color:#fff;}
+.prop-body{padding:13px 14px 10px;}
+.prop-name{font-family:'Cairo',sans-serif;font-weight:800;font-size:17px;color:var(--primary);margin-bottom:8px;line-height:1.2;}
+.prop-badges{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px;}
+.pb{font-size:11.5px;padding:4px 9px;border-radius:6px;font-weight:700;display:flex;align-items:center;gap:3px;}
+.pb-dev{background:#EEF2FF;color:#3730A3;}
+.pb-loc{background:var(--primary-soft);color:var(--primary-2);}
+.pb-units{background:var(--accent-soft);color:#7A521E;}
+.pb-price{background:#DCEFE4;color:var(--good);}
+.pb-type{background:#F3F4F6;color:#374151;}
+.pb-fin{background:#F0FDF4;color:#166534;}
+.pb-ready{background:#D1FAE5;color:#065F46;}
+.pb-building{background:#FEF3C7;color:#92400E;}
+.prop-view-btn{width:100%;background:var(--primary);color:#fff;border:none;border-radius:8px;padding:10px;font-family:'Cairo',sans-serif;font-weight:800;font-size:14px;cursor:pointer;transition:.15s;display:flex;align-items:center;justify-content:center;gap:8px;}
+.prop-view-btn:hover{background:var(--primary-2);}
+
+/* Drawer */
+.drawer-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1500;opacity:0;pointer-events:none;transition:opacity .3s;}
+.drawer-overlay.open{opacity:1;pointer-events:all;}
+.drawer{position:fixed;top:0;left:0;width:600px;max-width:96vw;height:100vh;background:#fff;overflow-y:auto;transform:translateX(-100%);transition:transform .35s cubic-bezier(.4,0,.2,1);box-shadow:4px 0 40px rgba(0,0,0,.15);direction:rtl;}
+.drawer-overlay.open .drawer{transform:translateX(0);}
+@media(max-width:640px){
+  .drawer{width:100%;transform:translateY(100%);top:auto;bottom:0;left:0;height:92vh;border-radius:16px 16px 0 0;}
+  .drawer-overlay.open .drawer{transform:translateY(0);}
+}
+.drawer-head{position:sticky;top:0;background:#fff;padding:14px 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;z-index:10;}
+.drawer-head h3{margin:0;font-family:'Cairo',sans-serif;font-size:16px;color:var(--primary);}
+.drawer-proj-img{width:100%;height:160px;object-fit:cover;}
+.drawer-proj-info{padding:12px 16px;background:var(--primary-soft);border-bottom:1px solid var(--line);}
+.drawer-body{padding:12px;}
+
+/* Unit detail cards */
+.unit-detail-card{border:1px solid var(--line);border-radius:var(--radius);margin-bottom:12px;overflow:hidden;background:#fff;transition:.15s;}
+.unit-detail-card:hover{border-color:var(--accent-soft);}
+.udc-head{padding:13px 14px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;}
+.udc-type{font-family:'Cairo',sans-serif;font-weight:800;font-size:15px;color:var(--primary);margin-bottom:7px;}
+.udc-badges{display:flex;flex-wrap:wrap;gap:5px;}
+.ub{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:3px 8px;font-size:12px;font-weight:700;color:var(--ink);}
+.ub.bed{background:#EEF2FF;border-color:#C7D2FE;color:#3730A3;}
+.ub.bath{background:#E0F2FE;border-color:#BAE6FD;color:#0369A1;}
+.ub.finish{background:#F0FDF4;border-color:#BBF7D0;color:#166534;}
+.ub.floor{background:#FEF3C7;border-color:#FDE68A;color:#92400E;}
+.ub.view{background:var(--accent-soft);border-color:var(--accent-soft);color:#7A521E;}
+.udc-price{text-align:left;flex-shrink:0;}
+.udc-total{font-family:'Cairo',sans-serif;font-weight:800;font-size:18px;color:var(--primary);line-height:1.1;}
+.udc-monthly{font-size:12px;color:var(--good);font-weight:700;margin-top:3px;}
+.udc-psm{font-size:11px;color:var(--muted);}
+
+/* Plans accordion */
+.plan-accord{border-top:1px solid var(--line);}
+.pac-item{border-bottom:1px solid var(--line);}
+.pac-head{display:flex;justify-content:space-between;align-items:center;padding:11px 14px;cursor:pointer;transition:.12s;background:#FCFBF7;}
+.pac-head:hover{background:var(--bg);}
+.pac-title{font-weight:700;font-size:13.5px;color:var(--primary);}
+.pac-summary{font-size:12px;color:var(--good);font-weight:700;}
+.pac-arrow{color:var(--muted);transition:transform .2s;font-size:12px;}
+.pac-arrow.open{transform:rotate(180deg);}
+.pac-body{display:none;padding:10px 14px 14px;background:#fff;animation:fadeSlideIn .2s ease;}
+.pac-body.open{display:block;}
+.udc-actions{padding:10px 14px;display:flex;gap:8px;background:var(--bg);border-top:1px solid var(--line);}
+
+/* Calculator */
+.calc-card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-bottom:12px;animation:fadeSlideIn .3s ease;box-shadow:var(--shadow-sm);}
+.calc-result{background:var(--primary);color:#fff;border-radius:8px;padding:14px;text-align:center;margin-top:10px;}
+.calc-monthly{font-family:'Cairo',sans-serif;font-size:28px;font-weight:800;line-height:1.1;}
+.empty-search{text-align:center;padding:60px 20px;color:var(--muted);grid-column:1/-1;}
+.empty-search-icon{font-size:56px;margin-bottom:12px;}
+
 /* ===== RESPONSIVE ===== */
 @media(max-width:900px){
   .admin-layout{grid-template-columns:1fr;}
@@ -327,20 +439,136 @@ table th{background:var(--primary-soft);font-family:'Cairo',sans-serif;color:var
 
 <!-- ======== SEARCH ======== -->
 <div class="panel active" id="panel-search">
-  <div class="card">
-    <h3>دوّر على المشروع المناسب للعميل</h3>
-    <div class="grid g4">
-      <div><label>المنطقة</label><select id="f-area"><option value="">الكل</option></select></div>
-      <div><label>نوع الوحدة</label><select id="f-type"><option value="">الكل</option><option>كمبوند</option><option>عمارات</option><option>فيلات</option><option>تجاري</option></select></div>
-      <div><label>الميزانية القصوى</label><input id="f-budget" type="number" placeholder="مثلاً 3500000"></div>
-      <div><label>المقدم المتاح</label><input id="f-down" type="number" placeholder="مثلاً 500000"></div>
+<div class="search-page">
+
+  <!-- FILTER BAR -->
+  <div class="filter-bar">
+    <div class="filter-row">
+      <div class="filter-field" style="flex:1.5;">
+        <label>المنطقة</label>
+        <select id="qf-area"><option value="">كل المناطق</option></select>
+      </div>
+      <div class="filter-field">
+        <label>النوع</label>
+        <select id="qf-type">
+          <option value="">الكل</option>
+          <option>كمبوند</option><option>عمارات</option><option>فيلات</option><option>تجاري</option>
+        </select>
+      </div>
+      <div class="filter-field" style="flex:1.5;">
+        <label>المطور</label>
+        <select id="qf-dev"><option value="">كل المطورين</option></select>
+      </div>
+      <div class="filter-field">
+        <label>الميزانية القصوى</label>
+        <input id="qf-budget" type="number" placeholder="مثلاً 5,000,000">
+      </div>
+      <div class="filter-field">
+        <label>المقدم المتاح</label>
+        <input id="qf-down" type="number" placeholder="مثلاً 500,000">
+      </div>
     </div>
-    <div class="row" style="margin-top:12px;">
-      <button class="btn gold" id="btn-search">بحث</button>
-      <button class="btn ghost" id="btn-reset">تصفير</button>
+    <div class="filter-row" style="align-items:center;">
+      <div style="display:flex;flex-direction:column;gap:6px;flex:1;">
+        <div class="chip-group">
+          <span class="chip-label">غرف</span>
+          <button class="chip" data-g="beds" data-v="1">1</button>
+          <button class="chip" data-g="beds" data-v="2">2</button>
+          <button class="chip" data-g="beds" data-v="3">3</button>
+          <button class="chip" data-g="beds" data-v="4">4+</button>
+          <span class="chip-label" style="margin-right:12px;">حمامات</span>
+          <button class="chip" data-g="baths" data-v="1">1</button>
+          <button class="chip" data-g="baths" data-v="2">2</button>
+          <button class="chip" data-g="baths" data-v="3">3+</button>
+        </div>
+        <div class="chip-group">
+          <span class="chip-label">تشطيب</span>
+          <button class="chip" data-g="finishing" data-v="تشطيب">تشطيب كامل</button>
+          <button class="chip" data-g="finishing" data-v="متشطبه">نص تشطيب</button>
+          <button class="chip" data-g="finishing" data-v="طوب احمر">طوب احمر</button>
+          <span class="chip-label" style="margin-right:12px;">تسليم</span>
+          <button class="chip" data-g="delivery" data-v="ready">جاهز</button>
+          <button class="chip" data-g="delivery" data-v="2026">2026</button>
+          <button class="chip" data-g="delivery" data-v="2027">2027</button>
+          <button class="chip" data-g="delivery" data-v="2028">2028</button>
+        </div>
+      </div>
+      <div class="row" style="flex-shrink:0;gap:8px;">
+        <button class="btn ghost sm" id="btn-adv-toggle">⚙️ فلاتر أكثر</button>
+        <button class="btn ghost sm" id="btn-calc-toggle">🧮 حاسبة</button>
+        <button class="btn ghost sm" id="btn-clear-filters">✕ مسح</button>
+      </div>
     </div>
   </div>
+
+  <!-- ADVANCED FILTERS -->
+  <div class="adv-filters" id="adv-filters">
+    <div class="grid g2" style="align-items:end;">
+      <div class="slider-wrap">
+        <label style="font-size:11px;font-weight:800;color:var(--muted);">قسط شهري أقصى</label>
+        <input type="range" class="range-input" id="qf-monthly-max" min="0" max="200000" step="1000" value="200000" oninput="document.getElementById('monthly-max-val').textContent=Number(this.value).toLocaleString('ar-EG')">
+        <div class="range-val"><span id="monthly-max-val">بدون حد</span> ج.م</div>
+      </div>
+      <div>
+        <label style="font-size:11px;font-weight:800;color:var(--muted);">طريقة الدفع</label>
+        <div class="chip-group" style="margin-top:6px;">
+          <button class="chip" data-g="payment" data-v="cash">كاش</button>
+          <button class="chip" data-g="payment" data-v="install">تقسيط</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CALCULATOR -->
+  <div class="calc-card" id="calc-card" style="display:none;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <strong style="font-family:'Cairo',sans-serif;">🧮 حاسبة التقسيط</strong>
+      <button class="close-x" id="btn-close-calc">✕</button>
+    </div>
+    <div class="grid g4">
+      <div class="slider-wrap">
+        <label>سعر الوحدة</label>
+        <input type="range" class="range-input" id="calc-price" min="500000" max="20000000" step="100000" value="3000000" oninput="calcUpdate()">
+        <div class="range-val"><span id="calc-price-val">3,000,000</span></div>
+      </div>
+      <div class="slider-wrap">
+        <label>نسبة المقدم %</label>
+        <input type="range" class="range-input" id="calc-down" min="5" max="50" step="1" value="15" oninput="calcUpdate()">
+        <div class="range-val"><span id="calc-down-val">15</span>% = <span id="calc-down-amt">450,000</span></div>
+      </div>
+      <div class="slider-wrap">
+        <label>مدة التقسيط (سنين)</label>
+        <input type="range" class="range-input" id="calc-years" min="1" max="15" step="1" value="7" oninput="calcUpdate()">
+        <div class="range-val"><span id="calc-years-val">7</span> سنة</div>
+      </div>
+      <div class="slider-wrap">
+        <label>فائدة % (اختياري)</label>
+        <input type="range" class="range-input" id="calc-interest" min="0" max="20" step="0.5" value="0" oninput="calcUpdate()">
+        <div class="range-val"><span id="calc-int-val">0</span>%</div>
+      </div>
+    </div>
+    <div class="calc-result" id="calc-result">
+      <div style="font-size:12px;opacity:.8;margin-bottom:4px;">القسط الشهري</div>
+      <div class="calc-monthly" id="calc-monthly-output">31,250 ج.م</div>
+      <div style="font-size:12px;opacity:.8;margin-top:4px;" id="calc-total-output">الباقي: 2,550,000 ج.م</div>
+    </div>
+  </div>
+
+  <!-- RESULTS BAR -->
+  <div class="results-bar" id="results-bar" style="display:none;">
+    <div class="results-count" id="results-count"><span>0</span> نتيجة</div>
+    <div class="row">
+      <select id="qf-sort" style="font-size:13px;padding:7px 10px;width:auto;">
+        <option value="match">الأكثر تطابقاً</option>
+        <option value="price_asc">السعر ↑ الأقل</option>
+        <option value="price_desc">السعر ↓ الأعلى</option>
+        <option value="units_desc">أكثر وحدات</option>
+      </select>
+    </div>
+  </div>
+
   <div id="search-results"></div>
+</div>
 </div>
 
 <!-- ======== PIPELINE ======== -->
@@ -532,6 +760,16 @@ table th{background:var(--primary-soft);font-family:'Cairo',sans-serif;color:var
   </div>
 </div>
 
+<!-- ======== UNIT DRAWER ======== -->
+<div class="drawer-overlay" id="drawer-overlay" onclick="if(event.target===this)closeDrawer()">
+  <div class="drawer" id="drawer">
+    <div class="drawer-head">
+      <h3 id="drawer-title">الوحدات</h3>
+      <button class="btn ghost sm" onclick="closeDrawer()">✕ إغلاق</button>
+    </div>
+    <div id="drawer-body"></div>
+  </div>
+</div>
 <div id="print-area"></div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -622,6 +860,7 @@ async function loadAll(){
     salesUsers = uD.exists?(uD.data().list||[]):[];
     refreshAreaOptions();
     await loadActivity(); await loadSettings();
+    setTimeout(initSearchListeners,100);
   }catch(e){ toast('خطأ في تحميل البيانات'); }
 }
 async function saveProjects(){
@@ -854,16 +1093,26 @@ async function saveLead(){
     updatedAt: Date.now()
   };
 
-  if(currentModalLeadId){
-    const lead = leads.find(l=>l.id===currentModalLeadId);
-    data.visits = lead.visits; // preserve visits
-    Object.assign(lead, data);
-    logActivity('تحديث عميل',data.name,'✏️');
-  } else {
-    leads.push({id:uid(), createdAt:Date.now(), visits:[], ...data});
-    logActivity('عميل جديد',data.name,'👤');
-  }
+  if (currentModalLeadId) {
+    const lead = leads.find(l => l.id === currentModalLeadId);
 
+    data.visits = lead.visits;
+    Object.assign(lead, data);
+
+} else {
+    leads.push({
+        id: uid(),
+        createdAt: Date.now(),
+        visits: [],
+        ...data
+    });
+}
+
+logActivity(
+    currentModalLeadId ? 'تحديث عميل' : 'عميل جديد',
+    data.name,
+    currentModalLeadId ? '✏️' : '👤'
+);
   await saveLeads();
   byId('lead-modal').classList.add('hidden');
   renderKanban();
@@ -972,17 +1221,194 @@ function calDayClick(dateStr){
 }
 
 /* ---- SEARCH ---- */
-byId('btn-search').addEventListener('click', runSearch);
-byId('btn-reset').addEventListener('click',()=>{
-  ['f-area','f-type','f-budget','f-down'].forEach(id=>byId(id).value='');
-  byId('search-results').innerHTML='';
-});
+/* ---- SEARCH STATE ---- */
+let searchState={area:'',type:'',developer:'',maxPrice:null,maxDown:null,maxMonthly:200001,beds:[],baths:[],finishing:[],delivery:[],payment:'',sort:'match'};
 
 function refreshAreaOptions(){
-  const sel=byId('f-area');
+  const qfArea=byId('qf-area'), fArea=byId('f-area');
   const areas=[...new Set(projects.map(p=>p.area).filter(Boolean))];
-  sel.innerHTML='<option value="">الكل</option>'+areas.map(a=>`<option>${esc(a)}</option>`).join('');
+  const opts='<option value="">كل المناطق</option>'+areas.map(a=>`<option>${esc(a)}</option>`).join('');
+  if(qfArea) qfArea.innerHTML=opts;
+  if(fArea) fArea.innerHTML=opts;
+  // populate developers
+  const devSel=byId('qf-dev');
+  if(devSel){
+    const devs=[...new Set(projects.map(p=>p.developer).filter(Boolean))];
+    devSel.innerHTML='<option value="">كل المطورين</option>'+devs.map(d=>`<option>${esc(d)}</option>`).join('');
+  }
 }
+
+function performSearch(){
+  searchState.area=(byId('qf-area')?.value||'');
+  searchState.type=(byId('qf-type')?.value||'');
+  searchState.developer=(byId('qf-dev')?.value||'');
+  searchState.maxPrice=parseFloat(byId('qf-budget')?.value)||null;
+  searchState.maxDown=parseFloat(byId('qf-down')?.value)||null;
+  const monthlyMax=parseInt(byId('qf-monthly-max')?.value)||200001;
+  searchState.maxMonthly=monthlyMax>=200000?null:monthlyMax;
+  searchState.sort=byId('qf-sort')?.value||'match';
+
+  let matched=projects.filter(p=>{
+    if(searchState.area&&p.area!==searchState.area)return false;
+    if(searchState.type&&p.type!==searchState.type)return false;
+    if(searchState.developer&&p.developer!==searchState.developer)return false;
+    return true;
+  }).map(p=>{
+    let units=(p.units||[]).filter(u=>{
+      if(searchState.maxPrice&&u.price>searchState.maxPrice)return false;
+      if(searchState.beds.length){
+        const rooms=u.rooms||0;
+        const match=searchState.beds.includes(String(rooms))||
+          (searchState.beds.includes('4')&&rooms>=4);
+        if(!match)return false;
+      }
+      if(searchState.baths.length){
+        const baths=u.baths||0;
+        const match=searchState.baths.includes(String(baths))||
+          (searchState.baths.includes('3')&&baths>=3);
+        if(!match)return false;
+      }
+      if(searchState.finishing.length&&u.finishing&&!searchState.finishing.includes(u.finishing))return false;
+      if(searchState.payment==='cash'){const hasCash=(p.plans||[]).some(pl=>pl.downPaymentPercent>=95);if(!hasCash)return false;}
+      if(searchState.payment==='install'){const hasInst=(p.plans||[]).some(pl=>pl.type==='equal');if(!hasInst)return false;}
+      if(searchState.maxDown){
+        const bestPlan=(p.plans||[]).reduce((best,pl)=>{const d=u.price*(pl.downPaymentPercent/100);return(!best||d<best)?d:best;},null);
+        if(bestPlan&&bestPlan>searchState.maxDown)return false;
+      }
+      if(searchState.maxMonthly){
+        const hasAfford=(p.plans||[]).some(pl=>{
+          if(pl.type!=='equal')return false;
+          const down=u.price*(pl.downPaymentPercent/100);
+          const monthly=(u.price-down)/((pl.years||1)*12);
+          return monthly<=searchState.maxMonthly;
+        });
+        if(!hasAfford)return false;
+      }
+      return true;
+    });
+    // delivery filter
+    if(searchState.delivery.length){
+      const curYear=new Date().getFullYear();
+      const projDelivery=p.plans?.length
+        ?Math.min(...p.plans.map(pl=>curYear+(parseInt(pl.deliveryYears)||0)))
+        :curYear;
+      const isReady=!p.plans?.some(pl=>parseInt(pl.deliveryYears)>0);
+      const matches=searchState.delivery.some(d=>{
+        if(d==='ready')return isReady;
+        return projDelivery<=parseInt(d);
+      });
+      if(!matches)return {...p,_units:[]};
+    }
+    return {...p,_units:units};
+  }).filter(p=>p._units.length>0);
+
+  // sort
+  const minP=p=>{const prices=(p._units||[]).map(u=>u.price).filter(Boolean);return prices.length?Math.min(...prices):0;};
+  if(searchState.sort==='price_asc')matched.sort((a,b)=>minP(a)-minP(b));
+  else if(searchState.sort==='price_desc')matched.sort((a,b)=>minP(b)-minP(a));
+  else if(searchState.sort==='units_desc')matched.sort((a,b)=>(b._units?.length||0)-(a._units?.length||0));
+
+  // show results bar
+  const rb=byId('results-bar');
+  if(rb){rb.style.display='flex';byId('results-count').innerHTML=`<span>${matched.length}</span> نتيجة`;}
+  renderSearchResults(matched);
+}
+
+function renderSearchResults(matched){
+  const box=byId('search-results');
+  if(!matched.length){
+    box.innerHTML=`<div class="empty-search"><div class="empty-search-icon">🔍</div><div style="font-size:16px;font-weight:700;margin-bottom:8px;">لا توجد نتائج</div><div style="font-size:13px;">جرّب تخفف الفلاتر أو تبحث في منطقة تانية</div></div>`;
+    return;
+  }
+  const GRADS=['prop-gradient-1','prop-gradient-2','prop-gradient-3'];
+  box.innerHTML=matched.map((p,idx)=>{
+    const prices=(p._units||[]).map(u=>u.price).filter(Boolean);
+    const minPrice=prices.length?Math.min(...prices):null;
+    const unitTypes=[...new Set((p._units||[]).map(u=>u.category?.split(/[\s-]/)[0]||'').filter(Boolean))].slice(0,3);
+    const finishTypes=[...new Set((p._units||[]).map(u=>u.finishing).filter(Boolean))].slice(0,2);
+    const hasReady=!(p.plans||[]).some(pl=>parseInt(pl.deliveryYears)>0);
+    const deliveryYear=hasReady?null:(new Date().getFullYear()+Math.min(...(p.plans||[]).filter(pl=>parseInt(pl.deliveryYears)>0).map(pl=>parseInt(pl.deliveryYears))));
+    const imgHtml=p.image
+      ?`<img src="${p.image}" alt="${esc(p.name)}" style="width:100%;height:100%;object-fit:cover;display:block;" onerror="this.parentElement.innerHTML='<div class=\"prop-img-placeholder ${GRADS[idx%3]}\"><span style=\"font-size:36px;filter:brightness(10);\">${esc(p.name.charAt(0))}</span></div>'">`
+      :`<div class="prop-img-placeholder ${GRADS[idx%3]}" style="display:flex;align-items:center;justify-content:center;"><span style="font-size:48px;opacity:.35;">🏢</span><span style="position:absolute;bottom:12px;right:14px;font-family:'Cairo',sans-serif;font-weight:800;font-size:20px;color:rgba(255,255,255,.9);">${esc(p.name)}</span></div>`;
+    return `<div class="prop-card" style="animation-delay:${idx*0.07}s">
+      <div class="prop-img-area">
+        ${imgHtml}<div class="prop-overlay"></div>
+        <div class="prop-top-badges">
+          ${p.type?`<span class="prop-top-badge gold">${esc(p.type)}</span>`:''}
+          ${hasReady?'<span class="prop-top-badge green">✅ جاهز</span>':(deliveryYear?`<span class="prop-top-badge">🏗 ${deliveryYear}</span>`:'')}
+        </div>
+      </div>
+      <div class="prop-body">
+        <div class="prop-name">${esc(p.name)}</div>
+        <div class="prop-badges">
+          ${p.developer?`<span class="pb pb-dev">🏗 ${esc(p.developer)}</span>`:''}
+          ${(p.location||p.area)?`<span class="pb pb-loc">📍 ${esc(p.location||p.area)}</span>`:''}
+          <span class="pb pb-units">🏠 ${p._units.length} وحدة</span>
+          ${minPrice?`<span class="pb pb-price">💰 ${minPrice>=1000000?(minPrice/1000000).toFixed(1)+'M':minPrice.toLocaleString('ar-EG')} ج.م</span>`:''}
+          ${unitTypes.map(t=>`<span class="pb pb-type">${esc(t)}</span>`).join('')}
+          ${finishTypes.map(f=>`<span class="pb pb-fin">${esc(f)}</span>`).join('')}
+        </div>
+        <button class="prop-view-btn" data-act="open-drawer" data-project="${p.id}" data-count="${p._units.length}">
+          عرض الوحدات (${p._units.length}) ←
+        </button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// Attach filter listeners
+document.addEventListener('DOMContentLoaded',()=>{});
+function initSearchListeners(){
+  ['qf-area','qf-type','qf-dev','qf-sort'].forEach(id=>{
+    const el=byId(id); if(el) el.addEventListener('change',performSearch);
+  });
+  ['qf-budget','qf-down'].forEach(id=>{
+    const el=byId(id); if(el) el.addEventListener('input',performSearch);
+  });
+  const monthly=byId('qf-monthly-max');
+  if(monthly) monthly.addEventListener('input',()=>{
+    const v=parseInt(monthly.value);
+    byId('monthly-max-val').textContent=v>=200000?'بدون حد':v.toLocaleString('ar-EG');
+    performSearch();
+  });
+  const advBtn=byId('btn-adv-toggle');
+  if(advBtn) advBtn.addEventListener('click',()=>byId('adv-filters').classList.toggle('open'));
+  const calcBtn=byId('btn-calc-toggle');
+  if(calcBtn) calcBtn.addEventListener('click',()=>{
+    const cc=byId('calc-card');
+    cc.style.display=cc.style.display==='none'?'block':'none';
+    if(cc.style.display==='block') calcUpdate();
+  });
+  const closeCalc=byId('btn-close-calc');
+  if(closeCalc) closeCalc.addEventListener('click',()=>{byId('calc-card').style.display='none';});
+  const clearBtn=byId('btn-clear-filters');
+  if(clearBtn) clearBtn.addEventListener('click',()=>{
+    ['qf-area','qf-type','qf-dev','qf-budget','qf-down'].forEach(id=>{const el=byId(id);if(el)el.value='';});
+    document.querySelectorAll('.chip').forEach(ch=>ch.classList.remove('active'));
+    searchState={area:'',type:'',developer:'',maxPrice:null,maxDown:null,maxMonthly:200001,beds:[],baths:[],finishing:[],delivery:[],payment:'',sort:'match'};
+    byId('search-results').innerHTML=''; byId('results-bar').style.display='none';
+  });
+  // chips
+  document.querySelectorAll('.chip[data-g]').forEach(chip=>{
+    chip.addEventListener('click',()=>{
+      const g=chip.dataset.g, v=chip.dataset.v;
+      if(g==='payment'){
+        if(chip.classList.contains('active')){chip.classList.remove('active');searchState.payment='';}
+        else{document.querySelectorAll('.chip[data-g="payment"]').forEach(c=>c.classList.remove('active'));chip.classList.add('active');searchState.payment=v;}
+      } else {
+        chip.classList.toggle('active');
+        const arr=searchState[g]||[];
+        if(chip.classList.contains('active')){if(!arr.includes(v))arr.push(v);}
+        else{const i=arr.indexOf(v);if(i>=0)arr.splice(i,1);}
+        searchState[g]=arr;
+      }
+      performSearch();
+    });
+  });
+}
+// legacy compat
+function runSearch(){ performSearch(); }
 
 function runSearch(){
   const area=byId('f-area').value, type=byId('f-type').value;
@@ -1645,6 +2071,18 @@ document.addEventListener('click',e=>{
     case 'cancel-su-form': byId('add-sales-user-form').innerHTML=''; break;
     case 'cal-day-click': calDayClick(date); break;
     case 'toggle-units': toggleUnits(projectId); break;
+    case 'open-drawer': {
+      // attach _units from last search or use all units
+      const proj=projects.find(x=>x.id===projectId);
+      if(proj){
+        const sr=byId('search-results');
+        // try to find matched version with _units
+        const allUnits=proj.units||[];
+        proj._units=allUnits; // use all units if not filtered
+        openDrawer(projectId);
+      }
+      break;
+    }
     case 'edit-project': editProject(); break;
     case 'cancel-edit-project': byId('edit-proj-form')?.remove(); break;
     case 'transfer-lead': transferLead(leadId||el.dataset.leadId); break;
@@ -1878,6 +2316,128 @@ function waShare(phone, type, data){
   else if(type==='price') msg=`مرحباً، دي قائمة الأسعار لمشروع ${data} — للاستفسار تواصل معنا`;
   else if(type==='brochure') msg=`مرحباً ${data}، شكراً لاهتمامك! هبعتلك تفاصيل المشروع كاملة دلوقتي.`;
   window.open('https://wa.me/'+waNum+'?text='+encodeURIComponent(msg),'_blank');
+}
+
+/* ---- DRAWER ---- */
+let drawerProjectId=null;
+
+function openDrawer(projectId){
+  drawerProjectId=projectId;
+  const p=projects.find(x=>x.id===projectId);
+  if(!p)return;
+  const down=parseFloat(byId('qf-down')?.value)||0;
+  const drawerResults=p._units||p.units||[];
+  byId('drawer-title').textContent=p.name+' — '+drawerResults.length+' وحدة';
+  const body=byId('drawer-body');
+  body.innerHTML=`
+    ${p.image?`<img src="${p.image}" class="drawer-proj-img" alt="${esc(p.name)}">`:''}
+    <div class="drawer-proj-info">
+      <div style="font-family:'Cairo',sans-serif;font-weight:800;font-size:15px;margin-bottom:6px;">${esc(p.name)}</div>
+      <div class="prop-badges">
+        ${p.developer?`<span class="pb pb-dev">🏗 ${esc(p.developer)}</span>`:''}
+        ${(p.location||p.area)?`<span class="pb pb-loc">📍 ${esc(p.location||p.area)}</span>`:''}
+        ${p.description?`<div style="font-size:12px;color:var(--ink);margin-top:6px;line-height:1.6;">${esc(p.description.slice(0,200))}${p.description.length>200?'...':''}</div>`:''}
+      </div>
+    </div>
+    <div style="padding:12px;">
+      ${drawerResults.length?drawerResults.map(u=>buildUnitCard(u,p,down)).join(''):'<div class="empty">لا توجد وحدات مطابقة للفلاتر.</div>'}
+    </div>
+  `;
+  byId('drawer-overlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+function closeDrawer(){
+  byId('drawer-overlay').classList.remove('open');
+  document.body.style.overflow='';
+  drawerProjectId=null;
+}
+
+function buildUnitCard(u, p, downAvail){
+  const plans=p.plans||[];
+  const minMonthly=plans.reduce((best,pl)=>{
+    if(pl.type!=='equal')return best;
+    const d=u.price*(pl.downPaymentPercent/100);
+    const m=(u.price-d)/((pl.years||1)*12);
+    return(!best||m<best)?m:best;
+  },null);
+  const typeIcon={'شقة':'🏠','فيلا':'🏡','دوبلكس':'🏘','بنتهاوس':'👑','مكتب':'🏢','محل':'🏪'}[u.category?.split(' ')[0]]||'🏠';
+  
+  const plansHtml=plans.map((pl,i)=>{
+    const req=u.price*(pl.downPaymentPercent/100);
+    const can=downAvail>=req;
+    let summary='';
+    if(pl.type==='equal'){const m=(u.price-req)/((pl.years||1)*12);summary=money(m)+'/شهري';}
+    else summary=pl.milestones?.length+' دفعة';
+    return `<div class="pac-item">
+      <div class="pac-head" onclick="togglePac(this)">
+        <div><span class="pac-title">${esc(pl.name)}</span>${can?'<span style="color:var(--good);font-size:11px;margin-right:6px;">✓</span>':''}</div>
+        <div class="row" style="gap:6px;"><span class="pac-summary">${summary}</span><span class="pac-arrow">▾</span></div>
+      </div>
+      <div class="pac-body">
+        ${buildScheduleTable(u.price,pl)}
+        <div class="row" style="margin-top:10px;gap:6px;">
+          <button class="btn ghost sm" onclick="exportQuotePDF('${p.id}','${u.id}','${pl.id}')">📄 PDF</button>
+          ${currentSalesName&&p.locationUrl?`<button class="btn sm" style="background:#25D366;color:#fff;" onclick="waShare('${u.id}','location','${(p.locationUrl||'').replace(/'/g,'%27')}')">📍 موقع</button>`:''}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  return `<div class="unit-detail-card">
+    <div class="udc-head">
+      <div>
+        <div class="udc-type">${typeIcon} ${esc(u.category)}</div>
+        <div class="udc-badges">
+          ${u.area?`<span class="ub">${u.area} م²</span>`:''}
+          ${u.rooms?`<span class="ub bed">🛏 ${u.rooms} غرف</span>`:''}
+          ${u.baths?`<span class="ub bath">🚿 ${u.baths} حمام</span>`:''}
+          ${u.floor?`<span class="ub floor">دور ${esc(u.floor)}</span>`:''}
+          ${u.view?`<span class="ub view">👁 ${esc(u.view)}</span>`:''}
+          ${u.location?`<span class="ub">${esc(u.location)}</span>`:''}
+          ${u.finishing?`<span class="ub finish">${esc(u.finishing)}</span>`:''}
+        </div>
+      </div>
+      <div class="udc-price">
+        <div class="udc-total">${money(u.price)}</div>
+        ${minMonthly?`<div class="udc-monthly">↳ ${money(minMonthly)}/شهري</div>`:''}
+        ${u.pricePerMeter?`<div class="udc-psm">${money(u.pricePerMeter)}/م²</div>`:''}
+      </div>
+    </div>
+    ${plans.length?`<div class="plan-accord">${plansHtml}</div>`:'<p class="helpline" style="padding:10px 14px;">لا توجد أنظمة سداد.</p>'}
+  </div>`;
+}
+
+function togglePac(head){
+  const arrow=head.querySelector('.pac-arrow');
+  const body=head.nextElementSibling;
+  const isOpen=body.classList.contains('open');
+  // close all in same drawer
+  head.closest('.plan-accord')?.querySelectorAll('.pac-body').forEach(b=>b.classList.remove('open'));
+  head.closest('.plan-accord')?.querySelectorAll('.pac-arrow').forEach(a=>a.classList.remove('open'));
+  if(!isOpen){ body.classList.add('open'); arrow.classList.add('open'); }
+}
+
+/* ---- CALCULATOR ---- */
+function calcUpdate(){
+  const price=parseInt(byId('calc-price')?.value)||3000000;
+  const downPct=parseInt(byId('calc-down')?.value)||15;
+  const years=parseInt(byId('calc-years')?.value)||7;
+  const intRate=parseFloat(byId('calc-interest')?.value)||0;
+  const downAmt=price*(downPct/100);
+  const remaining=price-downAmt;
+  let monthly;
+  if(intRate>0){
+    const r=intRate/100/12, n=years*12;
+    monthly=remaining*(r*Math.pow(1+r,n))/(Math.pow(1+r,n)-1);
+  } else { monthly=remaining/(years*12); }
+  byId('calc-price-val').textContent=price.toLocaleString('ar-EG');
+  byId('calc-down-val').textContent=downPct;
+  byId('calc-down-amt').textContent=downAmt.toLocaleString('ar-EG');
+  byId('calc-years-val').textContent=years;
+  byId('calc-int-val').textContent=parseFloat(byId('calc-interest')?.value)||0;
+  byId('calc-monthly-output').textContent=Math.round(monthly).toLocaleString('ar-EG')+' ج.م';
+  byId('calc-total-output').textContent='الباقي: '+remaining.toLocaleString('ar-EG')+' ج.م على '+years*12+' قسط';
 }
 
 /* ---- COMPRESS IMAGE ---- */
