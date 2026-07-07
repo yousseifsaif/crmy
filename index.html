@@ -239,6 +239,61 @@ table th{background:var(--primary-soft);font-family:'Cairo',sans-serif;color:var
 .quote-table th,.quote-table td{border:1px solid var(--line);padding:7px 10px;text-align:right;}
 .quote-table th{background:var(--primary-soft);width:150px;}
 .quote-foot{font-size:11px;color:var(--muted);margin-top:16px;border-top:1px solid var(--line);padding-top:8px;}
+
+/* ===== DASHBOARD ===== */
+.dash-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px;}
+@media(max-width:900px){.dash-grid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:480px){.dash-grid{grid-template-columns:1fr 1fr;gap:10px;}}
+.stat-card{background:var(--surface);border-radius:var(--radius);padding:18px 16px;border:1px solid var(--line);box-shadow:var(--shadow-sm);position:relative;overflow:hidden;animation:fadeSlideIn .5s ease both;}
+.stat-card::after{content:'';position:absolute;bottom:0;right:0;width:60px;height:60px;border-radius:50%;opacity:.06;transform:translate(20px,20px);}
+.stat-card.blue::after{background:#1877F2;} .stat-card.green::after{background:var(--good);} .stat-card.gold::after{background:var(--accent);} .stat-card.red::after{background:var(--bad);}
+.stat-card-icon{font-size:26px;margin-bottom:8px;display:block;}
+.stat-card-num{font-family:'Cairo',sans-serif;font-weight:800;font-size:32px;color:var(--primary);line-height:1;}
+.stat-card-label{font-size:12px;color:var(--muted);margin-top:5px;font-weight:700;}
+.stat-card-sub{font-size:11px;color:var(--good);margin-top:3px;font-weight:700;}
+.dash-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px;}
+@media(max-width:640px){.dash-row{grid-template-columns:1fr;}}
+.alert-card{background:var(--surface);border-radius:var(--radius);padding:16px;border:1px solid var(--line);box-shadow:var(--shadow-sm);animation:fadeSlideIn .6s ease both;}
+.alert-card.danger{border-right:4px solid var(--bad);background:#FFF8F6;}
+.alert-card.warning{border-right:4px solid var(--accent);background:#FFFAF3;}
+.alert-card.good{border-right:4px solid var(--good);background:#F2FAF6;}
+.alert-card h4{font-family:'Cairo',sans-serif;font-weight:800;font-size:14px;margin:0 0 8px;display:flex;align-items:center;gap:6px;}
+.timeline-item{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);align-items:flex-start;}
+.timeline-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);margin-top:5px;flex-shrink:0;}
+.timeline-text{font-size:12.5px;color:var(--ink);}
+.timeline-time{font-size:10.5px;color:var(--muted);margin-top:2px;}
+@keyframes fadeSlideIn{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+@keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.05);}}
+.pulse{animation:pulse 2s ease infinite;}
+
+/* ===== NOTIFICATIONS ===== */
+.notif-bell-wrap{position:relative;}
+.notif-bell-btn{background:rgba(255,255,255,.12);border:none;color:#fff;padding:7px 11px;border-radius:999px;cursor:pointer;font-size:16px;position:relative;transition:.15s;}
+.notif-bell-btn:hover{background:rgba(255,255,255,.2);}
+.notif-badge-dot{position:absolute;top:4px;right:4px;width:8px;height:8px;background:var(--bad);border-radius:50%;display:none;}
+.notif-badge-dot.show{display:block;}
+.notif-count-num{position:absolute;top:0;right:0;background:var(--bad);color:#fff;font-size:9px;font-weight:800;padding:1px 4px;border-radius:999px;display:none;}
+.notif-count-num.show{display:block;}
+.notif-dropdown{position:absolute;top:calc(100% + 8px);left:0;width:290px;background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-md);z-index:3000;overflow:hidden;display:none;}
+.notif-dropdown.open{display:block;}
+.notif-head{background:var(--primary);color:#fff;padding:10px 14px;font-family:'Cairo',sans-serif;font-weight:800;font-size:13px;}
+.notif-item{padding:10px 14px;border-bottom:1px solid var(--line);font-size:12.5px;cursor:pointer;transition:.12s;}
+.notif-item:hover{background:var(--bg);}
+.notif-item-icon{font-size:16px;margin-left:8px;}
+.notif-empty{padding:20px;text-align:center;color:var(--muted);font-size:12px;}
+
+/* ===== WA ACTIONS ===== */
+.wa-actions{display:flex;gap:4px;margin-top:7px;flex-wrap:wrap;}
+.wa-action-btn{font-size:10px;padding:3px 7px;border-radius:5px;border:none;cursor:pointer;font-weight:700;color:#fff;transition:.12s;}
+.wa-loc{background:#25D366;}
+.wa-price{background:#1877F2;}
+.wa-brochure{background:#C8893D;}
+
+/* ===== UNIT EXTRAS ===== */
+.finishing-badge{display:inline-block;font-size:10.5px;padding:2px 8px;border-radius:999px;font-weight:700;}
+.fin-تشطيب{background:#DCEFE4;color:var(--good);}
+.fin-متشطبه{background:var(--accent-soft);color:#7A521E;}
+.fin-طوب_احمر{background:#F4DFD8;color:var(--bad);}
 </style>
 </head>
 <body>
@@ -250,6 +305,15 @@ table th{background:var(--primary-soft);font-family:'Cairo',sans-serif;color:var
   <div class="brand"><span class="dot">●</span> Yousseif-CRM</div>
   <div class="topbar-right">
     <span class="sales-pill" id="sales-pill" style="display:none;"></span>
+    <div class="notif-bell-wrap" id="notif-bell-wrap">
+      <button class="notif-bell-btn" id="notif-bell-btn" title="الإشعارات">
+        🔔<span class="notif-count-num" id="notif-count-num">0</span>
+      </button>
+      <div class="notif-dropdown" id="notif-dropdown">
+        <div class="notif-head">الإشعارات</div>
+        <div id="notif-list"></div>
+      </div>
+    </div>
     <div class="tabs">
       <button class="tabbtn active" data-tab="search">Search Unit</button>
       <button class="tabbtn" data-tab="pipeline">Pipeline <span class="notif-badge" id="notif-badge">0</span></button>
@@ -332,6 +396,36 @@ table th{background:var(--primary-soft);font-family:'Cairo',sans-serif;color:var
     </div>
   </div>
   <div id="admin-area" style="display:none;">
+    <!-- DASHBOARD -->
+    <div id="admin-dashboard" style="margin-bottom:22px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
+        <h2 style="margin:0;font-family:'Cairo',sans-serif;font-size:20px;color:var(--primary);">لوحة التحكم</h2>
+        <span style="font-size:12px;color:var(--muted);" id="dash-updated"></span>
+      </div>
+      <div class="dash-grid" id="dash-stats"></div>
+      <div class="dash-row" id="dash-alerts"></div>
+      <div class="dash-row" id="dash-insights"></div>
+      <div class="card" style="margin-top:4px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <strong style="font-family:'Cairo',sans-serif;">📋 Activity Timeline</strong>
+          <span class="helpline" id="activity-count"></span>
+        </div>
+        <div id="activity-timeline" style="max-height:280px;overflow-y:auto;"></div>
+      </div>
+      <div class="card" style="margin-top:14px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <strong style="font-family:'Cairo',sans-serif;">⚙️ إعدادات الشركة</strong>
+        </div>
+        <div class="grid g2">
+          <div><label>اسم الشركة</label><input id="set-company" placeholder="اسم الشركة"></div>
+          <div><label>لينك اللوجو (URL)</label><input id="set-logo" placeholder="https://...logo.png"></div>
+          <div><label>موبايل الشركة</label><input id="set-phone" placeholder="01xxxxxxxxx"></div>
+          <div><label>واتساب الشركة</label><input id="set-wa" placeholder="01xxxxxxxxx"></div>
+        </div>
+        <div style="margin-top:8px;"><button class="btn gold sm" id="btn-save-settings">حفظ الإعدادات</button></div>
+      </div>
+    </div>
+    <!-- END DASHBOARD -->
     <div class="admin-layout">
       <div class="admin-side">
         <div class="card">
@@ -527,6 +621,7 @@ async function loadAll(){
     leads      = lD.exists?(lD.data().list||[]):[];
     salesUsers = uD.exists?(uD.data().list||[]):[];
     refreshAreaOptions();
+    await loadActivity(); await loadSettings();
   }catch(e){ toast('خطأ في تحميل البيانات'); }
 }
 async function saveProjects(){
@@ -619,6 +714,11 @@ function renderKanban(){
           ${l.source?`<span class="source-badge" style="background:${srcColor}25;color:${srcColor};">${esc(l.source)}</span>`:''}
         </div>
         ${fu?`<div class="followup-label ${isOver?'followup-overdue':isToday?'followup-today':'followup-future'}">⏰ ${new Date(l.followUpDate).toLocaleDateString('ar-EG')}${isToday?' (اليوم!)':isOver?' (متأخر!)':''}</div>`:''}
+        <div class="wa-actions" onclick="event.stopPropagation()">
+          ${proj&&proj.locationUrl?`<button class="wa-action-btn wa-loc" onclick="waShare('${waPhone}','location','${(proj.locationUrl||'').replace(/'/g,'%27')}')">📍 موقع</button>`:''}
+          <button class="wa-action-btn wa-price" onclick="waShare('${waPhone}','price','${esc(proj?.name||'')}')">💰 أسعار</button>
+          <button class="wa-action-btn wa-brochure" onclick="waShare('${waPhone}','brochure','${esc(l.name||'')}')">📋 بروشور</button>
+        </div>
       </div>`;
     }).join('');
 
@@ -758,14 +858,16 @@ async function saveLead(){
     const lead = leads.find(l=>l.id===currentModalLeadId);
     data.visits = lead.visits; // preserve visits
     Object.assign(lead, data);
+    logActivity('تحديث عميل',data.name,'✏️');
   } else {
     leads.push({id:uid(), createdAt:Date.now(), visits:[], ...data});
+    logActivity('عميل جديد',data.name,'👤');
   }
 
   await saveLeads();
   byId('lead-modal').classList.add('hidden');
   renderKanban();
-  if(adminUnlocked) renderAdminLeadsList();
+  if(adminUnlocked){renderAdminLeadsList();renderDashboard();}
   toast('تم الحفظ');
 }
 
@@ -984,10 +1086,15 @@ function exportQuotePDF(projectId,unitId,planId){
     const cnt=Math.max(1,Math.round((plan.years||1)*perY));
     monthlyInstallment=remaining/cnt;
   }
+  const qrData=salesUser?.phone?`https://wa.me/20${(salesUser.phone||'').replace(/^0/,'')}`:(p.locationUrl||p.name||'');
+  const qrUrl=`https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(qrData)}&size=80x80&margin=2`;
   byId('print-area').innerHTML=`<div class="quote-paper">
+    ${appSettings.logo?`<div style="text-align:center;margin-bottom:10px;"><img src="${appSettings.logo}" style="max-height:60px;max-width:200px;object-fit:contain;"></div>`:''}
     ${p.image?`<img src="${p.image}" style="width:100%;max-height:200px;object-fit:cover;border-radius:8px;margin-bottom:14px;">` : ''}
-    <div class="quote-head">
+    <div class="quote-head" style="position:relative;">
+      <img src="${qrUrl}" style="position:absolute;left:0;top:0;width:70px;height:70px;" onerror="this.style.display='none'">
       <h1>عرض سعر</h1>
+      ${appSettings.company?`<p style="font-size:13px;color:var(--muted);margin:0 0 4px;">${esc(appSettings.company)}</p>`:''}
       <p style="font-size:18px;font-weight:700;">${esc(p.name)}</p>
       <p>${esc(p.area)}${p.location?' — '+esc(p.location):''}</p>
       <p class="helpline">تاريخ العرض: ${new Date().toLocaleDateString('ar-EG')}</p>
@@ -998,6 +1105,8 @@ function exportQuotePDF(projectId,unitId,planId){
       ${u.view?`<tr><th>الفيو</th><td>${esc(u.view)}</td></tr>`:''}
       ${u.location?`<tr><th>الموقع</th><td>${esc(u.location)}</td></tr>`:''}
       ${u.area?`<tr><th>المساحة</th><td>${u.area} م²</td></tr>`:''}
+      ${(u.rooms||u.baths)?`<tr><th>التوزيع</th><td>${u.rooms?u.rooms+' غرفة':''}${u.baths?' / '+u.baths+' حمام':''}</td></tr>`:''}
+      ${u.finishing?`<tr><th>التشطيب</th><td>${esc(u.finishing)}</td></tr>`:''}
       ${u.pricePerMeter?`<tr><th>سعر المتر</th><td>${money(u.pricePerMeter)}</td></tr>`:''}
       <tr><th>سعر الوحدة</th><td><strong style="font-size:16px;">${money(u.price)}</strong></td></tr>
       <tr><th>نظام السداد</th><td>${esc(plan.name)}</td></tr>
@@ -1025,6 +1134,14 @@ byId('btn-unlock').addEventListener('click',()=>{
     byId('admin-area').style.display='block';
     renderAdminProjectList(); renderProjectDetail();
     renderSalesUsersList(); renderAdminLeadsList();
+    renderDashboard();
+    loadSettings().then(()=>{
+      if(byId('set-company')) byId('set-company').value=appSettings.company||'';
+      if(byId('set-logo')) byId('set-logo').value=appSettings.logo||'';
+      if(byId('set-phone')) byId('set-phone').value=appSettings.phone||'';
+      if(byId('set-wa')) byId('set-wa').value=appSettings.wa||'';
+    });
+    byId('btn-save-settings').addEventListener('click',saveSettings);
     byId('btn-add-sales-user').addEventListener('click',showAddSalesUserForm);
     byId('admin-lead-status-filter').addEventListener('change',renderAdminLeadsList);
     byId('admin-lead-sales-filter').addEventListener('change',renderAdminLeadsList);
@@ -1209,10 +1326,12 @@ function renderProjectDetail(){
 function renderUnitsTable(p){
   const el=byId('units-table');
   if(!p.units?.length){el.innerHTML=`<p class="helpline">لا توجد وحدات.</p>`;return;}
-  el.innerHTML=`<table><tr><th>الفئة</th><th>الدور</th><th>الفيو</th><th>الموقع</th><th>المساحة</th><th>سعر المتر</th><th>السعر</th><th></th></tr>
+  el.innerHTML=`<table><tr><th>الفئة</th><th>الدور</th><th>الفيو</th><th>غرف</th><th>المساحة</th><th>سعر المتر</th><th>التشطيب</th><th>السعر</th><th></th></tr>
     ${p.units.map(u=>`<tr>
-      <td>${esc(u.category)}</td><td>${esc(u.floor)||'-'}</td><td>${esc(u.view)||'-'}</td><td>${esc(u.location)||'-'}</td>
+      <td>${esc(u.category)}</td><td>${esc(u.floor)||'-'}</td><td>${esc(u.view)||'-'}</td>
+      <td>${u.rooms?u.rooms+'🛏':'--'}${u.baths?' / '+u.baths+'🚿':''}</td>
       <td>${u.area?u.area+' م²':'-'}</td><td>${u.pricePerMeter?money(u.pricePerMeter)+'/م':'-'}</td>
+      <td>${u.finishing?`<span class="finishing-badge fin-${u.finishing.replace(/\s+/g,'_')}">${esc(u.finishing)}</span>`:'-'}</td>
       <td>${money(u.price)}</td>
       <td><button class="btn ghost sm" data-act="edit-unit" data-unit="${u.id}">تعديل</button>
           <button class="btn danger sm" data-act="delete-unit" data-unit="${u.id}">حذف</button></td>
@@ -1226,6 +1345,14 @@ function showUnitForm(unitId){
       <div><label>الدور</label><input id="u-floor" value="${esc(u?.floor||'')}"></div>
       <div><label>الفيو</label><input id="u-view" value="${esc(u?.view||'')}"></div>
       <div><label>الموقع</label><input id="u-location" value="${esc(u?.location||'')}"></div>
+      <div><label>غرف النوم</label><input id="u-rooms" type="number" min="0" value="${u?.rooms||''}" placeholder="مثلاً 3"></div>
+      <div><label>الحمامات</label><input id="u-baths" type="number" min="0" value="${u?.baths||''}" placeholder="مثلاً 2"></div>
+      <div><label>التشطيب</label><select id="u-finishing">
+        <option value="">-- اختر --</option>
+        <option ${u?.finishing==='تشطيب'?'selected':''}>تشطيب</option>
+        <option ${u?.finishing==='متشطبه'?'selected':''}>متشطبه</option>
+        <option ${u?.finishing==='طوب احمر'?'selected':''}>طوب احمر</option>
+      </select></div>
     </div>
     <div class="grid g2" style="margin-top:8px;">
       <div><label>السعر الإجمالي</label><input id="u-price" type="number" value="${u?.price||''}" placeholder="مثلاً 2500000"></div>
@@ -1249,7 +1376,7 @@ async function saveUnit(unitId){
   const area=parseFloat(byId('u-area').value)||null;
   const manualPpm=parseFloat(byId('u-ppm').value)||null;
   const pricePerMeter=manualPpm||(area?Math.round(price/area):null);
-  const data={category:cat,price,floor:byId('u-floor').value.trim(),view:byId('u-view').value.trim(),location:byId('u-location').value.trim(),area,pricePerMeter};
+  const data={category:cat,price,floor:byId('u-floor').value.trim(),view:byId('u-view').value.trim(),location:byId('u-location').value.trim(),area,pricePerMeter,rooms:parseInt(byId('u-rooms').value)||null,baths:parseInt(byId('u-baths').value)||null,finishing:byId('u-finishing').value||null};
   if(unitId){Object.assign(p.units.find(x=>x.id===unitId),data);}
   else{p.units=p.units||[];p.units.push({id:uid(),...data});}
   await saveProjects(); byId('unit-form').innerHTML=''; renderProjectDetail(); renderAdminProjectList(); toast('تم الحفظ');
@@ -1522,6 +1649,7 @@ document.addEventListener('click',e=>{
     case 'cancel-edit-project': byId('edit-proj-form')?.remove(); break;
     case 'transfer-lead': transferLead(leadId||el.dataset.leadId); break;
     case 'admin-delete-lead': adminDeleteLead(leadId||el.dataset.leadId); break;
+    case 'open-notif-lead': byId('notif-dropdown').classList.remove('open'); openLeadModal(leadId||el.dataset.leadId); break;
     case 'upload-my-leads-excel':
       const mli=byId('my-leads-excel-input');
       if(mli){
@@ -1587,6 +1715,169 @@ function handleMyLeadsExcelUpload(e){
     e.target.value='';
   };
   reader.readAsArrayBuffer(file);
+}
+
+/* ---- SETTINGS ---- */
+let appSettings = {company:'', logo:'', phone:'', wa:''};
+async function loadSettings(){
+  if(!firebaseReady)return;
+  try{const d=await db.collection('appdata').doc('settings').get(); if(d.exists)appSettings={...appSettings,...d.data()};}catch(e){}
+}
+async function saveSettings(){
+  const s={company:byId('set-company')?.value?.trim()||'',logo:byId('set-logo')?.value?.trim()||'',phone:byId('set-phone')?.value?.trim()||'',wa:byId('set-wa')?.value?.trim()||''};
+  appSettings=s;
+  if(firebaseReady) await db.collection('appdata').doc('settings').set(s);
+  toast('تم حفظ الإعدادات');
+}
+
+/* ---- ACTIVITY LOG ---- */
+let activityLog = [];
+async function loadActivity(){
+  if(!firebaseReady)return;
+  try{const d=await db.collection('appdata').doc('activity').get(); activityLog=d.exists?(d.data().log||[]):[];}catch(e){}
+}
+async function saveActivity(){
+  if(firebaseReady) try{ await db.collection('appdata').doc('activity').set({log:activityLog}); }catch(e){}
+}
+function logActivity(action, detail, icon='📝'){
+  activityLog.unshift({id:uid(),action,detail,icon,user:currentSalesName||'أدمن',ts:Date.now()});
+  activityLog=activityLog.slice(0,100);
+  saveActivity();
+  if(adminUnlocked) renderActivityTimeline();
+}
+function renderActivityTimeline(){
+  const el=byId('activity-timeline'); if(!el)return;
+  byId('activity-count').textContent=activityLog.length+' حدث';
+  if(!activityLog.length){el.innerHTML='<p class="helpline" style="padding:10px;">لا يوجد نشاط مسجل بعد.</p>';return;}
+  el.innerHTML=activityLog.slice(0,40).map(a=>`<div class="timeline-item">
+    <div class="timeline-dot"></div>
+    <div><div class="timeline-text">${a.icon||'📝'} <strong>${esc(a.action)}</strong>${a.detail?' — '+esc(a.detail):''}</div>
+    <div class="timeline-time">${esc(a.user)} · ${new Date(a.ts).toLocaleString('ar-EG')}</div></div>
+  </div>`).join('');
+}
+
+/* ---- NOTIFICATIONS ---- */
+function getNotifications(){
+  const notifs=[], now=Date.now(), today=todayStr();
+  const myLeads=currentSalesName?leads.filter(l=>l.salesName===currentSalesName):[];
+  myLeads.forEach(l=>{
+    if(l.followUpDate){
+      const fu=new Date(l.followUpDate).getTime(), diff=fu-now;
+      if(diff<0&&diff>-86400000) notifs.push({type:'overdue',icon:'⚠️',text:`Follow-up متأخر: ${l.name}`,leadId:l.id,ts:fu});
+      else if(diff>0&&diff<3600000) notifs.push({type:'soon',icon:'⏰',text:`Follow-up خلال ساعة: ${l.name}`,leadId:l.id,ts:fu});
+      else if(l.followUpDate.startsWith(today)) notifs.push({type:'today',icon:'📅',text:`Follow-up اليوم: ${l.name}`,leadId:l.id,ts:fu});
+    }
+    (l.transferHistory||[]).forEach(h=>{
+      if(h.to===currentSalesName&&now-h.date<86400000) notifs.push({type:'transfer',icon:'🔄',text:`تم تحويل عميل إليك: ${l.name}`,leadId:l.id,ts:h.date});
+    });
+  });
+  return notifs.sort((a,b)=>a.ts-b.ts);
+}
+function renderNotifications(){
+  const notifs=getNotifications();
+  const badge=byId('notif-count-num');
+  if(badge){badge.textContent=notifs.length;badge.classList.toggle('show',notifs.length>0);}
+  const list=byId('notif-list'); if(!list)return;
+  list.innerHTML=notifs.length?notifs.map(n=>`<div class="notif-item" data-act="open-notif-lead" data-lead-id="${n.leadId}">
+    <span class="notif-item-icon">${n.icon}</span>${esc(n.text)}
+  </div>`).join(''):`<div class="notif-empty">لا توجد إشعارات حالياً ✅</div>`;
+}
+byId('notif-bell-btn').addEventListener('click',e=>{
+  e.stopPropagation();
+  renderNotifications();
+  byId('notif-dropdown').classList.toggle('open');
+});
+document.addEventListener('click',()=>byId('notif-dropdown')?.classList.remove('open'));
+
+/* ---- DASHBOARD ---- */
+function renderDashboard(){
+  const today=todayStr();
+  const totalProjects=projects.length;
+  const totalUnits=projects.reduce((s,p)=>s+(p.units||[]).length,0);
+  const totalLeads=leads.length;
+  const totalBookings=leads.filter(l=>l.status==='حجز').length;
+  const newToday=leads.filter(l=>new Date(l.createdAt).toISOString().startsWith(today)).length;
+  const overdueFollowups=leads.filter(l=>l.followUpDate&&l.followUpDate.split('T')[0]<today&&l.status!=='حجز'&&l.status!=='اعتذر').length;
+
+  // Best salesperson
+  const salesCount={};
+  leads.filter(l=>l.status==='حجز').forEach(l=>salesCount[l.salesName]=(salesCount[l.salesName]||0)+1);
+  const bestSales=Object.entries(salesCount).sort((a,b)=>b[1]-a[1])[0];
+
+  // Most requested project
+  const projCount={};
+  leads.forEach(l=>{ if(l.projectId)projCount[l.projectId]=(projCount[l.projectId]||0)+1; });
+  const topProjId=Object.entries(projCount).sort((a,b)=>b[1]-a[1])[0];
+  const topProj=topProjId?projects.find(p=>p.id===topProjId[0]):null;
+
+  byId('dash-updated').textContent='آخر تحديث: '+new Date().toLocaleTimeString('ar-EG');
+
+  const stats=[
+    {icon:'📋',num:totalLeads,label:'إجمالي العملاء',sub:'',color:'blue'},
+    {icon:'🏢',num:totalProjects,label:'المشاريع',sub:totalUnits+' وحدة',color:'green'},
+    {icon:'✅',num:totalBookings,label:'الحجوزات',sub:totalLeads?Math.round(totalBookings/totalLeads*100)+'% نسبة تحويل':'',color:'gold'},
+    {icon:'🆕',num:newToday,label:'عملاء اليوم',sub:'',color:'blue'},
+  ];
+  byId('dash-stats').innerHTML=stats.map((s,i)=>`<div class="stat-card ${s.color}" style="animation-delay:${i*0.1}s">
+    <span class="stat-card-icon">${s.icon}</span>
+    <div class="stat-card-num" data-target="${s.num}">0</div>
+    <div class="stat-card-label">${s.label}</div>
+    ${s.sub?`<div class="stat-card-sub">${s.sub}</div>`:''}
+  </div>`).join('');
+
+  // animate counts
+  byId('dash-stats').querySelectorAll('[data-target]').forEach(el=>{
+    const target=parseInt(el.dataset.target)||0;
+    let v=0; const step=Math.max(1,Math.ceil(target/40));
+    const t=setInterval(()=>{v=Math.min(v+step,target);el.textContent=v.toLocaleString('ar-EG');if(v>=target)clearInterval(t);},30);
+  });
+
+  byId('dash-alerts').innerHTML=`
+    <div class="alert-card ${overdueFollowups>0?'danger':'good'}">
+      <h4>${overdueFollowups>0?'⚠️':'✅'} Follow-ups متأخرة</h4>
+      <div style="font-size:28px;font-weight:800;font-family:'Cairo',sans-serif;color:${overdueFollowups>0?'var(--bad)':'var(--good)'};" class="${overdueFollowups>0?'pulse':''}">${overdueFollowups}</div>
+      <div class="helpline" style="margin-top:4px;">${overdueFollowups>0?'يحتاجون متابعة عاجلة':'كل المتابعات في موعدها'}</div>
+    </div>
+    <div class="alert-card warning">
+      <h4>📊 حالات العملاء</h4>
+      ${['جديد','تواصل أول','مهتم','حجز','اعتذر'].map(s=>{
+        const cnt=leads.filter(l=>l.status===s).length;
+        const pct=totalLeads?Math.round(cnt/totalLeads*100):0;
+        return `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
+          <span style="font-size:12px;">${s}</span>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div style="width:80px;height:6px;background:var(--line);border-radius:3px;overflow:hidden;">
+              <div style="width:${pct}%;height:100%;background:var(--accent);"></div>
+            </div>
+            <span style="font-size:12px;font-weight:700;min-width:20px;">${cnt}</span>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`;
+
+  byId('dash-insights').innerHTML=`
+    <div class="alert-card good">
+      <h4>🏆 أفضل سيلز</h4>
+      ${bestSales?`<div style="font-size:22px;font-weight:800;font-family:'Cairo',sans-serif;color:var(--primary);">${esc(bestSales[0])}</div>
+        <div class="helpline">${bestSales[1]} حجز مؤكد</div>`:'<div class="helpline">لا توجد حجوزات بعد</div>'}
+    </div>
+    <div class="alert-card warning">
+      <h4>🔥 أكثر مشروع مطلوب</h4>
+      ${topProj?`<div style="font-size:18px;font-weight:800;font-family:'Cairo',sans-serif;color:var(--primary);">${esc(topProj.name)}</div>
+        <div class="helpline">${topProjId[1]} عميل مهتم</div>`:'<div class="helpline">لا توجد بيانات بعد</div>'}
+    </div>`;
+
+  renderActivityTimeline();
+}
+
+/* ---- WHATSAPP SHARE ---- */
+function waShare(phone, type, data){
+  const waNum='20'+phone.replace(/^0+/,'');
+  let msg='';
+  if(type==='location') msg=`مرحباً، هتلاقي الموقع من هنا: ${data}`;
+  else if(type==='price') msg=`مرحباً، دي قائمة الأسعار لمشروع ${data} — للاستفسار تواصل معنا`;
+  else if(type==='brochure') msg=`مرحباً ${data}، شكراً لاهتمامك! هبعتلك تفاصيل المشروع كاملة دلوقتي.`;
+  window.open('https://wa.me/'+waNum+'?text='+encodeURIComponent(msg),'_blank');
 }
 
 /* ---- COMPRESS IMAGE ---- */
