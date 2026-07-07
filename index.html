@@ -386,7 +386,9 @@ table th{background:var(--primary-soft);font-family:'Cairo',sans-serif;color:var
 .notif-badge-dot.show{display:block;}
 .notif-count-num{position:absolute;top:0;right:0;background:var(--bad);color:#fff;font-size:9px;font-weight:800;padding:1px 4px;border-radius:999px;display:none;}
 .notif-count-num.show{display:block;}
-.notif-dropdown{position:absolute;top:calc(100% + 8px);left:0;width:290px;background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-md);z-index:3000;overflow:hidden;display:none;}
+.notif-dropdown{position:absolute;top:calc(100% + 8px);left:0;width:340px;
+max-height:420px;
+overflow-y:auto;background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-md);z-index:3000;overflow:hidden;display:none;}
 .notif-dropdown.open{display:block;}
 .notif-head{background:var(--primary);color:#fff;padding:10px 14px;font-family:'Cairo',sans-serif;font-weight:800;font-size:13px;}
 .notif-item{padding:10px 14px;border-bottom:1px solid var(--line);font-size:12.5px;cursor:pointer;transition:.12s;}
@@ -394,6 +396,56 @@ table th{background:var(--primary-soft);font-family:'Cairo',sans-serif;color:var
 .notif-item-icon{font-size:16px;margin-left:8px;}
 .notif-empty{padding:20px;text-align:center;color:var(--muted);font-size:12px;}
 
+.notif-item-icon{
+    font-size:22px;
+    min-width:26px;
+    text-align:center;
+}
+.notif-item{
+    padding:14px 16px;
+}
+
+.notif-item.overdue{
+    color:#c62828;
+    background:#fff3f3;
+    border-right:4px solid #c62828;
+}
+
+.notif-item.soon{
+    color:#e67e22;
+    background:#fff8ef;
+    border-right:4px solid #e67e22;
+}
+
+.notif-item.today{
+    color:#1565c0;
+    background:#eef6ff;
+    border-right:4px solid #1565c0;
+}
+
+.notif-item.transfer{
+    color:#2e7d32;
+    background:#eefbf0;
+    border-right:4px solid #2e7d32;
+}
+
+.notif-item-icon{
+    font-size:20px;
+}
+.notif-item{
+    animation:fadeNotif .25s ease;
+}
+
+@keyframes fadeNotif{
+    from{
+        opacity:0;
+        transform:translateX(10px);
+    }
+    to{
+        opacity:1;
+        transform:translateX(0);
+    }
+}
 /* ===== WA ACTIONS ===== */
 .wa-actions{display:flex;gap:4px;margin-top:7px;flex-wrap:wrap;}
 .wa-action-btn{font-size:10px;padding:3px 7px;border-radius:5px;border:none;cursor:pointer;font-weight:700;color:#fff;transition:.12s;}
@@ -1775,9 +1827,10 @@ function showUnitForm(unitId){
       <div><label>الحمامات</label><input id="u-baths" type="number" min="0" value="${u?.baths||''}" placeholder="مثلاً 2"></div>
       <div><label>التشطيب</label><select id="u-finishing">
         <option value="">-- اختر --</option>
-        <option ${u?.finishing==='تشطيب'?'selected':''}>تشطيب</option>
-        <option ${u?.finishing==='متشطبه'?'selected':''}>متشطبه</option>
         <option ${u?.finishing==='طوب احمر'?'selected':''}>طوب احمر</option>
+        <option ${u?.finishing==='نصف تشطيب'?'selected':''}>
+        <option ${u?.finishing==='متشطبه'?'selected':''}>متشطبه</option>
+        <option ${u?.finishing==='سوبر لوكس'?'selected':''}>سوبر لوكس</option>
       </select></div>
     </div>
     <div class="grid g2" style="margin-top:8px;">
