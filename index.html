@@ -1093,7 +1093,7 @@ async function saveLead(){
     updatedAt: Date.now()
   };
 
-if (currentModalLeadId) {
+  if (currentModalLeadId) {
     const lead = leads.find(l => l.id === currentModalLeadId);
 
     data.visits = lead.visits;
@@ -1113,7 +1113,6 @@ logActivity(
     data.name,
     currentModalLeadId ? '✏️' : '👤'
 );
-
   await saveLeads();
   byId('lead-modal').classList.add('hidden');
   renderKanban();
