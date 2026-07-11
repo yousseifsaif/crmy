@@ -860,7 +860,7 @@ async function loadAll(){
     salesUsers = uD.exists?(uD.data().list||[]):[];
     refreshAreaOptions();
     await loadActivity(); await loadSettings();
-    setTimeout(initSearchListeners,100);
+    setTimeout(()=>{initSearchListeners();setTimeout(performSearch,150);},100);
   }catch(e){ toast('خطأ في تحميل البيانات'); }
 }
 async function saveProjects(){
@@ -953,11 +953,7 @@ function renderKanban(){
           ${l.source?`<span class="source-badge" style="background:${srcColor}25;color:${srcColor};">${esc(l.source)}</span>`:''}
         </div>
         ${fu?`<div class="followup-label ${isOver?'followup-overdue':isToday?'followup-today':'followup-future'}">⏰ ${new Date(l.followUpDate).toLocaleDateString('ar-EG')}${isToday?' (اليوم!)':isOver?' (متأخر!)':''}</div>`:''}
-        <div class="wa-actions" onclick="event.stopPropagation()">
-          ${proj&&proj.locationUrl?`<button class="wa-action-btn wa-loc" onclick="waShare('${waPhone}','location','${(proj.locationUrl||'').replace(/'/g,'%27')}')">📍 موقع</button>`:''}
-          <button class="wa-action-btn wa-price" onclick="waShare('${waPhone}','price','${esc(proj?.name||'')}')">💰 أسعار</button>
-          <button class="wa-action-btn wa-brochure" onclick="waShare('${waPhone}','brochure','${esc(l.name||'')}')">📋 بروشور</button>
-        </div>
+        
       </div>`;
     }).join('');
 
@@ -1093,26 +1089,16 @@ async function saveLead(){
     updatedAt: Date.now()
   };
 
-  if (currentModalLeadId) {
-    const lead = leads.find(l => l.id === currentModalLeadId);
-
+  if(currentModalLeadId){
+    const lead = leads.find(l=>l.id===currentModalLeadId);
     data.visits = lead.visits;
     Object.assign(lead, data);
+    logActivity('تحديث عميل',data.name,'✏️');
+  } else {
+    leads.push({id:uid(), createdAt:Date.now(), visits:[], ...data});
+    logActivity('عميل جديد',data.name,'👤');
+  }
 
-} else {
-    leads.push({
-        id: uid(),
-        createdAt: Date.now(),
-        visits: [],
-        ...data
-    });
-}
-
-logActivity(
-    currentModalLeadId ? 'تحديث عميل' : 'عميل جديد',
-    data.name,
-    currentModalLeadId ? '✏️' : '👤'
-);
   await saveLeads();
   byId('lead-modal').classList.add('hidden');
   renderKanban();
@@ -1410,56 +1396,6 @@ function initSearchListeners(){
 // legacy compat
 function runSearch(){ performSearch(); }
 
-function runSearch(){
-  const area=byId('f-area').value, type=byId('f-type').value;
-  const budget=parseFloat(byId('f-budget').value)||null;
-  const down=parseFloat(byId('f-down').value)||0;
-  const matched=projects.filter(p=>{
-    if(area&&p.area!==area)return false;
-    if(type&&p.type!==type)return false;
-    return true;
-  }).map(p=>({...p,_units:(p.units||[]).filter(u=>!budget||Number(u.price)<=budget)}))
-    .filter(p=>!budget||p._units.length>0);
-  const box=byId('search-results');
-  if(!matched.length){box.innerHTML=`<div class="empty" style="grid-column:1/-1;">مفيش مشاريع متطابقة.</div>`;return;}
-  box.innerHTML=matched.map(p=>{
-    const allUnits=p._units||[];
-    const prices=allUnits.map(u=>u.price).filter(Boolean);
-    const minP=prices.length?Math.min(...prices):null, maxP=prices.length?Math.max(...prices):null;
-    const imgHtml=p.image
-      ?`<img src="${p.image}" class="proj-img" alt="${esc(p.name)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="proj-img-placeholder" style="display:none;">🏢</div>`
-      :`<div class="proj-img-placeholder">🏢</div>`;
-    const unitRows=allUnits.map(u=>`
-      <div class="unit-row" style="padding:10px 14px;">
-        <div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;">
-          <div><div style="font-weight:700;">${esc(u.category)}</div>
-          <div class="helpline">الدور: ${esc(u.floor)||'-'} | الفيو: ${esc(u.view)||'-'} | الموقع: ${esc(u.location)||'-'}</div></div>
-          <span class="price">${money(u.price)}</span>
-        </div>
-        <button class="btn ghost sm" style="margin-top:7px;" data-act="show-plans" data-project="${p.id}" data-unit="${u.id}" data-down="${down}">أنظمة السداد</button>
-        <div data-plans-for="${p.id}-${u.id}"></div>
-      </div>`).join('')||'<div class="helpline" style="padding:12px;">لا توجد وحدات مدخلة.</div>';
-    return `<div class="proj-listing-card">
-      <div class="proj-img-wrap">${imgHtml}${p.type?`<span class="proj-type-tag">${esc(p.type)}</span>`:''}</div>
-      <div class="proj-listing-body">
-        <div class="proj-listing-title">${esc(p.name)}</div>
-        ${p.developer?`<div class="proj-listing-dev">🏗 ${esc(p.developer)}</div>`:''}
-        ${(p.location||p.area)?`<div class="proj-listing-loc">📍 ${esc(p.location||p.area)}</div>`:''}
-        ${p.description?`<div class="proj-listing-desc">${esc(p.description.slice(0,140))}${p.description.length>140?'...':''}</div>`:''}
-        <div class="proj-listing-stats">
-          <span class="proj-stat">${allUnits.length} وحدة متاحة</span>
-          ${minP?`<span class="proj-stat">يبدأ من ${money(minP)}</span>`:''}
-          ${(maxP&&maxP!==minP)?`<span class="proj-stat">حتى ${money(maxP)}</span>`:''}
-        </div>
-        <div class="proj-actions">
-          ${p.locationUrl?`<a href="${esc(p.locationUrl)}" target="_blank" class="btn ghost sm">🗺 الخريطة</a>`:''}
-          <button class="btn gold sm" data-act="toggle-units" data-project="${p.id}" style="flex:1;">عرض الوحدات والأسعار (${allUnits.length})</button>
-        </div>
-      </div>
-      <div class="units-dropdown" id="units-for-${p.id}">${unitRows}</div>
-    </div>`;
-  }).join('');
-}
 
 function toggleUnits(projectId){
   const el=byId('units-for-'+projectId);
@@ -1988,14 +1924,39 @@ function handleExcelUpload(e){
       const wb=XLSX.read(new Uint8Array(evt.target.result),{type:'array'});
       const rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:''});
       const p=projects.find(x=>x.id===activeProjectId);if(!p){toast('افتح مشروع');return;}
+      const gs=(r,...k)=>{for(const key of k){const v=r[key];if(v!==undefined&&v!==''&&v!==null)return String(v).trim();}return null;};
+      const gn=(r,...k)=>{for(const key of k){const v=parseFloat(r[key]);if(!isNaN(v))return v;}return null;};
       rows.forEach(r=>{
-        const cat=r['الفئة']??r['category']??'',price=parseFloat(r['السعر']??r['price']??'');
-        if(!cat||!price||isNaN(price)){skipped++;return;}
-        p.units.push({id:uid(),category:String(cat).trim(),price,floor:String(r['الدور']??'').trim(),view:String(r['الفيو']??'').trim(),location:String(r['الموقع']??'').trim()});
+        const cat=gs(r,'اسم الشركه','الفئة','category')||'-';
+        const cashPrice=gn(r,'الكاش','سعر الكاش');
+        const price=cashPrice||gn(r,'السعر','price')||0;
+        const area=gn(r,'المساحه','المساحة','area');
+        const pricePerMeter=(price&&area)?Math.round(price/area):gn(r,'سعر المتر');
+        p.units.push({
+          id:uid(),
+          category:cat,
+          price:price,
+          unitNumber:gs(r,'رقم القطعه','رقم الوحدة')||'-',
+          floor:gs(r,'الدور','floor')||'-',
+          view:gs(r,'الفيو','view')||'-',
+          location:gs(r,'الموقع','location')||'-',
+          rooms:gn(r,'عدد الغرف','عدد الغرف ','rooms'),
+          baths:gn(r,'  عدد الحمامات','عدد الحمامات','baths'),
+          area:area,
+          gardenArea:gn(r,'مساحة الجاردن','مساحة الحديقة'),
+          pricePerMeter:pricePerMeter,
+          finishing:gs(r,'نوع التسليم','التشطيب','finishing')||null,
+          utilities:gs(r,'عدادات+ اسانسير','عدادات','utilities')||null,
+          deliveryDate:gs(r,'ميعاد التسليم','تاريخ التسليم')||null,
+          cashPrice:cashPrice,
+          downPaymentAmount:gn(r,'المقدم'),
+          installment1Year:gn(r,'القسط علي سنه','القسط/سنة'),
+          installment2Year:gn(r,'القسط علي سنتين','القسط/سنتين'),
+        });
         added++;
       });
       saveProjects().then(()=>{renderProjectDetail();renderAdminProjectList();refreshAreaOptions();toast(`تم رفع ${added} وحدة${skipped?' (تجاهل '+skipped+')':''}`)});
-    }catch(err){toast('خطأ في قراءة الملف');}
+    }catch(err){console.error(err);toast('خطأ في قراءة الملف: '+err.message);}
     e.target.value='';
   };
   reader.readAsArrayBuffer(file);
@@ -2458,6 +2419,14 @@ function compressImage(file, maxW=500, quality=0.65){
     reader.readAsDataURL(file);
   });
 }
+
+/* ---- EXPOSE TO GLOBAL SCOPE (inline handlers need this) ---- */
+window.closeDrawer    = (...a) => closeDrawer(...a);
+window.waShare        = (...a) => waShare(...a);
+window.calcUpdate     = (...a) => calcUpdate(...a);
+window.togglePac      = (...a) => togglePac(...a);
+window.exportQuotePDF = (...a) => exportQuotePDF(...a);
+window.handleKanbanDrop = (...a) => handleKanbanDrop(...a);
 
 /* ---- INIT ---- */
 initFirebase();
