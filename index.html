@@ -431,7 +431,8 @@ table th{background:var(--primary-soft);font-family:'Cairo',sans-serif;color:var
   <div class="topbar-right">
     <span class="sales-pill" id="sales-pill" style="display:none;"></span>
     <div class="notif-bell-wrap" id="notif-bell-wrap">
-      <button class="notif-bell-btn" id="notif-bell-btn" title="الإشعارات">
+      <button class="notif-bell-btn" id="notif-bell-btn" title="الإشعارات" aria-haspopup="true" aria-expanded="false">
+        <!-- keep existing content for compatibility -->
         🔔<span class="notif-count-num" id="notif-count-num">0</span>
       </button>
       <div class="notif-dropdown" id="notif-dropdown">
@@ -441,11 +442,51 @@ table th{background:var(--primary-soft);font-family:'Cairo',sans-serif;color:var
     </div>
 
     <div style="display:flex;align-items:center;gap:8px;">
-      <button id="theme-toggle" title="Toggle theme" class="btn ghost sm">🌙</button>
-      <select id="lang-select" title="Language" class="btn ghost sm" style="padding:6px 8px;border-radius:8px;">
+      <!-- Theme toggle: keep id (theme-toggle) so existing JS continues to work -->
+      <button id="theme-toggle" title="Toggle theme" class="btn ghost sm theme-toggle" aria-label="Toggle theme" aria-pressed="false" tabindex="0">
+        <span class="toggle-icon" aria-hidden="true">🌙</span>
+      </button>
+
+      <!-- Language: keep select (lang-select) but hide visually and provide custom dropdown -->
+      <select id="lang-select" title="Language" class="btn ghost sm" style="padding:6px 8px;border-radius:8px;opacity:0;position:absolute;left:-9999px;">
         <option value="ar">العربية</option>
         <option value="en">EN</option>
       </select>
+
+      <div class="lang-wrap" id="lang-wrap" aria-hidden="false">
+        <button class="lang-trigger" id="lang-trigger" aria-haspopup="true" aria-expanded="false" tabindex="0" title="Language">
+          <span class="lang-flag" id="lang-flag">🇪🇬</span><span id="lang-label" style="font-weight:700;">العربية</span>
+        </button>
+        <div class="lang-dropdown" id="lang-dropdown" role="menu" aria-labelledby="lang-trigger">
+          <div class="lang-item" data-lang="ar" role="menuitem" tabindex="0"><span class="lang-flag">🇪🇬</span><span>العربية</span></div>
+          <div class="lang-item" data-lang="en" role="menuitem" tabindex="0"><span class="lang-flag">🇺🇸</span><span>English</span></div>
+        </div>
+      </div>
+
+      <!-- Profile (new, non-destructive): uses sales name if available -->
+      <div style="position:relative;">
+        <button id="user-menu-button" class="profile-btn" aria-haspopup="true" aria-expanded="false" tabindex="0" title="حساب المستخدم">
+          <span class="avatar" id="user-avatar">U</span>
+          <span id="user-name" style="font-weight:700;font-size:13px;">حساب</span>
+        </button>
+        <div class="profile-menu" id="user-menu" role="menu" aria-labelledby="user-menu-button">
+          <div style="padding:8px 6px;border-bottom:1px solid var(--line);margin-bottom:8px;">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div class="avatar" id="user-avatar-big" style="width:44px;height:44px;font-size:16px;">U</div>
+              <div>
+                <div id="pm-name" style="font-weight:800;">User</div>
+                <div id="pm-role" style="font-size:12px;color:var(--muted);">Sales</div>
+              </div>
+            </div>
+          </div>
+          <div class="pm-row" id="pm-profile" tabindex="0"><span>Profile</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 12c2.761 0 5-2.239 5-5s-2.239-5-5-5-5 2.239-5 5 2.239 5 5 5zM4 20c0-3.866 3.582-7 8-7s8 3.134 8 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="pm-row" id="pm-theme" tabindex="0">Theme shortcut</div>
+          <div class="pm-row" id="pm-lang" tabindex="0">Language shortcut</div>
+          <div style="height:8px"></div>
+          <div class="pm-row" id="pm-logout" tabindex="0" style="color:var(--bad)">Logout</div>
+        </div>
+      </div>
+
     </div>
 
     <div class="tabs">
@@ -847,23 +888,37 @@ function visitClass(s){ return 'vs-'+String(s||'').replace(/\s+/g,'_'); }
 function starsHtml(n,size){ n=n||0; return '<span style="color:var(--accent);font-size:'+size+'px;">'+'★'.repeat(n)+'<span style="color:var(--line);">'+'★'.repeat(5-n)+'</span></span>'; }
 
 /* ===== THEME + i18n (injected) ===== */
+/* NOTE: adjusted setTheme to preserve enhanced toggle markup (non-destructive) */
+const ICONS = {
+  moon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  sun:  '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.2"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+};
+
 function setTheme(t){
   document.documentElement.setAttribute('data-theme', t);
   try{ localStorage.setItem('ycrm_theme', t); }catch(e){}
   const btn = document.getElementById('theme-toggle');
-  if(btn) btn.textContent = t==='dark' ? '☀️' : '🌙';
+  if(btn){
+    btn.classList.toggle('is-dark', t==='dark');
+    btn.setAttribute('aria-pressed', t==='dark');
+    const icon = btn.querySelector('.toggle-icon');
+    if(icon) icon.innerHTML = (t==='dark' ? ICONS.sun : ICONS.moon);
+    else btn.textContent = t==='dark' ? '☀️' : '🌙';
+  }
 }
 function initTheme(){
   const stored = localStorage.getItem('ycrm_theme');
   const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
   const theme = stored || (prefersDark? 'dark' : 'light');
   setTheme(theme);
+  // keep existing click handler intact (set earlier in original code), no duplicate
   document.getElementById('theme-toggle')?.addEventListener('click', ()=>{
     const next = document.documentElement.getAttribute('data-theme')==='dark' ? 'light' : 'dark';
     setTheme(next);
   });
 }
 
+/* lightweight i18n (existing) */
 const i18n = {
   ar: {
     brand: 'Yousseif-CRM',
