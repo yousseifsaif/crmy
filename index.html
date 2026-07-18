@@ -2153,6 +2153,7 @@ document.addEventListener('click',e=>{
       }
       break;
     }
+    
     case 'edit-project': editProject(); break;
     case 'cancel-edit-project': byId('edit-proj-form')?.remove(); break;
     case 'transfer-lead': transferLead(leadId||el.dataset.leadId); break;
