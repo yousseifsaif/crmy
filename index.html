@@ -16,6 +16,153 @@
   --shadow-sm:0 1px 2px rgba(27,29,27,.06);
   --shadow-md:0 10px 28px rgba(27,29,27,.1);
 }
+/* ── DARK MODE ─────────────────────────────────────────────── */
+html{transition:background-color .3s ease;}
+body{transition:background-color .3s ease, color .3s ease;}
+*{transition:border-color .2s ease, box-shadow .2s ease, background-color .2s ease;}
+input,select,textarea,.card,.btn,.chip,.kcard,.proj-item,.stat-card,.alert-card,.unit-detail-card,.visit-card,.plan-pill,.pac-head,.modal-box,.notif-dropdown,.drawer,.calc-card,.inline-form,.adv-filters,.filter-bar,.udc-head{transition:background-color .25s ease, border-color .25s ease, color .2s ease, box-shadow .25s ease !important;}
+
+html[data-theme="dark"]{
+  --ink:#E2DDD6;
+  --muted:#8A8578;
+  --bg:#111614;
+  --surface:#1A1F1D;
+  --primary:#3A7A6E;
+  --primary-2:#4D9E90;
+  --primary-soft:#1F2E2B;
+  --accent:#D9A25A;
+  --accent-soft:#2E2415;
+  --line:#2A3330;
+  --good:#3DAA78;
+  --bad:#D9614E;
+  --shadow-sm:0 2px 8px rgba(0,0,0,.4);
+  --shadow-md:0 8px 28px rgba(0,0,0,.55);
+  color-scheme:dark;
+}
+html[data-theme="dark"] body{background:var(--bg);}
+html[data-theme="dark"] input,
+html[data-theme="dark"] select,
+html[data-theme="dark"] textarea{background:#1E2622;border-color:var(--line);color:var(--ink);}
+html[data-theme="dark"] input::placeholder,
+html[data-theme="dark"] textarea::placeholder{color:var(--muted);}
+html[data-theme="dark"] .card{background:var(--surface);border-color:var(--line);}
+html[data-theme="dark"] .prop-card,
+html[data-theme="dark"] .kcard,
+html[data-theme="dark"] .proj-item,
+html[data-theme="dark"] .unit-detail-card,
+html[data-theme="dark"] .visit-card,
+html[data-theme="dark"] .alert-card,
+html[data-theme="dark"] .stat-card{background:var(--surface);border-color:var(--line);}
+html[data-theme="dark"] .inline-form{background:#161B19;border-color:var(--accent);}
+html[data-theme="dark"] .adv-filters,
+html[data-theme="dark"] .filter-bar,
+html[data-theme="dark"] .calc-card{background:var(--surface);border-color:var(--line);}
+html[data-theme="dark"] .modal-box{background:var(--surface);}
+html[data-theme="dark"] .modal-foot{background:#161B19;}
+html[data-theme="dark"] .modal-head{background:linear-gradient(135deg,var(--primary),var(--primary-2));}
+html[data-theme="dark"] .drawer{background:var(--surface);}
+html[data-theme="dark"] .drawer-head{background:var(--surface);border-color:var(--line);}
+html[data-theme="dark"] .notif-dropdown{background:var(--surface);border-color:var(--line);}
+html[data-theme="dark"] .notif-item:hover{background:var(--primary-soft);}
+html[data-theme="dark"] .pac-head{background:#1E2622;}
+html[data-theme="dark"] .pac-head:hover{background:#232E2A;}
+html[data-theme="dark"] .pac-body{background:var(--surface);}
+html[data-theme="dark"] table th{background:var(--primary-soft);color:var(--primary-2);}
+html[data-theme="dark"] table tbody tr:hover{background:#1E2622;}
+html[data-theme="dark"] table td,html[data-theme="dark"] table th{border-color:var(--line);}
+html[data-theme="dark"] .chip{background:#1E2622;border-color:var(--line);color:var(--ink);}
+html[data-theme="dark"] .chip:hover{background:var(--accent-soft);border-color:var(--accent);}
+html[data-theme="dark"] .chip.active{background:var(--primary);border-color:var(--primary);}
+html[data-theme="dark"] .btn.ghost{background:#1E2622;color:var(--ink);border-color:var(--line);}
+html[data-theme="dark"] .btn.ghost:hover{background:var(--accent-soft);border-color:var(--accent);}
+html[data-theme="dark"] .proj-item.active{background:var(--primary-soft);}
+html[data-theme="dark"] .prop-view-btn{background:linear-gradient(135deg,var(--primary),var(--primary-2));}
+html[data-theme="dark"] .prop-card-head,
+html[data-theme="dark"] .proj-card-head,
+html[data-theme="dark"] .kanban-col-head,
+html[data-theme="dark"] .drawer-proj-info{background:var(--primary-soft);}
+html[data-theme="dark"] .unit-row:hover{background:#1E2622;}
+html[data-theme="dark"] .plan-pill{background:#1E2622;border-color:var(--line);}
+html[data-theme="dark"] .plan-pill:hover{border-color:var(--accent);}
+html[data-theme="dark"] .kanban-col{background:var(--surface);border-color:var(--line);}
+html[data-theme="dark"] .kanban-col-body.drag-over{background:var(--accent-soft);}
+html[data-theme="dark"] .kcard{background:#1E2622;border-color:var(--line);}
+html[data-theme="dark"] .kcard:hover{border-color:var(--accent);}
+html[data-theme="dark"] .cal-day{background:var(--surface);border-color:var(--line);}
+html[data-theme="dark"] .cal-day:hover{border-color:var(--accent);}
+html[data-theme="dark"] .cal-day.today{background:var(--accent-soft);border-color:var(--accent);}
+html[data-theme="dark"] .cal-day.has-events{background:var(--primary-soft);}
+html[data-theme="dark"] .cal-day.empty{background:transparent;border-color:transparent;}
+html[data-theme="dark"] .proj-stat{background:var(--primary-soft);color:var(--primary-2);}
+html[data-theme="dark"] .pb-dev{background:#1E2335;color:#A5B4FC;}
+html[data-theme="dark"] .pb-loc{background:var(--primary-soft);color:var(--primary-2);}
+html[data-theme="dark"] .pb-units{background:var(--accent-soft);color:#F5C87A;}
+html[data-theme="dark"] .pb-price{background:#162820;color:var(--good);}
+html[data-theme="dark"] .pb-type{background:#1E2622;color:var(--muted);}
+html[data-theme="dark"] .ub{background:#1E2622;border-color:var(--line);color:var(--ink);}
+html[data-theme="dark"] .ub.bed{background:#1E2335;border-color:#3730A3;color:#A5B4FC;}
+html[data-theme="dark"] .ub.bath{background:#0C2131;border-color:#0369A1;color:#7DD3FC;}
+html[data-theme="dark"] .ub.finish{background:#0D2318;border-color:#166534;color:#6EE7B7;}
+html[data-theme="dark"] .ub.floor{background:#2A1E00;border-color:#92400E;color:#FDE68A;}
+html[data-theme="dark"] .ub.view{background:var(--accent-soft);color:#F5C87A;}
+html[data-theme="dark"] .finishing-badge.fin-تشطيب_كامل{background:#162820;color:var(--good);}
+html[data-theme="dark"] .finishing-badge.fin-متشطبه{background:var(--accent-soft);color:#F5C87A;}
+html[data-theme="dark"] .finishing-badge.fin-طوب_احمر{background:#2A1210;color:var(--bad);}
+html[data-theme="dark"] .status-badge.sb-جديد{background:var(--primary-soft);color:var(--primary-2);}
+html[data-theme="dark"] .status-badge.sb-حجز{background:#162820;color:var(--good);}
+html[data-theme="dark"] .status-badge.sb-اعتذر{background:#2A1210;color:var(--bad);}
+html[data-theme="dark"] .status-badge.sb-مهتم,
+html[data-theme="dark"] .status-badge.sb-تواصل_أول{background:var(--accent-soft);color:#F5C87A;}
+html[data-theme="dark"] .section-title{color:var(--primary-2);}
+html[data-theme="dark"] .helpline{color:var(--muted);}
+html[data-theme="dark"] #loading-overlay{background:linear-gradient(135deg,#0D1410,#1A2820);}
+html[data-theme="dark"] .lockscreen .card{background:var(--surface);}
+html[data-theme="dark"] ::-webkit-scrollbar-track{background:var(--bg);}
+html[data-theme="dark"] ::-webkit-scrollbar-thumb{background:var(--line);}
+html[data-theme="dark"] .range-input{background:var(--line);}
+html[data-theme="dark"] .calc-result{background:linear-gradient(135deg,var(--primary),var(--primary-2));}
+html[data-theme="dark"] .tag{background:var(--accent-soft);color:#F5C87A;}
+html[data-theme="dark"] .timeline-item{border-color:var(--line);}
+html[data-theme="dark"] .quote-table th,.quote-table td{border-color:var(--line);}
+html[data-theme="dark"] .quote-table th{background:var(--primary-soft);}
+html[data-theme="dark"] .ws-btn{background:#1E5E35;}
+
+/* ── ANIMATED THEME TOGGLE ──────────────────────────────────── */
+.theme-switch-wrap{display:flex;align-items:center;cursor:pointer;position:relative;-webkit-tap-highlight-color:transparent;}
+.theme-switch-track{width:48px;height:26px;border-radius:13px;background:#D4C9B8;border:2px solid rgba(0,0,0,.08);position:relative;transition:background .35s cubic-bezier(.4,0,.2,1),border-color .35s ease,box-shadow .2s ease;box-shadow:inset 0 1px 3px rgba(0,0,0,.12);}
+html[data-theme="dark"] .theme-switch-track{background:#2D4A42;border-color:rgba(255,255,255,.08);box-shadow:inset 0 1px 3px rgba(0,0,0,.4),0 0 0 1px rgba(61,170,120,.15);}
+.theme-switch-wrap:hover .theme-switch-track{box-shadow:inset 0 1px 3px rgba(0,0,0,.12),0 0 0 3px rgba(201,146,58,.2);}
+html[data-theme="dark"] .theme-switch-wrap:hover .theme-switch-track{box-shadow:inset 0 1px 3px rgba(0,0,0,.4),0 0 0 3px rgba(61,170,120,.25);}
+.theme-switch-wrap:active .theme-switch-track{transform:scale(.95);}
+.theme-switch-thumb{position:absolute;top:2px;right:2px;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.2),0 0 0 1px rgba(0,0,0,.05);transition:transform .35s cubic-bezier(.34,1.56,.64,1),background .35s ease,box-shadow .2s ease;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+html[data-theme="dark"] .theme-switch-thumb{transform:translateX(-22px);background:#1F3830;box-shadow:0 1px 4px rgba(0,0,0,.5),0 0 6px rgba(61,170,120,.3);}
+.theme-switch-icon{position:absolute;width:12px;height:12px;transition:opacity .25s ease,transform .35s cubic-bezier(.34,1.56,.64,1);}
+.ts-sun{opacity:1;transform:rotate(0deg) scale(1);}
+.ts-moon{opacity:0;transform:rotate(-90deg) scale(.6);}
+html[data-theme="dark"] .ts-sun{opacity:0;transform:rotate(90deg) scale(.6);}
+html[data-theme="dark"] .ts-moon{opacity:1;transform:rotate(0deg) scale(1);}
+
+/* ── PREMIUM LANG DROPDOWN ──────────────────────────────────── */
+.lang-dropdown-wrap{position:relative;-webkit-tap-highlight-color:transparent;}
+.lang-dropdown-btn{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);color:#fff;padding:6px 11px 6px 8px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;font-family:'Tajawal',sans-serif;transition:background .18s ease,transform .15s ease;white-space:nowrap;min-width:72px;}
+.lang-dropdown-btn:hover{background:rgba(255,255,255,.2);transform:translateY(-1px);}
+.lang-dropdown-btn:active{transform:scale(.96);}
+.lang-flag{font-size:16px;line-height:1;}
+.lang-chevron{width:12px;height:12px;fill:rgba(255,255,255,.7);transition:transform .25s cubic-bezier(.4,0,.2,1);flex-shrink:0;margin-right:auto;}
+.lang-dropdown-btn[aria-expanded="true"] .lang-chevron{transform:rotate(180deg);}
+.lang-dropdown-menu{position:absolute;top:calc(100% + 6px);left:0;min-width:170px;background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:0 8px 28px rgba(0,0,0,.18);z-index:5000;overflow:hidden;opacity:0;transform:translateY(-6px) scale(.97);pointer-events:none;transition:opacity .22s cubic-bezier(.4,0,.2,1),transform .22s cubic-bezier(.34,1.2,.64,1);}
+.lang-dropdown-menu.open{opacity:1;transform:translateY(0) scale(1);pointer-events:all;}
+.lang-option{display:flex;align-items:center;gap:10px;padding:11px 14px;cursor:pointer;font-size:13.5px;font-weight:600;font-family:'Tajawal',sans-serif;color:var(--ink);transition:background .15s ease;}
+.lang-option:hover{background:var(--primary-soft);}
+.lang-option.active{color:var(--primary);background:var(--primary-soft);}
+.lang-option-flag{font-size:18px;line-height:1;flex-shrink:0;}
+.lang-option-name{flex:1;}
+.lang-option-check{width:16px;height:16px;fill:var(--accent);flex-shrink:0;opacity:0;transition:opacity .15s;}
+.lang-option.active .lang-option-check{opacity:1;}
+html[data-theme="dark"] .lang-dropdown-menu{background:var(--surface);border-color:var(--line);box-shadow:0 8px 28px rgba(0,0,0,.45);}
+html[data-theme="dark"] .lang-option:hover{background:var(--primary-soft);}
+html[data-theme="dark"] .lang-option.active{background:var(--primary-soft);}
+
 *{box-sizing:border-box;margin:0;padding:0;}
 body{background:var(--bg);color:var(--ink);font-family:'Tajawal',sans-serif;direction:rtl;}
 h1,h2,h3,.brand,.tabbtn{font-family:'Cairo',sans-serif;}
@@ -417,20 +564,66 @@ table th{background:var(--primary-soft);font-family:'Cairo',sans-serif;color:var
   <div class="brand"><span class="dot">●</span> Yousseif-CRM</div>
   <div class="topbar-right">
     <span class="sales-pill" id="sales-pill" style="display:none;"></span>
+
+    <!-- Premium Lang Dropdown -->
+    <div class="lang-dropdown-wrap" id="lang-dropdown-wrap">
+      <button class="lang-dropdown-btn" id="lang-dropdown-btn" aria-haspopup="listbox" aria-expanded="false" aria-label="Switch language">
+        <span class="lang-flag" id="lang-flag-display">🇸🇦</span>
+        <span id="lang-label-display" style="font-size:12px;">العربية</span>
+        <svg class="lang-chevron" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg"><path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <div class="lang-dropdown-menu" id="lang-dropdown-menu" role="listbox">
+        <div class="lang-option active" data-lang="ar" role="option">
+          <span class="lang-option-flag">🇸🇦</span>
+          <span class="lang-option-name">العربية</span>
+          <svg class="lang-option-check" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><path d="M3 8l3.5 3.5L13 4.5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="lang-option" data-lang="en" role="option">
+          <span class="lang-option-flag">🇬🇧</span>
+          <span class="lang-option-name">English</span>
+          <svg class="lang-option-check" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><path d="M3 8l3.5 3.5L13 4.5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Animated Theme Toggle -->
+    <div class="theme-switch-wrap" id="theme-toggle-btn" role="switch" aria-checked="false" aria-label="Toggle dark mode" tabindex="0">
+      <div class="theme-switch-track">
+        <div class="theme-switch-thumb">
+          <!-- Sun icon -->
+          <svg class="theme-switch-icon ts-sun" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="12" cy="12" r="5" fill="#F59E0B"/>
+            <line x1="12" y1="2" x2="12" y2="5" stroke="#F59E0B" stroke-width="2" stroke-linecap="round"/>
+            <line x1="12" y1="19" x2="12" y2="22" stroke="#F59E0B" stroke-width="2" stroke-linecap="round"/>
+            <line x1="2" y1="12" x2="5" y2="12" stroke="#F59E0B" stroke-width="2" stroke-linecap="round"/>
+            <line x1="19" y1="12" x2="22" y2="12" stroke="#F59E0B" stroke-width="2" stroke-linecap="round"/>
+            <line x1="4.22" y1="4.22" x2="6.34" y2="6.34" stroke="#F59E0B" stroke-width="2" stroke-linecap="round"/>
+            <line x1="17.66" y1="17.66" x2="19.78" y2="19.78" stroke="#F59E0B" stroke-width="2" stroke-linecap="round"/>
+            <line x1="19.78" y1="4.22" x2="17.66" y2="6.34" stroke="#F59E0B" stroke-width="2" stroke-linecap="round"/>
+            <line x1="6.34" y1="17.66" x2="4.22" y2="19.78" stroke="#F59E0B" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <!-- Moon icon -->
+          <svg class="theme-switch-icon ts-moon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M21 12.79A9 9 0 1111.21 3a7 7 0 109.79 9.79z" fill="#93C5FD"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
     <div class="notif-bell-wrap" id="notif-bell-wrap">
       <button class="notif-bell-btn" id="notif-bell-btn" title="الإشعارات">
         🔔<span class="notif-count-num" id="notif-count-num">0</span>
       </button>
       <div class="notif-dropdown" id="notif-dropdown">
-        <div class="notif-head">الإشعارات</div>
+        <div class="notif-head"><span data-i18n="notifications">الإشعارات</span></div>
         <div id="notif-list"></div>
       </div>
     </div>
     <div class="tabs">
-      <button class="tabbtn active" data-tab="search">Search Unit</button>
-      <button class="tabbtn" data-tab="pipeline">Pipeline <span class="notif-badge" id="notif-badge">0</span></button>
-      <button class="tabbtn" data-tab="calendar">📅 Calendar</button>
-      <button class="tabbtn" data-tab="admin">Admin</button>
+      <button class="tabbtn active" data-tab="search" data-i18n="tab_search">بحث عن وحدة</button>
+      <button class="tabbtn" data-tab="pipeline" data-i18n="tab_pipeline">العملاء <span class="notif-badge" id="notif-badge">0</span></button>
+      <button class="tabbtn" data-tab="calendar">📅 <span data-i18n="tab_calendar">التقويم</span></button>
+      <button class="tabbtn" data-tab="admin" data-i18n="tab_admin">الأدمن</button>
     </div>
   </div>
 </div>
@@ -446,25 +639,25 @@ table th{background:var(--primary-soft);font-family:'Cairo',sans-serif;color:var
     <div class="filter-row">
       <div class="filter-field" style="flex:1.5;">
         <label>المنطقة</label>
-        <select id="qf-area"><option value="">كل المناطق</option></select>
+        <select id="qf-area"><option value="" data-i18n="all_areas">كل المناطق</option></select>
       </div>
       <div class="filter-field">
         <label>النوع</label>
         <select id="qf-type">
-          <option value="">الكل</option>
+          <option value="" data-i18n="all">الكل</option>
           <option>كمبوند</option><option>عمارات</option><option>فيلات</option><option>تجاري</option>
         </select>
       </div>
       <div class="filter-field" style="flex:1.5;">
         <label>المطور</label>
-        <select id="qf-dev"><option value="">كل المطورين</option></select>
+        <select id="qf-dev"><option value="" data-i18n="all_devs">كل المطورين</option></select>
       </div>
       <div class="filter-field">
-        <label>الميزانية القصوى</label>
+        <label data-i18n="f_budget">الميزانية القصوى</label>
         <input id="qf-budget" type="number" placeholder="مثلاً 5,000,000">
       </div>
       <div class="filter-field">
-        <label>المقدم المتاح</label>
+        <label data-i18n="f_down">المقدم المتاح</label>
         <input id="qf-down" type="number" placeholder="مثلاً 500,000">
       </div>
     </div>
@@ -574,21 +767,21 @@ table th{background:var(--primary-soft);font-family:'Cairo',sans-serif;color:var
 <!-- ======== PIPELINE ======== -->
 <div class="panel" id="panel-pipeline">
   <div class="card" id="pipeline-login" style="max-width:380px;margin:60px auto;">
-    <h3>تسجيل دخول</h3>
+    <h3 data-i18n="login"><span data-i18n="login">تسجيل دخول</span></h3>
     <p class="helpline" style="margin-bottom:10px;">ادخل بيانات حسابك اللي أنشأه الأدمن.</p>
-    <label>اسم المستخدم</label><input id="sales-name-input" placeholder="اسمك">
+    <label>اسم المستخدم</label><input id="sales-name-input" placeholder="اسمك" data-i18n-placeholder="username_ph">
     <label style="margin-top:10px;">كلمة المرور</label><input id="sales-pass-input" type="password" placeholder="********">
-    <div style="margin-top:12px;"><button class="btn gold" id="btn-login">دخول</button></div>
+    <div style="margin-top:12px;"><button class="btn gold" id="btn-login" data-i18n="login_btn">دخول</button></div>
     <p class="helpline" id="login-err" style="color:var(--bad);margin-top:6px;"></p>
   </div>
   <div id="pipeline-area" style="display:none;">
     <div class="row" style="justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
       <div class="row"><h3 style="margin:0;font-family:'Cairo',sans-serif;">Pipeline</h3></div>
       <div class="row">
-        <button class="btn ghost sm" data-act="upload-my-leads-excel">⬆ رفع عملاء من إكسيل</button>
-        <button class="btn ghost sm" data-act="download-leads-template">⬇ نموذج</button>
+        <button class="btn ghost sm" data-act="upload-my-leads-excel">⬆ <span data-i18n="upload_excel">رفع عملاء</span></button>
+        <button class="btn ghost sm" data-act="download-leads-template">⬇ <span data-i18n="template">نموذج</span></button>
         <input type="file" id="my-leads-excel-input" accept=".xlsx,.xls,.csv" style="display:none;">
-        <button class="btn gold sm" data-act="new-lead-btn">+ عميل جديد</button>
+        <button class="btn gold sm" data-act="new-lead-btn"><span data-i18n="new_lead">+ عميل جديد</span></button>
       </div>
     </div>
     <div class="kanban-wrap"><div class="kanban-board" id="kanban-board"></div></div>
@@ -598,7 +791,7 @@ table th{background:var(--primary-soft);font-family:'Cairo',sans-serif;color:var
 <!-- ======== CALENDAR ======== -->
 <div class="panel" id="panel-calendar">
   <div id="cal-login-gate" class="card" style="max-width:380px;margin:60px auto;">
-    <div class="empty">سجّل دخول من تاب Pipeline الأول.</div>
+    <div class="empty"><span data-i18n="login_first">سجّل دخول من تاب Pipeline الأول.</span></div>
   </div>
   <div id="calendar-area" style="display:none;">
     <div class="card">
@@ -619,7 +812,7 @@ table th{background:var(--primary-soft);font-family:'Cairo',sans-serif;color:var
     <div class="card">
       <h3>Admin LOG-IN</h3>
       <label>Password</label><input id="admin-pass" type="password" placeholder="********">
-      <div style="margin-top:10px;"><button class="btn gold" id="btn-unlock">login</button></div>
+      <div style="margin-top:10px;"><button class="btn gold" id="btn-unlock" data-i18n="btn_login">تسجيل دخول</button></div>
       <p class="helpline" id="lock-error" style="color:var(--bad);"></p>
     </div>
   </div>
@@ -627,7 +820,7 @@ table th{background:var(--primary-soft);font-family:'Cairo',sans-serif;color:var
     <!-- DASHBOARD -->
     <div id="admin-dashboard" style="margin-bottom:22px;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
-        <h2 style="margin:0;font-family:'Cairo',sans-serif;font-size:20px;color:var(--primary);">لوحة التحكم</h2>
+        <h2 style="margin:0;font-family:'Cairo',sans-serif;font-size:20px;color:var(--primary);"><span data-i18n="dashboard">لوحة التحكم</span></h2>
         <span style="font-size:12px;color:var(--muted);" id="dash-updated"></span>
       </div>
       <div class="dash-grid" id="dash-stats"></div>
@@ -635,7 +828,7 @@ table th{background:var(--primary-soft);font-family:'Cairo',sans-serif;color:var
       <div class="dash-row" id="dash-insights"></div>
       <div class="card" style="margin-top:4px;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-          <strong style="font-family:'Cairo',sans-serif;">📋 Activity Timeline</strong>
+          <strong style="font-family:'Cairo',sans-serif;"><span data-i18n="activity_timeline">📋 Activity Timeline</span></strong>
           <span class="helpline" id="activity-count"></span>
         </div>
         <div id="activity-timeline" style="max-height:280px;overflow-y:auto;"></div>
@@ -650,7 +843,7 @@ table th{background:var(--primary-soft);font-family:'Cairo',sans-serif;color:var
           <div><label>موبايل الشركة</label><input id="set-phone" placeholder="01xxxxxxxxx"></div>
           <div><label>واتساب الشركة</label><input id="set-wa" placeholder="01xxxxxxxxx"></div>
         </div>
-        <div style="margin-top:8px;"><button class="btn gold sm" id="btn-save-settings">حفظ الإعدادات</button></div>
+        <div style="margin-top:8px;"><button class="btn gold sm" id="btn-save-settings"><span data-i18n="save_settings">حفظ الإعدادات</span></button></div>
       </div>
     </div>
     <!-- END DASHBOARD -->
@@ -658,10 +851,10 @@ table th{background:var(--primary-soft);font-family:'Cairo',sans-serif;color:var
       <div class="admin-side">
         <div class="card">
           <div class="row" style="justify-content:space-between;margin-bottom:10px;">
-            <h3 style="margin:0;">المشاريع (<span id="proj-count">0</span>)</h3>
+            <h3 style="margin:0;"><span data-i18n="projects">المشاريع</span> (<span id="proj-count">0</span>)</h3>
           </div>
-          <input id="proj-filter" placeholder="بحث باسم المشروع أو المنطقة...">
-          <button class="btn gold sm" id="btn-new-project" style="width:100%;margin-top:8px;">+ إضافة مشروع جديد</button>
+          <input id="proj-filter" placeholder="بحث..." data-i18n-placeholder="search_projects_ph">
+          <button class="btn gold sm" id="btn-new-project" style="width:100%;margin-top:8px;"><span data-i18n="add_project">+ إضافة مشروع جديد</span></button>
           <div id="new-project-form"></div>
           <div id="admin-project-list" style="margin-top:12px;"></div>
         </div>
@@ -671,8 +864,8 @@ table th{background:var(--primary-soft);font-family:'Cairo',sans-serif;color:var
 
     <div class="card" style="margin-top:18px;">
       <div class="row" style="justify-content:space-between;margin-bottom:10px;">
-        <h3 style="margin:0;">👥 مستخدمي السيلز (<span id="sales-users-count">0</span>)</h3>
-        <button class="btn gold sm" id="btn-add-sales-user">+ إضافة مستخدم</button>
+        <h3 style="margin:0;"><span data-i18n="sales_users">👥 مستخدمي السيلز</span> (<span id="sales-users-count">0</span>)</h3>
+        <button class="btn gold sm" id="btn-add-sales-user"><span data-i18n="add_user">+ إضافة مستخدم</span></button>
       </div>
       <div id="add-sales-user-form"></div>
       <div id="sales-users-list" style="margin-top:8px;"></div>
@@ -680,16 +873,16 @@ table th{background:var(--primary-soft);font-family:'Cairo',sans-serif;color:var
 
     <div class="card" style="margin-top:18px;">
       <div class="row" style="justify-content:space-between;margin-bottom:10px;">
-        <h3 style="margin:0;">كل العملاء (<span id="all-leads-count">0</span>)</h3>
+        <h3 style="margin:0;"><span data-i18n="all_clients">كل العملاء</span> (<span id="all-leads-count">0</span>)</h3>
         <div class="row">
-          <button class="btn ghost sm" data-act="upload-leads-excel">⬆ رفع من إكسيل</button>
+          <button class="btn ghost sm" data-act="upload-leads-excel"><span data-i18n="upload_from_excel">⬆ رفع من إكسيل</span></button>
           <button class="btn ghost sm" data-act="download-leads-template">⬇ نموذج</button>
           <input type="file" id="leads-excel-input" accept=".xlsx,.xls,.csv" style="display:none;">
         </div>
       </div>
       <div class="grid g2">
-        <div><label>فلتر بالحالة</label><select id="admin-lead-status-filter"><option value="">الكل</option><option>جديد</option><option>تواصل أول</option><option>مهتم</option><option>حجز</option><option>اعتذر</option></select></div>
-        <div><label>فلتر بالسيلز</label><select id="admin-lead-sales-filter"><option value="">الكل</option></select></div>
+        <div><label data-i18n="filter_by_status">فلتر بالحالة</label><select id="admin-lead-status-filter"><option value="" data-i18n="all">الكل</option><option data-i18n="s_new">جديد</option><option>تواصل أول</option><option>مهتم</option><option>حجز</option><option>اعتذر</option></select></div>
+        <div><label data-i18n="filter_by_sales">فلتر بالسيلز</label><select id="admin-lead-sales-filter"><option value="">الكل</option></select></div>
       </div>
       <div id="admin-leads-list" style="margin-top:10px;"></div>
     </div>
@@ -706,36 +899,36 @@ table th{background:var(--primary-soft);font-family:'Cairo',sans-serif;color:var
       <button class="modal-close" data-act="close-modal">✕</button>
     </div>
     <div class="modal-body">
-      <div class="section-title">معلومات أساسية</div>
+      <div class="section-title"><span data-i18n="basic_info">معلومات أساسية</span></div>
       <div class="grid g2">
-        <div><label>الاسم</label><input id="ld-name" placeholder="اسم العميل"></div>
-        <div><label>رقم التليفون</label><input id="ld-phone" placeholder="01xxxxxxxxx"></div>
-        <div><label>الرقم القومي (اختياري)</label><input id="ld-nid" placeholder="14 رقم"></div>
-        <div><label>البريد الإلكتروني (اختياري)</label><input id="ld-email" type="email" placeholder="example@mail.com"></div>
+        <div><label data-i18n="name">الاسم</label><input id="ld-name" placeholder="اسم العميل"></div>
+        <div><label data-i18n="phone">رقم التليفون</label><input id="ld-phone" placeholder="01xxxxxxxxx"></div>
+        <div><label data-i18n="national_id">الرقم القومي (اختياري)</label><input id="ld-nid" placeholder="14 رقم"></div>
+        <div><label data-i18n="email">البريد الإلكتروني (اختياري)</label><input id="ld-email" type="email" placeholder="example@mail.com"></div>
       </div>
       <div class="grid g2" style="margin-top:10px;">
-        <div><label>مصدر العميل</label>
+        <div><label data-i18n="source">مصدر العميل</label>
           <select id="ld-source">
             <option value="">-- اختر --</option>
             <option>WhatsApp</option><option>Facebook</option><option>Instagram</option>
             <option>Call</option><option>Referral</option><option>Walk-in</option>
           </select>
         </div>
-        <div><label>المشروع المهتم بيه</label><select id="ld-project"></select></div>
+        <div><label data-i18n="interested_project">المشروع المهتم بيه</label><select id="ld-project"></select></div>
       </div>
-      <div style="margin-top:10px;"><label>الوحدة/الفئة</label><input id="ld-unit" placeholder="مثلاً: شقة 150م دور 3"></div>
+      <div style="margin-top:10px;"><label data-i18n="unit_category">الوحدة/الفئة</label><input id="ld-unit" placeholder="مثلاً: شقة 150م دور 3"></div>
 
-      <div class="section-title">المتابعة</div>
+      <div class="section-title"><span data-i18n="followup">المتابعة</span></div>
       <div class="grid g2">
-        <div><label>حالة المتابعة</label>
+        <div><label data-i18n="followup_status">حالة المتابعة</label>
           <select id="ld-status">
             <option>جديد</option><option>تواصل أول</option><option>مهتم</option><option>حجز</option><option>اعتذر</option>
           </select>
         </div>
-        <div><label>موعد Follow Up</label><input id="ld-followup" type="datetime-local"></div>
+        <div><label data-i18n="followup_date">موعد Follow Up</label><input id="ld-followup" type="datetime-local"></div>
       </div>
       <div style="margin-top:10px;">
-        <label>تقييم العميل</label>
+        <label data-i18n="client_rating">تقييم العميل</label>
         <div class="stars-input" id="stars-input">
           <span class="star" data-v="1">★</span>
           <span class="star" data-v="2">★</span>
@@ -744,18 +937,18 @@ table th{background:var(--primary-soft);font-family:'Cairo',sans-serif;color:var
           <span class="star" data-v="5">★</span>
         </div>
       </div>
-      <div style="margin-top:10px;"><label>ملاحظات</label><textarea id="ld-notes" placeholder="أي ملاحظات..."></textarea></div>
+      <div style="margin-top:10px;"><label data-i18n="notes">ملاحظات</label><textarea id="ld-notes" placeholder="أي ملاحظات..."></textarea></div>
 
-      <div class="section-title">المعاينات</div>
+      <div class="section-title"><span data-i18n="visits">المعاينات</span></div>
       <div id="visits-list"></div>
-      <button class="btn ghost sm" data-act="add-visit" style="margin-top:6px;">+ إضافة معاينة</button>
+      <button class="btn ghost sm" data-act="add-visit" style="margin-top:6px;"><span data-i18n="add_visit">+ إضافة معاينة</span></button>
     </div>
     <div class="modal-foot">
       <div class="row">
-        <button class="btn gold" id="btn-save-lead">حفظ</button>
-        <button class="btn ghost" data-act="close-modal">إلغاء</button>
+        <button class="btn gold" id="btn-save-lead" data-i18n="save">حفظ</button>
+        <button class="btn ghost" data-act="close-modal" data-i18n="cancel">إلغاء</button>
       </div>
-      <button class="btn danger sm" id="btn-delete-lead" style="display:none;">🗑 حذف العميل</button>
+      <button class="btn danger sm" id="btn-delete-lead" style="display:none;"><span data-i18n="delete_client">🗑 حذف العميل</span></button>
     </div>
   </div>
 </div>
@@ -1622,7 +1815,7 @@ function renderAdminProjectList(){
   const q=(byId('proj-filter').value||'').toLowerCase();
   const list=byId('admin-project-list');
   const filtered=projects.filter(p=>!q||(p.name+' '+p.area).toLowerCase().includes(q));
-  if(!projects.length){list.innerHTML=`<div class="empty">لسه مفيش مشاريع.</div>`;return;}
+  if(!projects.length){list.innerHTML=`<div class="empty"><span data-i18n="no_projects">لسه مفيش مشاريع.</span></div>`;return;}
   if(!filtered.length){list.innerHTML=`<p class="helpline" style="padding:8px;">مفيش نتائج.</p>`;return;}
   list.innerHTML=filtered.map(p=>`<div class="proj-item${p.id===activeProjectId?' active':''}" data-act="open-project" data-project="${p.id}">
     <div>${p.id===activeProjectId?'<span class="current-badge">مفتوح</span><br>':''}<strong>${esc(p.name)}</strong>
@@ -1639,7 +1832,7 @@ async function deleteProject(id){
 function openProjectDetail(id){ activeProjectId=id; renderAdminProjectList(); renderProjectDetail(); }
 function renderProjectDetail(){
   const p=projects.find(x=>x.id===activeProjectId),box=byId('project-detail');
-  if(!p){box.innerHTML=`<div class="card"><div class="empty">دوس على مشروع من القائمة.</div></div>`;return;}
+  if(!p){box.innerHTML=`<div class="card"><div class="empty"><span data-i18n="select_project">دوس على مشروع من القائمة.</span></div></div>`;return;}
   box.innerHTML=`<div class="card">
     <div style="display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap;margin-bottom:14px;">
       <div style="flex:1;min-width:200px;">
@@ -1662,16 +1855,16 @@ function renderProjectDetail(){
     <div class="section-title">الوحدات (${(p.units||[]).length})</div>
     <div id="units-table"></div>
     <div class="row" style="margin-top:7px;">
-      <button class="btn ghost sm" data-act="add-unit">+ وحدة</button>
-      <button class="btn ghost sm" data-act="upload-excel">⬆ إكسيل</button>
-      <button class="btn ghost sm" data-act="download-template">⬇ نموذج</button>
+      <button class="btn ghost sm" data-act="add-unit"><span data-i18n="add_unit">+ وحدة</span></button>
+      <button class="btn ghost sm" data-act="upload-excel"><span data-i18n="upload_excel">⬆ إكسيل</span></button>
+      <button class="btn ghost sm" data-act="download-template"><span data-i18n="template">⬇ نموذج</span></button>
       <input type="file" id="excel-file-input" accept=".xlsx,.xls,.csv" style="display:none;">
     </div>
     <p class="helpline">أعمدة الإكسيل: الفئة، الدور، الفيو، الموقع، السعر</p>
     <div id="unit-form"></div>
     <div class="section-title">أنظمة السداد (${(p.plans||[]).length})</div>
     <div id="plans-table"></div>
-    <button class="btn ghost sm" data-act="add-plan" style="margin-top:7px;">+ نظام سداد</button>
+    <button class="btn ghost sm" data-act="add-plan" style="margin-top:7px;"><span data-i18n="add_plan">+ نظام سداد</span></button>
     <div id="plan-form"></div>
   </div>`;
   renderUnitsTable(p); renderPlansTable(p);
@@ -1900,7 +2093,7 @@ function renderAdminLeadsList(){
           <button class="btn ghost sm" data-act="open-lead-modal" data-lead-id="${l.id}">تعديل</button>
           <div class="row" style="gap:4px;">
             <select id="transfer-sel-${l.id}" style="font-size:11px;padding:4px 7px;width:auto;">${salesOptions}</select>
-            <button class="btn sm" style="background:var(--primary-2);" data-act="transfer-lead" data-lead-id="${l.id}">نقل</button>
+            <button class="btn sm" style="background:var(--primary-2);" data-act="transfer-lead" data-lead-id="${l.id}"><span data-i18n="transfer">نقل</span></button>
           </div>
           <button class="btn danger sm" data-act="admin-delete-lead" data-lead-id="${l.id}">🗑 حذف</button>
         </div>
