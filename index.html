@@ -1054,18 +1054,18 @@ async function loadAll(){
     refreshAreaOptions();
     await loadActivity(); await loadSettings();
     setTimeout(()=>{initSearchListeners();setTimeout(performSearch,150);},100);
-  }catch(e){ toast('خطأ في تحميل البيانات'); }
+  }catch(e){ toast(t('excel_error')); }
 }
 async function saveProjects(){
-  if(firebaseReady){ try{ await db.collection('appdata').doc('projects').set({list:projects}); }catch(e){ toast('خطأ حفظ المشاريع'); } }
+  if(firebaseReady){ try{ await db.collection('appdata').doc('projects').set({list:projects}); }catch(e){ toast(t('excel_error')); } }
   else { localStorage.setItem('ycrm_p',JSON.stringify(projects)); }
 }
 async function saveLeads(){
-  if(firebaseReady){ try{ await db.collection('appdata').doc('leads').set({list:leads}); }catch(e){ toast('خطأ حفظ العملاء'); } }
+  if(firebaseReady){ try{ await db.collection('appdata').doc('leads').set({list:leads}); }catch(e){ toast(t('excel_error')); } }
   else { localStorage.setItem('ycrm_l',JSON.stringify(leads)); }
 }
 async function saveSalesUsers(){
-  if(firebaseReady){ try{ await db.collection('appdata').doc('salesusers').set({list:salesUsers}); }catch(e){ toast('خطأ حفظ المستخدمين'); } }
+  if(firebaseReady){ try{ await db.collection('appdata').doc('salesusers').set({list:salesUsers}); }catch(e){ toast(t('excel_error')); } }
   else { localStorage.setItem('ycrm_u',JSON.stringify(salesUsers)); }
 }
 function loadFromLS(){
@@ -1073,6 +1073,7 @@ function loadFromLS(){
   try{ leads=JSON.parse(localStorage.getItem('ycrm_l')||'[]'); }catch(e){ leads=[]; }
   try{ salesUsers=JSON.parse(localStorage.getItem('ycrm_u')||'[]'); }catch(e){ salesUsers=[]; }
   refreshAreaOptions();
+  setTimeout(()=>{ initSearchListeners(); setTimeout(performSearch,150); },100);
 }
 
 /* ---- TABS ---- */
@@ -1091,10 +1092,10 @@ document.querySelectorAll('.tabbtn').forEach(btn=>{
 byId('btn-login').addEventListener('click', async ()=>{
   const name = byId('sales-name-input').value.trim();
   const pass = byId('sales-pass-input').value.trim();
-  if(!name||!pass){ toast('اكتب الاسم وكلمة المرور'); return; }
+  if(!name||!pass){ toast(t('write_user_fields')); return; }
   byId('login-err').textContent='';
   const user = salesUsers.find(u=>u.name===name&&u.password===pass);
-  if(!user){ byId('login-err').textContent='الاسم أو كلمة المرور غلط'; return; }
+  if(!user){ byId('login-err').textContent=t('wrong_credentials'); return; }
   currentSalesName=name; updateSalesPill();
   renderPipelinePanel();
   renderCalendarPanel();
@@ -1104,7 +1105,7 @@ function updateSalesPill(){
   const pill=byId('sales-pill');
   if(currentSalesName){
     pill.style.display='flex';
-    pill.innerHTML=`مرحباً <strong>${esc(currentSalesName)}</strong> <button id="btn-logout">خروج</button>`;
+    pill.innerHTML=`${currentLang==='ar'?'مرحباً':'Hi'} <strong>${esc(currentSalesName)}</strong> <button id="btn-logout">${currentLang==='ar'?'خروج':'Logout'}</button>`;
     byId('btn-logout').addEventListener('click',()=>{ currentSalesName=null; updateSalesPill(); renderPipelinePanel(); renderCalendarPanel(); });
   } else { pill.style.display='none'; }
 }
@@ -1158,7 +1159,7 @@ function renderKanban(){
         <span>${status}</span>
         <span class="col-count">${col_leads.length}</span>
       </div>
-      <div class="kanban-col-body">${cards||'<div style="padding:20px;text-align:center;color:var(--muted);font-size:12px;">لا يوجد عملاء</div>'}</div>
+      <div class="kanban-col-body">${cards||`<div style="padding:20px;text-align:center;color:var(--muted);font-size:12px;">${t('no_data')}</div>`}</div>
       <button class="btn ghost sm" style="width:calc(100% - 16px);margin:8px;" data-act="new-lead-in-status" data-status="${status}">+ إضافة</button>
     </div>`;
   }).join('');
@@ -1199,7 +1200,7 @@ function openLeadModal(leadId, defaultStatus){
   const lead = leadId ? leads.find(l=>l.id===leadId) : null;
   modalRating = lead?.rating||0;
 
-  byId('modal-title').textContent = lead ? `${lead.name}` : 'عميل جديد';
+  byId('modal-title').textContent = lead ? lead.name : t('new_client');
   byId('btn-delete-lead').style.display = (lead && adminUnlocked) ? 'inline-flex' : 'none';
 
   byId('ld-name').value   = lead?.name||'';
@@ -1240,7 +1241,7 @@ byId('stars-input').addEventListener('click', e=>{
 
 function renderVisitsList(visits){
   const el = byId('visits-list');
-  if(!visits.length){ el.innerHTML='<p class="helpline">لا توجد معاينات بعد.</p>'; return; }
+  if(!visits.length){ el.innerHTML=`<p class="helpline">${t('no_data')}</p>`; return; }
   el.innerHTML = visits.map(v=>`
     <div class="visit-card">
       <div class="row" style="justify-content:space-between;flex-wrap:wrap;gap:6px;">
@@ -1265,7 +1266,7 @@ byId('btn-delete-lead').addEventListener('click', deleteLead);
 async function saveLead(){
   const name = byId('ld-name').value.trim();
   const phone = byId('ld-phone').value.trim();
-  if(!name||!phone){ toast('اكتب الاسم والتليفون'); return; }
+  if(!name||!phone){ toast(t('write_name_phone')); return; }
 
   const data = {
     name, phone,
@@ -1286,17 +1287,17 @@ async function saveLead(){
     const lead = leads.find(l=>l.id===currentModalLeadId);
     data.visits = lead.visits;
     Object.assign(lead, data);
-    logActivity('تحديث عميل',data.name,'✏️');
+    logActivity(currentLang==='ar'?'تحديث عميل':'Update client',data.name,'✏️');
   } else {
     leads.push({id:uid(), createdAt:Date.now(), visits:[], ...data});
-    logActivity('عميل جديد',data.name,'👤');
+    logActivity(t('s_new'),data.name,'👤');
   }
 
   await saveLeads();
   byId('lead-modal').classList.add('hidden');
   renderKanban();
   if(adminUnlocked){renderAdminLeadsList();renderDashboard();}
-  toast('تم الحفظ');
+  toast(t('saved'));
 }
 
 async function deleteLead(){
@@ -1306,12 +1307,12 @@ async function deleteLead(){
   byId('lead-modal').classList.add('hidden');
   renderKanban();
   if(adminUnlocked) renderAdminLeadsList();
-  toast('تم الحذف');
+  toast(t('deleted'));
 }
 
 function addVisit(){
   const lead = leads.find(l=>l.id===currentModalLeadId);
-  if(!lead){ toast('احفظ العميل الأول'); return; }
+  if(!lead){ toast(t('save')+' '+t('new_client')); return; }
   lead.visits = lead.visits||[];
   lead.visits.push({id:uid(), date:todayStr(), status:'تمت', notes:''});
   saveLeads().then(()=> renderVisitsList(lead.visits));
@@ -1355,10 +1356,10 @@ function renderCalendar(){
     fuMap[d].push(l);
   });
 
-  const months=['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
-  byId('cal-title').textContent = months[calMonth]+' '+calYear;
+  const months=t('months_ar');
+  byId('cal-title').textContent = (Array.isArray(months)?months:I18N.ar.months_ar)[calMonth]+' '+calYear;
 
-  const dayNames=['أحد','اثنين','ثلاثاء','أربعاء','خميس','جمعة','سبت'];
+  const dayNames=t('days_ar');
   const firstDay = new Date(calYear,calMonth,1).getDay();
   const daysInMonth = new Date(calYear,calMonth+1,0).getDate();
   const today = todayStr();
@@ -1382,7 +1383,7 @@ function renderCalendar(){
 function calDayClick(dateStr){
   const mine = leads.filter(l=>l.salesName===currentSalesName&&l.followUpDate&&l.followUpDate.startsWith(dateStr));
   const el = byId('cal-events-list');
-  if(!mine.length){ el.innerHTML=`<div class="card"><p class="helpline" style="padding:10px;">لا يوجد follow ups في هذا اليوم.</p></div>`; return; }
+  if(!mine.length){ el.innerHTML=`<div class="card"><p class="helpline" style="padding:10px;">${t('no_followups')}</p></div>`; return; }
   el.innerHTML = `<div class="card"><div class="section-title">Follow Ups — ${dateStr}</div>` +
     mine.map(l=>{
       const proj=projects.find(p=>p.id===l.projectId);
@@ -1489,14 +1490,14 @@ function performSearch(){
 
   // show results bar
   const rb=byId('results-bar');
-  if(rb){rb.style.display='flex';byId('results-count').innerHTML=`<span>${matched.length}</span> نتيجة`;}
+  if(rb){rb.style.display='flex';byId('results-count').innerHTML=`<span>${matched.length}</span> ${t('results')}`;}
   renderSearchResults(matched);
 }
 
 function renderSearchResults(matched){
   const box=byId('search-results');
   if(!matched.length){
-    box.innerHTML=`<div class="empty-search"><div class="empty-search-icon">🔍</div><div style="font-size:16px;font-weight:700;margin-bottom:8px;">لا توجد نتائج</div><div style="font-size:13px;">جرّب تخفف الفلاتر أو تبحث في منطقة تانية</div></div>`;
+    box.innerHTML=`<div class="empty-search"><div class="empty-search-icon">🔍</div><div style="font-size:16px;font-weight:700;margin-bottom:8px;">${t('no_results')}</div><div style="font-size:13px;">${t('no_results_hint')}</div></div>`;
     return;
   }
   const GRADS=['prop-gradient-1','prop-gradient-2','prop-gradient-3'];
@@ -1529,7 +1530,7 @@ function renderSearchResults(matched){
           ${finishTypes.map(f=>`<span class="pb pb-fin">${esc(f)}</span>`).join('')}
         </div>
         <button class="prop-view-btn" data-act="open-drawer" data-project="${p.id}" data-count="${p._units.length}">
-          عرض الوحدات (${p._units.length}) ←
+          ${t('view_units')} (${p._units.length}) ←
         </button>
       </div>
     </div>`;
@@ -1548,7 +1549,7 @@ function initSearchListeners(){
   const monthly=byId('qf-monthly-max');
   if(monthly) monthly.addEventListener('input',()=>{
     const v=parseInt(monthly.value);
-    byId('monthly-max-val').textContent=v>=200000?'بدون حد':v.toLocaleString('ar-EG');
+    byId('monthly-max-val').textContent=v>=200000?t('no_limit'):v.toLocaleString(currentLang==='ar'?'ar-EG':'en-US');
     performSearch();
   });
   const advBtn=byId('btn-adv-toggle');
@@ -1702,7 +1703,7 @@ byId('btn-unlock').addEventListener('click',()=>{
     byId('admin-lead-sales-filter').addEventListener('change',renderAdminLeadsList);
     const li=byId('leads-excel-input');
     li.addEventListener('change',handleLeadsExcelUpload);
-  }else{ byId('lock-error').textContent='كلمة المرور غلط'; }
+  }else{ byId('lock-error').textContent=t('wrong_password'); }
 });
 
 /* ---- ADMIN PROJECTS ---- */
@@ -1786,12 +1787,12 @@ function editProject(){
     if(imgPrev?.dataset?.b64) p.image=imgPrev.dataset.b64;
     await saveProjects();
     renderAdminProjectList();refreshAreaOptions();renderProjectDetail();
-    toast('تم حفظ التعديلات');
+    toast(t('edit_saved'));
   });
 }
 
 async function addProject(){
-  const name=byId('np-name').value.trim(); if(!name){toast('اكتب اسم المشروع');return;}
+  const name=byId('np-name').value.trim(); if(!name){toast(t('write_project_name'));return;}
   const imgEl=byId('np-image-preview');
   const np={
     id:uid(),name,
@@ -1808,7 +1809,7 @@ async function addProject(){
   byId('new-project-form').innerHTML=''; activeProjectId=np.id;
   renderAdminProjectList(); refreshAreaOptions(); renderProjectDetail();
   byId('project-detail').scrollIntoView({behavior:'smooth',block:'start'});
-  toast('تم إضافة المشروع');
+  toast(t('project_saved'));
 }
 function renderAdminProjectList(){
   byId('proj-count').textContent=projects.length;
@@ -1816,7 +1817,7 @@ function renderAdminProjectList(){
   const list=byId('admin-project-list');
   const filtered=projects.filter(p=>!q||(p.name+' '+p.area).toLowerCase().includes(q));
   if(!projects.length){list.innerHTML=`<div class="empty"><span data-i18n="no_projects">لسه مفيش مشاريع.</span></div>`;return;}
-  if(!filtered.length){list.innerHTML=`<p class="helpline" style="padding:8px;">مفيش نتائج.</p>`;return;}
+  if(!filtered.length){list.innerHTML=`<p class="helpline" style="padding:8px;">${t('no_match')}</p>`;return;}
   list.innerHTML=filtered.map(p=>`<div class="proj-item${p.id===activeProjectId?' active':''}" data-act="open-project" data-project="${p.id}">
     <div>${p.id===activeProjectId?'<span class="current-badge">مفتوح</span><br>':''}<strong>${esc(p.name)}</strong>
     <div class="helpline">${esc(p.area)} | ${(p.units||[]).length} وحدة | ${(p.plans||[]).length} نظام</div></div>
@@ -1824,10 +1825,10 @@ function renderAdminProjectList(){
   </div>`).join('');
 }
 async function deleteProject(id){
-  if(!confirm('متأكد؟'))return;
+  if(!confirm(t('confirm_delete')))return;
   projects=projects.filter(p=>p.id!==id); await saveProjects();
   if(activeProjectId===id)activeProjectId=null;
-  renderAdminProjectList(); refreshAreaOptions(); renderProjectDetail(); toast('تم الحذف');
+  renderAdminProjectList(); refreshAreaOptions(); renderProjectDetail(); toast(t('deleted'));
 }
 function openProjectDetail(id){ activeProjectId=id; renderAdminProjectList(); renderProjectDetail(); }
 function renderProjectDetail(){
@@ -1874,13 +1875,13 @@ function renderProjectDetail(){
     imgUpd.addEventListener('change', async (e)=>{
       const file=e.target.files[0]; if(!file)return;
       const compressed = await compressImage(file,500,0.65);
-      p.image=compressed; await saveProjects(); renderProjectDetail(); toast('تم تحديث الصورة');
+      p.image=compressed; await saveProjects(); renderProjectDetail(); toast(t('image_updated'));
     });
   }
 }
 function renderUnitsTable(p){
   const el=byId('units-table');
-  if(!p.units?.length){el.innerHTML=`<p class="helpline">لا توجد وحدات.</p>`;return;}
+  if(!p.units?.length){el.innerHTML=`<p class="helpline">${t('no_data')}</p>`;return;}
   el.innerHTML=`<table><tr><th>الفئة</th><th>الدور</th><th>الفيو</th><th>غرف</th><th>المساحة</th><th>سعر المتر</th><th>التشطيب</th><th>السعر</th><th></th></tr>
     ${p.units.map(u=>`<tr>
       <td>${esc(u.category)}</td><td>${esc(u.floor)||'-'}</td><td>${esc(u.view)||'-'}</td>
@@ -1888,7 +1889,7 @@ function renderUnitsTable(p){
       <td>${u.area?u.area+' م²':'-'}</td><td>${u.pricePerMeter?money(u.pricePerMeter)+'/م':'-'}</td>
       <td>${u.finishing?`<span class="finishing-badge fin-${u.finishing.replace(/\s+/g,'_')}">${esc(u.finishing)}</span>`:'-'}</td>
       <td>${money(u.price)}</td>
-      <td><button class="btn ghost sm" data-act="edit-unit" data-unit="${u.id}">تعديل</button>
+      <td><button class="btn ghost sm" data-act="edit-unit" data-unit="${u.id}">${currentLang==='ar'?'تعديل':'Edit'}</button>
           <button class="btn danger sm" data-act="delete-unit" data-unit="${u.id}">حذف</button></td>
     </tr>`).join('')}</table>`;
 }
@@ -1934,7 +1935,7 @@ async function saveUnit(unitId){
   const data={category:cat,price,floor:byId('u-floor').value.trim(),view:byId('u-view').value.trim(),location:byId('u-location').value.trim(),area,pricePerMeter,rooms:parseInt(byId('u-rooms').value)||null,baths:parseInt(byId('u-baths').value)||null,finishing:byId('u-finishing').value||null};
   if(unitId){Object.assign(p.units.find(x=>x.id===unitId),data);}
   else{p.units=p.units||[];p.units.push({id:uid(),...data});}
-  await saveProjects(); byId('unit-form').innerHTML=''; renderProjectDetail(); renderAdminProjectList(); toast('تم الحفظ');
+  await saveProjects(); byId('unit-form').innerHTML=''; renderProjectDetail(); renderAdminProjectList(); toast(t('saved'));
 }
 async function deleteUnit(unitId){
   const p=projects.find(x=>x.id===activeProjectId);
@@ -1943,12 +1944,12 @@ async function deleteUnit(unitId){
 }
 function renderPlansTable(p){
   const el=byId('plans-table');
-  if(!p.plans?.length){el.innerHTML=`<p class="helpline">لا توجد أنظمة سداد.</p>`;return;}
+  if(!p.plans?.length){el.innerHTML=`<p class="helpline">${t('no_data')}</p>`;return;}
   el.innerHTML=`<table><tr><th>الاسم</th><th>المقدم</th><th>النوع</th><th>التفاصيل</th><th></th></tr>
     ${p.plans.map(pl=>`<tr><td>${esc(pl.name)}</td><td>${pl.downPaymentPercent}%</td>
     <td>${pl.type==='equal'?'أقساط متساوية':'دفعات مخصصة'}</td>
     <td>${pl.type==='equal'?(pl.years+' سنة - '+(FREQ_LABELS[pl.frequency]||'')):((pl.milestones||[]).length+' دفعة')}</td>
-    <td><button class="btn ghost sm" data-act="edit-plan" data-plan="${pl.id}">تعديل</button>
+    <td><button class="btn ghost sm" data-act="edit-plan" data-plan="${pl.id}">${currentLang==='ar'?'تعديل':'Edit'}</button>
         <button class="btn danger sm" data-act="delete-plan" data-plan="${pl.id}">حذف</button></td></tr>`).join('')}</table>`;
 }
 function showPlanForm(planId){
@@ -2010,13 +2011,13 @@ function renderMilestonesList(){
 async function savePlan(planId){
   const p=projects.find(x=>x.id===activeProjectId);
   const name=byId('pl-name').value.trim(),down=parseFloat(byId('pl-down').value),type=byId('pl-type').value;
-  if(!name||isNaN(down)){toast('اكتب اسم النظام ونسبة المقدم');return;}
+  if(!name||isNaN(down)){toast(t('write_plan_fields'));return;}
   const data={name,downPaymentPercent:down,type,maintenanceFeePercent:parseFloat(byId('pl-maint').value)||0,deliveryYears:parseFloat(byId('pl-delivery').value)||0};
   if(type==='equal'){data.years=parseFloat(byId('pl-years').value)||1;data.frequency=byId('pl-freq').value;}
   else{data.milestones=customMilestonesDraft;}
   if(planId){Object.assign(p.plans.find(x=>x.id===planId),data);}
   else{p.plans=p.plans||[];p.plans.push({id:uid(),...data});}
-  await saveProjects(); byId('plan-form').innerHTML=''; renderProjectDetail(); renderAdminProjectList(); toast('تم حفظ نظام السداد');
+  await saveProjects(); byId('plan-form').innerHTML=''; renderProjectDetail(); renderAdminProjectList(); toast(t('plan_saved'));
 }
 async function deletePlan(planId){
   const p=projects.find(x=>x.id===activeProjectId);
@@ -2028,7 +2029,7 @@ async function deletePlan(planId){
 function renderSalesUsersList(){
   byId('sales-users-count').textContent=salesUsers.length;
   const el=byId('sales-users-list');
-  if(!salesUsers.length){el.innerHTML=`<p class="helpline">لسه مفيش مستخدمين.</p>`;return;}
+  if(!salesUsers.length){el.innerHTML=`<p class="helpline">${t('no_data')}</p>`;return;}
   el.innerHTML=salesUsers.map(u=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 11px;border:1px solid var(--line);border-radius:8px;margin-bottom:6px;background:#fff;flex-wrap:wrap;gap:6px;">
     <div>
       <strong>${esc(u.name)}</strong>
@@ -2036,7 +2037,7 @@ function renderSalesUsersList(){
       ${u.email?`<span class="helpline" style="margin-right:8px;">✉️ ${esc(u.email)}</span>`:''}
       <span class="helpline" style="margin-right:8px;">🔑 ${esc(u.password)}</span>
     </div>
-    <button class="btn danger sm" data-act="delete-sales-user" data-uid="${u.id}">حذف</button>
+    <button class="btn danger sm" data-act="delete-sales-user" data-uid="${u.id}">${t('delete_client').replace('🗑 ','')}</button>
   </div>`).join('');
 }
 function showAddSalesUserForm(){
@@ -2056,15 +2057,15 @@ function showAddSalesUserForm(){
 }
 async function saveSalesUser(){
   const name=byId('su-name').value.trim(),pass=byId('su-pass').value.trim();
-  if(!name||!pass){toast('اكتب الاسم وكلمة المرور');return;}
-  if(salesUsers.find(u=>u.name===name)){toast('الاسم ده موجود بالفعل');return;}
+  if(!name||!pass){toast(t('write_user_fields'));return;}
+  if(salesUsers.find(u=>u.name===name)){toast(t('user_exists'));return;}
   salesUsers.push({id:uid(),name,password:pass,phone:byId('su-phone').value.trim(),email:byId('su-email').value.trim(),createdAt:Date.now()});
-  await saveSalesUsers(); byId('add-sales-user-form').innerHTML=''; renderSalesUsersList(); toast('تم إضافة المستخدم');
+  await saveSalesUsers(); byId('add-sales-user-form').innerHTML=''; renderSalesUsersList(); toast(t('user_added'));
 }
 async function deleteSalesUser(userId){
-  if(!confirm('متأكد؟'))return;
+  if(!confirm(t('confirm_delete')))return;
   salesUsers=salesUsers.filter(u=>u.id!==userId);
-  await saveSalesUsers(); renderSalesUsersList(); toast('تم الحذف');
+  await saveSalesUsers(); renderSalesUsersList(); toast(t('deleted'));
 }
 
 /* ---- ADMIN ALL LEADS ---- */
@@ -2090,16 +2091,16 @@ function renderAdminLeadsList(){
         <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;">
           ${starsHtml(l.rating||0,13)}
           <span class="status-badge ${statusClass(l.status)}">${esc(l.status)}</span>
-          <button class="btn ghost sm" data-act="open-lead-modal" data-lead-id="${l.id}">تعديل</button>
+          <button class="btn ghost sm" data-act="open-lead-modal" data-lead-id="${l.id}">${currentLang==='ar'?'تعديل':'Edit'}</button>
           <div class="row" style="gap:4px;">
             <select id="transfer-sel-${l.id}" style="font-size:11px;padding:4px 7px;width:auto;">${salesOptions}</select>
             <button class="btn sm" style="background:var(--primary-2);" data-act="transfer-lead" data-lead-id="${l.id}"><span data-i18n="transfer">نقل</span></button>
           </div>
-          <button class="btn danger sm" data-act="admin-delete-lead" data-lead-id="${l.id}">🗑 حذف</button>
+          <button class="btn danger sm" data-act="admin-delete-lead" data-lead-id="${l.id}">${t('delete_client')}</button>
         </div>
       </div>
     </div>`;
-  }).join(''):`<div class="empty">مفيش عملاء مطابقين.</div>`;
+  }).join(''):`<div class="empty">${t('no_match')}</div>`;
 }
 
 /* ---- EXCEL UNITS ---- */
@@ -2116,7 +2117,7 @@ function handleExcelUpload(e){
     try{
       const wb=XLSX.read(new Uint8Array(evt.target.result),{type:'array'});
       const rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:''});
-      const p=projects.find(x=>x.id===activeProjectId);if(!p){toast('افتح مشروع');return;}
+      const p=projects.find(x=>x.id===activeProjectId);if(!p){toast(t('open_project_first'));return;}
       const gs=(r,...k)=>{for(const key of k){const v=r[key];if(v!==undefined&&v!==''&&v!==null)return String(v).trim();}return null;};
       const gn=(r,...k)=>{for(const key of k){const v=parseFloat(r[key]);if(!isNaN(v))return v;}return null;};
       rows.forEach(r=>{
@@ -2182,7 +2183,7 @@ function handleLeadsExcelUpload(e){
         added++;
       });
       saveLeads().then(()=>{renderAdminLeadsList();toast(`تم رفع ${added} عميل${skipped?' (تجاهل '+skipped+')':''}`)});
-    }catch(err){toast('خطأ في قراءة الملف');}
+    }catch(err){toast(t('excel_error'));}
     e.target.value='';
   };
   reader.readAsArrayBuffer(file);
@@ -2263,16 +2264,16 @@ async function transferLead(leadId){
   const lead=leads.find(l=>l.id===leadId); if(!lead)return;
   const sel=byId('transfer-sel-'+leadId); if(!sel)return;
   const newSales=sel.value;
-  if(newSales===lead.salesName){toast('العميل ده بالفعل مع نفس السيلز');return;}
+  if(newSales===lead.salesName){toast(t('already_same_sales'));return;}
   lead.transferHistory=lead.transferHistory||[];
   lead.transferHistory.push({from:lead.salesName,to:newSales,date:Date.now()});
   lead.salesName=newSales; lead.updatedAt=Date.now();
-  await saveLeads(); renderAdminLeadsList(); toast(`تم نقل العميل إلى ${newSales}`);
+  await saveLeads(); renderAdminLeadsList(); toast(t('transfer_done')+' '+newSales);
 }
 async function adminDeleteLead(leadId){
-  if(!confirm('متأكد حذف العميل ده نهائياً؟'))return;
+  if(!confirm(t('confirm_delete')))return;
   leads=leads.filter(l=>l.id!==leadId);
-  await saveLeads(); renderAdminLeadsList(); toast('تم الحذف');
+  await saveLeads(); renderAdminLeadsList(); toast(t('deleted'));
 }
 
 /* ---- MY LEADS EXCEL IMPORT (for sales users) ---- */
@@ -2303,7 +2304,7 @@ function handleMyLeadsExcelUpload(e){
         added++;
       });
       saveLeads().then(()=>{renderKanban();toast(`تم رفع ${added} عميل${skipped?' (تجاهل '+skipped+')':''}`)});
-    }catch(err){toast('خطأ في قراءة الملف');}
+    }catch(err){toast(t('excel_error'));}
     e.target.value='';
   };
   reader.readAsArrayBuffer(file);
@@ -2319,7 +2320,7 @@ async function saveSettings(){
   const s={company:byId('set-company')?.value?.trim()||'',logo:byId('set-logo')?.value?.trim()||'',phone:byId('set-phone')?.value?.trim()||'',wa:byId('set-wa')?.value?.trim()||''};
   appSettings=s;
   if(firebaseReady) await db.collection('appdata').doc('settings').set(s);
-  toast('تم حفظ الإعدادات');
+  toast(t('settings_saved'));
 }
 
 /* ---- ACTIVITY LOG ---- */
@@ -2339,8 +2340,8 @@ function logActivity(action, detail, icon='📝'){
 }
 function renderActivityTimeline(){
   const el=byId('activity-timeline'); if(!el)return;
-  byId('activity-count').textContent=activityLog.length+' حدث';
-  if(!activityLog.length){el.innerHTML='<p class="helpline" style="padding:10px;">لا يوجد نشاط مسجل بعد.</p>';return;}
+  byId('activity-count').textContent=activityLog.length+' '+t('events_count');
+  if(!activityLog.length){el.innerHTML=`<p class="helpline" style="padding:10px;">${t('no_activity')}</p>`;return;}
   el.innerHTML=activityLog.slice(0,40).map(a=>`<div class="timeline-item">
     <div class="timeline-dot"></div>
     <div><div class="timeline-text">${a.icon||'📝'} <strong>${esc(a.action)}</strong>${a.detail?' — '+esc(a.detail):''}</div>
@@ -2355,12 +2356,12 @@ function getNotifications(){
   myLeads.forEach(l=>{
     if(l.followUpDate){
       const fu=new Date(l.followUpDate).getTime(), diff=fu-now;
-      if(diff<0&&diff>-86400000) notifs.push({type:'overdue',icon:'⚠️',text:`Follow-up متأخر: ${l.name}`,leadId:l.id,ts:fu});
-      else if(diff>0&&diff<3600000) notifs.push({type:'soon',icon:'⏰',text:`Follow-up خلال ساعة: ${l.name}`,leadId:l.id,ts:fu});
-      else if(l.followUpDate.startsWith(today)) notifs.push({type:'today',icon:'📅',text:`Follow-up اليوم: ${l.name}`,leadId:l.id,ts:fu});
+      if(diff<0&&diff>-86400000) notifs.push({type:'overdue',icon:'⚠️',text:t('followup_overdue')+' '+l.name,leadId:l.id,ts:fu});
+      else if(diff>0&&diff<3600000) notifs.push({type:'soon',icon:'⏰',text:t('followup_soon')+' '+l.name,leadId:l.id,ts:fu});
+      else if(l.followUpDate.startsWith(today)) notifs.push({type:'today',icon:'📅',text:t('followup_today_notif')+' '+l.name,leadId:l.id,ts:fu});
     }
     (l.transferHistory||[]).forEach(h=>{
-      if(h.to===currentSalesName&&now-h.date<86400000) notifs.push({type:'transfer',icon:'🔄',text:`تم تحويل عميل إليك: ${l.name}`,leadId:l.id,ts:h.date});
+      if(h.to===currentSalesName&&now-h.date<86400000) notifs.push({type:'transfer',icon:'🔄',text:t('transferred_to_you')+' '+l.name,leadId:l.id,ts:h.date});
     });
   });
   return notifs.sort((a,b)=>a.ts-b.ts);
@@ -2372,7 +2373,7 @@ function renderNotifications(){
   const list=byId('notif-list'); if(!list)return;
   list.innerHTML=notifs.length?notifs.map(n=>`<div class="notif-item" data-act="open-notif-lead" data-lead-id="${n.leadId}">
     <span class="notif-item-icon">${n.icon}</span>${esc(n.text)}
-  </div>`).join(''):`<div class="notif-empty">لا توجد إشعارات حالياً ✅</div>`;
+  </div>`).join(''):`<div class="notif-empty">${t('no_notifications')}</div>`;
 }
 byId('notif-bell-btn').addEventListener('click',e=>{
   e.stopPropagation();
@@ -2402,13 +2403,13 @@ function renderDashboard(){
   const topProjId=Object.entries(projCount).sort((a,b)=>b[1]-a[1])[0];
   const topProj=topProjId?projects.find(p=>p.id===topProjId[0]):null;
 
-  byId('dash-updated').textContent='آخر تحديث: '+new Date().toLocaleTimeString('ar-EG');
+  byId('dash-updated').textContent=t('last_updated')+' '+new Date().toLocaleTimeString(currentLang==='ar'?'ar-EG':'en-US');
 
   const stats=[
-    {icon:'📋',num:totalLeads,label:'إجمالي العملاء',sub:'',color:'blue'},
-    {icon:'🏢',num:totalProjects,label:'المشاريع',sub:totalUnits+' وحدة',color:'green'},
-    {icon:'✅',num:totalBookings,label:'الحجوزات',sub:totalLeads?Math.round(totalBookings/totalLeads*100)+'% نسبة تحويل':'',color:'gold'},
-    {icon:'🆕',num:newToday,label:'عملاء اليوم',sub:'',color:'blue'},
+    {icon:'📋',num:totalLeads,label:t('total_clients'),sub:'',color:'blue'},
+    {icon:'🏢',num:totalProjects,label:t('projects_label'),sub:totalUnits+' '+(currentLang==='ar'?'وحدة':'units'),color:'green'},
+    {icon:'✅',num:totalBookings,label:t('bookings'),sub:totalLeads?Math.round(totalBookings/totalLeads*100)+'% '+t('conversion'):'',color:'gold'},
+    {icon:'🆕',num:newToday,label:t('clients_today'),sub:'',color:'blue'},
   ];
   byId('dash-stats').innerHTML=stats.map((s,i)=>`<div class="stat-card ${s.color}" style="animation-delay:${i*0.1}s">
     <span class="stat-card-icon">${s.icon}</span>
@@ -2426,9 +2427,9 @@ function renderDashboard(){
 
   byId('dash-alerts').innerHTML=`
     <div class="alert-card ${overdueFollowups>0?'danger':'good'}">
-      <h4>${overdueFollowups>0?'⚠️':'✅'} Follow-ups متأخرة</h4>
+      <h4>${overdueFollowups>0?'⚠️':'✅'} ${t('followups_overdue')}</h4>
       <div style="font-size:28px;font-weight:800;font-family:'Cairo',sans-serif;color:${overdueFollowups>0?'var(--bad)':'var(--good)'};" class="${overdueFollowups>0?'pulse':''}">${overdueFollowups}</div>
-      <div class="helpline" style="margin-top:4px;">${overdueFollowups>0?'يحتاجون متابعة عاجلة':'كل المتابعات في موعدها'}</div>
+      <div class="helpline" style="margin-top:4px;">${overdueFollowups>0?t('urgent_followup'):t('all_on_time')}</div>
     </div>
     <div class="alert-card warning">
       <h4>📊 حالات العملاء</h4>
@@ -2451,12 +2452,12 @@ function renderDashboard(){
     <div class="alert-card good">
       <h4>🏆 أفضل سيلز</h4>
       ${bestSales?`<div style="font-size:22px;font-weight:800;font-family:'Cairo',sans-serif;color:var(--primary);">${esc(bestSales[0])}</div>
-        <div class="helpline">${bestSales[1]} حجز مؤكد</div>`:'<div class="helpline">لا توجد حجوزات بعد</div>'}
+        <div class="helpline">${bestSales[1]} حجز مؤكد</div>`:`<div class="helpline">${t('no_bookings_yet')}</div>`}
     </div>
     <div class="alert-card warning">
       <h4>🔥 أكثر مشروع مطلوب</h4>
       ${topProj?`<div style="font-size:18px;font-weight:800;font-family:'Cairo',sans-serif;color:var(--primary);">${esc(topProj.name)}</div>
-        <div class="helpline">${topProjId[1]} عميل مهتم</div>`:'<div class="helpline">لا توجد بيانات بعد</div>'}
+        <div class="helpline">${topProjId[1]} عميل مهتم</div>`:`<div class="helpline">${t('no_data_yet')}</div>`}
     </div>`;
 
   renderActivityTimeline();
@@ -2481,7 +2482,7 @@ function openDrawer(projectId){
   if(!p)return;
   const down=parseFloat(byId('qf-down')?.value)||0;
   const drawerResults=p._units||p.units||[];
-  byId('drawer-title').textContent=p.name+' — '+drawerResults.length+' وحدة';
+  byId('drawer-title').textContent=p.name+' — '+drawerResults.length+' '+(currentLang==='ar'?'وحدة':'units');
   const body=byId('drawer-body');
   body.innerHTML=`
     ${p.image?`<img src="${p.image}" class="drawer-proj-img" alt="${esc(p.name)}">`:''}
@@ -2494,7 +2495,7 @@ function openDrawer(projectId){
       </div>
     </div>
     <div style="padding:12px;">
-      ${drawerResults.length?drawerResults.map(u=>buildUnitCard(u,p,down)).join(''):'<div class="empty">لا توجد وحدات مطابقة للفلاتر.</div>'}
+      ${drawerResults.length?drawerResults.map(u=>buildUnitCard(u,p,down)).join(''):`<div class="empty">${t('no_units')}</div>`}
     </div>
   `;
   byId('drawer-overlay').classList.add('open');
@@ -2591,7 +2592,7 @@ function calcUpdate(){
   byId('calc-years-val').textContent=years;
   byId('calc-int-val').textContent=parseFloat(byId('calc-interest')?.value)||0;
   byId('calc-monthly-output').textContent=Math.round(monthly).toLocaleString('ar-EG')+' ج.م';
-  byId('calc-total-output').textContent='الباقي: '+remaining.toLocaleString('ar-EG')+' ج.م على '+years*12+' قسط';
+  byId('calc-total-output').textContent=t('remaining')+' '+remaining.toLocaleString(currentLang==='ar'?'ar-EG':'en-US')+' ج.م — '+years*12+' '+t('installments_on')+' '+years*12+;
 }
 
 /* ---- COMPRESS IMAGE ---- */
@@ -2621,334 +2622,15 @@ window.togglePac      = (...a) => togglePac(...a);
 window.exportQuotePDF = (...a) => exportQuotePDF(...a);
 window.handleKanbanDrop = (...a) => handleKanbanDrop(...a);
 
-
-/* ════════════════════════════════════════════════════════════
-   THEME SYSTEM
-   ════════════════════════════════════════════════════════════ */
-let currentTheme = localStorage.getItem('ycrm_theme') || 'light';
-
-function applyTheme(theme) {
-  currentTheme = theme;
-  localStorage.setItem('ycrm_theme', theme);
-  document.documentElement.setAttribute('data-theme', theme);
-  const btn = byId('theme-toggle-btn');
-  if (btn) btn.setAttribute('aria-checked', theme === 'dark' ? 'true' : 'false');
-}
-
-// Theme toggle click
-const themeBtn = byId('theme-toggle-btn');
-if (themeBtn) {
-  themeBtn.addEventListener('click', () => applyTheme(currentTheme === 'dark' ? 'light' : 'dark'));
-  themeBtn.addEventListener('keydown', e => {
-    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); applyTheme(currentTheme === 'dark' ? 'light' : 'dark'); }
-  });
-}
-
-// Apply on load
-applyTheme(currentTheme);
-
-/* ════════════════════════════════════════════════════════════
-   I18N SYSTEM
-   ════════════════════════════════════════════════════════════ */
-const I18N = {
-  ar: {
-    /* Tabs */
-    tab_search:'بحث عن وحدة', tab_pipeline:'العملاء', tab_calendar:'التقويم', tab_admin:'الأدمن',
-    /* Search */
-    search_title:'دوّر على المشروع المناسب للعميل',
-    f_area:'المنطقة', all_areas:'كل المناطق', f_type:'نوع الوحدة', all:'الكل',
-    f_dev:'المطور', all_devs:'كل المطورين', f_budget:'الميزانية القصوى', f_down:'المقدم المتاح',
-    btn_search:'بحث', btn_reset:'تصفير',
-    rooms:'غرف', baths:'حمامات', finishing:'تشطيب',
-    fin_full:'تشطيب كامل', fin_semi:'نص تشطيب', fin_brick:'طوب احمر',
-    delivery:'تسليم', ready:'جاهز',
-    more_filters:'فلاتر أكثر', calculator:'حاسبة', clear:'مسح',
-    max_monthly:'قسط شهري أقصى', no_limit:'بدون حد',
-    payment_method:'طريقة الدفع', cash:'كاش', installment:'تقسيط',
-    installment_calc:'حاسبة التقسيط', unit_price:'سعر الوحدة',
-    down_pct:'نسبة المقدم %', years:'مدة التقسيط', year:'سنة',
-    interest:'فائدة % (اختياري)', monthly_installment:'القسط الشهري',
-    results:'نتيجة', sort_match:'الأكثر تطابقاً',
-    sort_asc:'السعر ↑ الأقل', sort_desc:'السعر ↓ الأعلى', sort_units:'أكثر وحدات',
-    view_units:'عرض الوحدات', no_results:'لا توجد نتائج',
-    no_results_hint:'جرّب تخفف الفلاتر أو تبحث في منطقة تانية',
-    /* Pipeline / Login */
-    login:'تسجيل دخول', login_hint:'ادخل بيانات حسابك اللي أنشأه الأدمن.',
-    username:'اسم المستخدم', password:'كلمة المرور', login_btn:'دخول',
-    username_ph:'اسمك', wrong_credentials:'الاسم أو كلمة المرور غلط',
-    pipeline_title:'Pipeline',
-    upload_excel:'رفع من إكسيل', template:'نموذج', new_lead:'+ عميل جديد',
-    upload_leads_excel:'رفع عملاء من إكسيل',
-    login_first:'سجّل دخول من تاب Pipeline الأول.',
-    /* Calendar */
-    months_ar:['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'],
-    days_ar:['أحد','اثنين','ثلاثاء','أربعاء','خميس','جمعة','سبت'],
-    no_followups:'لا يوجد follow ups في هذا اليوم.',
-    /* Admin */
-    btn_login:'تسجيل دخول', wrong_password:'كلمة المرور غلط',
-    dashboard:'لوحة التحكم', last_updated:'آخر تحديث:',
-    projects:'المشاريع', add_project:'+ إضافة مشروع جديد',
-    search_projects_ph:'بحث باسم المشروع أو المنطقة...',
-    company_settings:'إعدادات الشركة', save_settings:'حفظ الإعدادات',
-    sales_users:'👥 مستخدمي السيلز', add_user:'+ إضافة مستخدم',
-    all_clients:'كل العملاء', upload_from_excel:'⬆ رفع من إكسيل',
-    filter_by_status:'فلتر بالحالة', filter_by_status_all:'الكل',
-    filter_by_sales:'فلتر بالسيلز',
-    s_new:'جديد', s_contact:'تواصل أول', s_interested:'مهتم', s_booked:'حجز', s_declined:'اعتذر',
-    activity_timeline:'📋 Activity Timeline',
-    no_projects:'لسه مفيش مشاريع.', select_project:'دوس على مشروع من القائمة.',
-    add_unit:'+ وحدة', upload_units_excel:'⬆ إكسيل', download_template:'⬇ نموذج',
-    add_plan:'+ نظام سداد', transfer:'نقل', no_data:'لا توجد بيانات',
-    no_match:'مفيش نتائج.',
-    /* Lead Modal */
-    new_client:'عميل جديد', basic_info:'معلومات أساسية',
-    name:'الاسم', phone:'رقم التليفون',
-    national_id:'الرقم القومي (اختياري)', email:'البريد الإلكتروني (اختياري)',
-    source:'مصدر العميل', interested_project:'المشروع المهتم بيه',
-    unit_category:'الوحدة/الفئة', followup:'المتابعة',
-    followup_status:'حالة المتابعة', followup_date:'موعد Follow Up',
-    client_rating:'تقييم العميل', notes:'ملاحظات',
-    visits:'المعاينات', add_visit:'+ إضافة معاينة',
-    save:'حفظ', cancel:'إلغاء', delete_client:'🗑 حذف العميل',
-    write_name_phone:'اكتب الاسم والتليفون', saved:'تم الحفظ', deleted:'تم الحذف',
-    confirm_delete:'متأكد؟', visit_saved:'تم الحفظ', transfer_done:'تم النقل إلى',
-    already_same_sales:'العميل ده بالفعل مع نفس السيلز',
-    /* Notifications */
-    notifications:'الإشعارات', no_notifications:'لا توجد إشعارات حالياً ✅',
-    followup_overdue:'Follow-up متأخر:', followup_soon:'Follow-up خلال ساعة:',
-    followup_today_notif:'Follow-up اليوم:', transferred_to_you:'تم تحويل عميل إليك:',
-    /* Drawer */
-    close:'✕ إغلاق', no_units:'لا توجد وحدات مطابقة للفلاتر.',
-    no_plans:'لا توجد أنظمة سداد مدخلة.', export_pdf:'📄 تصدير عرض سعر PDF',
-    /* Calculator */
-    remaining:'الباقي:', installments_on:'قسط',
-    /* Dashboard */
-    total_clients:'إجمالي العملاء', projects_label:'المشاريع',
-    bookings:'الحجوزات', conversion:'نسبة تحويل',
-    clients_today:'عملاء اليوم', followups_overdue:'Follow-ups متأخرة',
-    urgent_followup:'يحتاجون متابعة عاجلة', all_on_time:'كل المتابعات في موعدها',
-    client_status:'حالات العملاء', best_sales:'أفضل سيلز', top_project:'أكثر مشروع مطلوب',
-    confirmed_bookings:'حجز مؤكد', interested_clients:'عميل مهتم',
-    no_bookings_yet:'لا توجد حجوزات بعد', no_data_yet:'لا توجد بيانات بعد',
-    events_count:'حدث', no_activity:'لا يوجد نشاط مسجل بعد.',
-    /* Toast / general */
-    settings_saved:'تم حفظ الإعدادات', project_saved:'تم إضافة المشروع',
-    project_deleted:'تم الحذف', unit_saved:'تم الحفظ', plan_saved:'تم حفظ نظام السداد',
-    user_added:'تم إضافة المستخدم', user_deleted:'تم الحذف',
-    excel_error:'خطأ في قراءة الملف', open_project_first:'افتح مشروع الأول',
-    image_updated:'تم تحديث الصورة', edit_saved:'تم حفظ التعديلات',
-    select_project_first:'دوس على مشروع من القائمة علشان تضيف له وحدات وأنظمة سداد.',
-    write_project_name:'اكتب اسم المشروع', write_category_price:'اكتب الفئة على الأقل',
-    write_plan_fields:'اكتب اسم النظام ونسبة المقدم',
-    write_user_fields:'اكتب الاسم وكلمة المرور', user_exists:'الاسم ده موجود بالفعل',
-    /* Units form */
-    unit_desc:'فئة/وصف الوحدة', unit_number:'رقم القطعة / الوحدة',
-    floor:'الدور', view_label:'الفيو', bedrooms:'عدد الغرف', bathrooms:'عدد الحمامات',
-    area_sqm:'المساحة م²', garden_sqm:'مساحة الجاردن م²',
-    finishing_type:'نوع التشطيب', utilities:'عدادات + أسانسير',
-    delivery_date:'ميعاد التسليم', location_inside:'الموقع داخل المشروع',
-    cash_price:'سعر الكاش', down_payment_amount:'المقدم (مبلغ)',
-    installment_1yr:'القسط الشهري / سنة', installment_2yr:'القسط الشهري / 2 سنة',
-    total_price:'السعر الإجمالي', price_per_meter:'سعر المتر',
-    /* Print / PDF */
-    price_quote:'عرض سعر', quote_date:'تاريخ العرض:', quote_unit:'الوحدة',
-    quote_floor:'الدور', quote_view:'الفيو', quote_location:'الموقع',
-    quote_area:'المساحة', quote_layout:'التوزيع', quote_garden:'مساحة الجاردن',
-    quote_finishing:'التشطيب', quote_utilities:'عدادات + أسانسير',
-    quote_delivery:'ميعاد التسليم', quote_price_per_m:'سعر المتر',
-    quote_total_price:'سعر الوحدة', quote_plan:'نظام السداد',
-    quote_down:'المقدم', quote_maintenance:'رسوم الصيانة',
-    quote_monthly:'القسط', quote_cash:'سعر الكاش',
-    quote_installment1:'قسط سنة', quote_installment2:'قسط سنتين',
-    sales_agent:'بيانات مندوب المبيعات', agent_name:'الاسم:',
-    agent_phone:'التليفون:', agent_email:'البريد:',
-    quote_disclaimer:'هذا العرض غير ملزم وقابل للتغيير حسب توفر الوحدة وسياسة المطور وقت الحجز.',
-  },
-  en: {
-    /* Tabs */
-    tab_search:'Search Units', tab_pipeline:'Pipeline', tab_calendar:'Calendar', tab_admin:'Admin',
-    /* Search */
-    search_title:'Find the Right Property for Your Client',
-    f_area:'Area', all_areas:'All Areas', f_type:'Type', all:'All',
-    f_dev:'Developer', all_devs:'All Developers', f_budget:'Max Budget', f_down:'Available Down Payment',
-    btn_search:'Search', btn_reset:'Reset',
-    rooms:'Beds', baths:'Baths', finishing:'Finishing',
-    fin_full:'Full Finish', fin_semi:'Semi Finish', fin_brick:'Core & Shell',
-    delivery:'Delivery', ready:'Ready',
-    more_filters:'More Filters', calculator:'Calculator', clear:'Clear',
-    max_monthly:'Max Monthly', no_limit:'No Limit',
-    payment_method:'Payment Method', cash:'Cash', installment:'Installment',
-    installment_calc:'Installment Calculator', unit_price:'Unit Price',
-    down_pct:'Down Payment %', years:'Years', year:'yr',
-    interest:'Interest % (optional)', monthly_installment:'Monthly Installment',
-    results:'results', sort_match:'Best Match',
-    sort_asc:'Price ↑ Low', sort_desc:'Price ↓ High', sort_units:'Most Units',
-    view_units:'View Units', no_results:'No Results Found',
-    no_results_hint:'Try relaxing your filters or searching in a different area',
-    /* Pipeline / Login */
-    login:'Login', login_hint:'Enter your account credentials created by the admin.',
-    username:'Username', password:'Password', login_btn:'Login',
-    username_ph:'Your name', wrong_credentials:'Incorrect username or password',
-    pipeline_title:'Pipeline',
-    upload_excel:'Upload from Excel', template:'Template', new_lead:'+ New Client',
-    upload_leads_excel:'Upload Clients from Excel',
-    login_first:'Please log in from the Pipeline tab first.',
-    /* Calendar */
-    months_ar:['January','February','March','April','May','June','July','August','September','October','November','December'],
-    days_ar:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
-    no_followups:'No follow-ups on this day.',
-    /* Admin */
-    btn_login:'Login', wrong_password:'Incorrect password',
-    dashboard:'Dashboard', last_updated:'Last updated:',
-    projects:'Projects', add_project:'+ Add New Project',
-    search_projects_ph:'Search by project name or area...',
-    company_settings:'Company Settings', save_settings:'Save Settings',
-    sales_users:'👥 Sales Users', add_user:'+ Add User',
-    all_clients:'All Clients', upload_from_excel:'⬆ Upload from Excel',
-    filter_by_status:'Filter by Status', filter_by_status_all:'All',
-    filter_by_sales:'Filter by Sales',
-    s_new:'New', s_contact:'First Contact', s_interested:'Interested', s_booked:'Booked', s_declined:'Declined',
-    activity_timeline:'📋 Activity Timeline',
-    no_projects:'No projects yet.', select_project:'Select a project from the list.',
-    add_unit:'+ Unit', upload_units_excel:'⬆ Excel', download_template:'⬇ Template',
-    add_plan:'+ Payment Plan', transfer:'Transfer', no_data:'No data',
-    no_match:'No results found.',
-    /* Lead Modal */
-    new_client:'New Client', basic_info:'Basic Information',
-    name:'Name', phone:'Phone Number',
-    national_id:'National ID (optional)', email:'Email (optional)',
-    source:'Lead Source', interested_project:'Interested Project',
-    unit_category:'Unit / Category', followup:'Follow-up',
-    followup_status:'Follow-up Status', followup_date:'Follow-up Date',
-    client_rating:'Client Rating', notes:'Notes',
-    visits:'Site Visits', add_visit:'+ Add Visit',
-    save:'Save', cancel:'Cancel', delete_client:'🗑 Delete Client',
-    write_name_phone:'Please enter name and phone', saved:'Saved', deleted:'Deleted',
-    confirm_delete:'Are you sure?', visit_saved:'Saved', transfer_done:'Transferred to',
-    already_same_sales:'Client already assigned to this salesperson',
-    /* Notifications */
-    notifications:'Notifications', no_notifications:'No notifications right now ✅',
-    followup_overdue:'Overdue follow-up:', followup_soon:'Follow-up in 1 hour:',
-    followup_today_notif:"Today's follow-up:", transferred_to_you:'A client was transferred to you:',
-    /* Drawer */
-    close:'✕ Close', no_units:'No units match the current filters.',
-    no_plans:'No payment plans added.', export_pdf:'📄 Export Price Offer PDF',
-    /* Calculator */
-    remaining:'Remaining:', installments_on:'installments',
-    /* Dashboard */
-    total_clients:'Total Clients', projects_label:'Projects',
-    bookings:'Bookings', conversion:'Conversion Rate',
-    clients_today:"Today's Clients", followups_overdue:'Overdue Follow-ups',
-    urgent_followup:'Need urgent follow-up', all_on_time:'All follow-ups on time',
-    client_status:'Client Status', best_sales:'Top Salesperson', top_project:'Most Requested Project',
-    confirmed_bookings:'confirmed bookings', interested_clients:'interested clients',
-    no_bookings_yet:'No bookings yet', no_data_yet:'No data available yet',
-    events_count:'events', no_activity:'No activity recorded yet.',
-    /* Toast / general */
-    settings_saved:'Settings saved', project_saved:'Project added',
-    project_deleted:'Deleted', unit_saved:'Saved', plan_saved:'Payment plan saved',
-    user_added:'User added', user_deleted:'Deleted',
-    excel_error:'Error reading file', open_project_first:'Open a project first',
-    image_updated:'Image updated', edit_saved:'Changes saved',
-    select_project_first:'Select a project from the list to add units and plans.',
-    write_project_name:'Enter project name', write_category_price:'Enter category at minimum',
-    write_plan_fields:'Enter plan name and down payment %',
-    write_user_fields:'Enter name and password', user_exists:'Username already exists',
-    /* Units form */
-    unit_desc:'Unit Category / Description', unit_number:'Unit / Plot Number',
-    floor:'Floor', view_label:'View', bedrooms:'Bedrooms', bathrooms:'Bathrooms',
-    area_sqm:'Area m²', garden_sqm:'Garden Area m²',
-    finishing_type:'Finishing Type', utilities:'Utilities + Elevator',
-    delivery_date:'Delivery Date', location_inside:'Location within Project',
-    cash_price:'Cash Price', down_payment_amount:'Down Payment (amount)',
-    installment_1yr:'Monthly Installment / 1 Year', installment_2yr:'Monthly Installment / 2 Years',
-    total_price:'Total Price', price_per_meter:'Price per m²',
-    /* Print / PDF */
-    price_quote:'Price Offer', quote_date:'Date:', quote_unit:'Unit',
-    quote_floor:'Floor', quote_view:'View', quote_location:'Location',
-    quote_area:'Area', quote_layout:'Layout', quote_garden:'Garden Area',
-    quote_finishing:'Finishing', quote_utilities:'Utilities + Elevator',
-    quote_delivery:'Delivery Date', quote_price_per_m:'Price per m²',
-    quote_total_price:'Unit Price', quote_plan:'Payment Plan',
-    quote_down:'Down Payment', quote_maintenance:'Maintenance Fee',
-    quote_monthly:'Monthly', quote_cash:'Cash Price',
-    quote_installment1:'1-Year Plan', quote_installment2:'2-Year Plan',
-    sales_agent:'Sales Agent Information', agent_name:'Name:',
-    agent_phone:'Phone:', agent_email:'Email:',
-    quote_disclaimer:'This offer is non-binding and subject to change based on unit availability and developer policy at time of booking.',
-  }
-};
-
-let currentLang = localStorage.getItem('ycrm_lang') || 'ar';
-
-function t(key) {
-  const dict = I18N[currentLang] || I18N.ar;
-  return dict[key] || I18N.ar[key] || key;
-}
-
-function applyLang(lang) {
-  currentLang = lang;
-  localStorage.setItem('ycrm_lang', lang);
-  document.documentElement.lang = lang;
-  document.body.dir = lang === 'ar' ? 'rtl' : 'ltr';
-
-  // Apply data-i18n text nodes
-  document.querySelectorAll('[data-i18n]').forEach(el => {
-    const key = el.dataset.i18n;
-    const val = t(key);
-    if (val && val !== key) el.textContent = val;
-  });
-
-  // Apply data-i18n-placeholder
-  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
-    const key = el.dataset.i18nPlaceholder;
-    const val = t(key);
-    if (val && val !== key) el.placeholder = val;
-  });
-
-  // Update lang dropdown UI
-  const flagEl = byId('lang-flag-display');
-  const labelEl = byId('lang-label-display');
-  if (flagEl) flagEl.textContent = lang === 'ar' ? '🇸🇦' : '🇬🇧';
-  if (labelEl) labelEl.textContent = lang === 'ar' ? 'العربية' : 'English';
-
-  document.querySelectorAll('.lang-option').forEach(opt => {
-    opt.classList.toggle('active', opt.dataset.lang === lang);
-  });
-}
-
-// Lang dropdown toggle
-const langBtn = byId('lang-dropdown-btn');
-const langMenu = byId('lang-dropdown-menu');
-if (langBtn && langMenu) {
-  langBtn.addEventListener('click', e => {
-    e.stopPropagation();
-    const isOpen = langMenu.classList.contains('open');
-    langMenu.classList.toggle('open', !isOpen);
-    langBtn.setAttribute('aria-expanded', String(!isOpen));
-  });
-  document.addEventListener('click', () => {
-    langMenu.classList.remove('open');
-    langBtn.setAttribute('aria-expanded', 'false');
-  });
-  langMenu.addEventListener('click', e => e.stopPropagation());
-  document.querySelectorAll('.lang-option').forEach(opt => {
-    opt.addEventListener('click', () => {
-      applyLang(opt.dataset.lang);
-      langMenu.classList.remove('open');
-      langBtn.setAttribute('aria-expanded', 'false');
-    });
-  });
-  // Keyboard navigation
-  langBtn.addEventListener('keydown', e => {
-    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); langBtn.click(); }
-    if (e.key === 'Escape') { langMenu.classList.remove('open'); langBtn.setAttribute('aria-expanded','false'); }
-  });
-}
-
-// Apply on load
-applyLang(currentLang);
-
+/* ── EXPOSE GLOBALS (inline handlers) ── */
+window.handleKanbanDrop = (...a) => handleKanbanDrop(...a);
+window.togglePac        = (...a) => togglePac(...a);
+window.exportQuotePDF   = (...a) => exportQuotePDF(...a);
+window.calcUpdate       = (...a) => calcUpdate(...a);
+window.closeDrawer      = (...a) => closeDrawer(...a);
+window.waShare          = (...a) => waShare(...a);
+window.toggleSchedule   = (...a) => toggleSchedule(...a);
+window.showSetupHelp    = (...a) => showSetupHelp(...a);
 /* ---- INIT ---- */
 initFirebase();
 
