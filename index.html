@@ -2631,6 +2631,276 @@ window.closeDrawer      = (...a) => closeDrawer(...a);
 window.waShare          = (...a) => waShare(...a);
 window.toggleSchedule   = (...a) => toggleSchedule(...a);
 window.showSetupHelp    = (...a) => showSetupHelp(...a);
+
+/* ════════════════════════════════════════════
+   THEME + LANG  (must stay inside window.onload)
+   ════════════════════════════════════════════ */
+
+/* ── THEME ── */
+let currentTheme = localStorage.getItem('ycrm_theme') || 'light';
+
+function applyTheme(theme) {
+  currentTheme = theme;
+  localStorage.setItem('ycrm_theme', theme);
+  document.documentElement.setAttribute('data-theme', theme);
+  const btn = byId('theme-toggle-btn');
+  if (btn) btn.setAttribute('aria-checked', theme === 'dark' ? 'true' : 'false');
+}
+
+const _themeBtn = byId('theme-toggle-btn');
+if (_themeBtn) {
+  _themeBtn.addEventListener('click', () => applyTheme(currentTheme === 'dark' ? 'light' : 'dark'));
+  _themeBtn.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); applyTheme(currentTheme === 'dark' ? 'light' : 'dark'); }
+  });
+}
+applyTheme(currentTheme);
+
+/* ── I18N DICTIONARY ── */
+const I18N = {
+  ar: {
+    tab_search:'بحث عن وحدة', tab_pipeline:'العملاء', tab_calendar:'التقويم', tab_admin:'الأدمن',
+    search_title:'دوّر على المشروع المناسب للعميل',
+    f_area:'المنطقة', all_areas:'كل المناطق', f_type:'نوع الوحدة', all:'الكل',
+    f_dev:'المطور', all_devs:'كل المطورين', f_budget:'الميزانية القصوى', f_down:'المقدم المتاح',
+    btn_search:'بحث', btn_reset:'تصفير',
+    rooms:'غرف', baths:'حمامات', finishing:'تشطيب',
+    fin_full:'تشطيب كامل', fin_semi:'نص تشطيب', fin_brick:'طوب احمر',
+    delivery:'تسليم', ready:'جاهز',
+    more_filters:'فلاتر أكثر', calculator:'حاسبة', clear:'مسح',
+    max_monthly:'قسط شهري أقصى', no_limit:'بدون حد',
+    payment_method:'طريقة الدفع', cash:'كاش', installment:'تقسيط',
+    installment_calc:'حاسبة التقسيط', unit_price:'سعر الوحدة',
+    down_pct:'نسبة المقدم %', years:'مدة التقسيط', year:'سنة',
+    interest:'فائدة % (اختياري)', monthly_installment:'القسط الشهري',
+    results:'نتيجة', sort_match:'الأكثر تطابقاً',
+    sort_asc:'السعر ↑ الأقل', sort_desc:'السعر ↓ الأعلى', sort_units:'أكثر وحدات',
+    view_units:'عرض الوحدات', no_results:'لا توجد نتائج',
+    no_results_hint:'جرّب تخفف الفلاتر أو تبحث في منطقة تانية',
+    login:'تسجيل دخول', login_hint:'ادخل بيانات حسابك اللي أنشأه الأدمن.',
+    username:'اسم المستخدم', password:'كلمة المرور', login_btn:'دخول',
+    username_ph:'اسمك', wrong_credentials:'الاسم أو كلمة المرور غلط',
+    pipeline_title:'Pipeline', upload_excel:'رفع من إكسيل', template:'نموذج',
+    new_lead:'+ عميل جديد', upload_leads_excel:'رفع عملاء من إكسيل',
+    login_first:'سجّل دخول من تاب Pipeline الأول.',
+    months_ar:['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'],
+    days_ar:['أحد','اثنين','ثلاثاء','أربعاء','خميس','جمعة','سبت'],
+    no_followups:'لا يوجد follow ups في هذا اليوم.',
+    btn_login:'تسجيل دخول', wrong_password:'كلمة المرور غلط',
+    dashboard:'لوحة التحكم', last_updated:'آخر تحديث:',
+    projects:'المشاريع', add_project:'+ إضافة مشروع جديد',
+    search_projects_ph:'بحث باسم المشروع أو المنطقة...',
+    company_settings:'إعدادات الشركة', save_settings:'حفظ الإعدادات',
+    sales_users:'👥 مستخدمي السيلز', add_user:'+ إضافة مستخدم',
+    all_clients:'كل العملاء', upload_from_excel:'⬆ رفع من إكسيل',
+    filter_by_status:'فلتر بالحالة', filter_by_sales:'فلتر بالسيلز',
+    s_new:'جديد', s_contact:'تواصل أول', s_interested:'مهتم', s_booked:'حجز', s_declined:'اعتذر',
+    activity_timeline:'📋 Activity Timeline',
+    no_projects:'لسه مفيش مشاريع.', select_project:'دوس على مشروع من القائمة.',
+    add_unit:'+ وحدة', add_plan:'+ نظام سداد', transfer:'نقل', no_data:'لا توجد بيانات',
+    no_match:'مفيش نتائج.', no_units:'لا توجد وحدات مطابقة للفلاتر.',
+    no_plans:'لا توجد أنظمة سداد مدخلة.',
+    export_pdf:'📄 تصدير عرض سعر PDF',
+    new_client:'عميل جديد', basic_info:'معلومات أساسية',
+    name:'الاسم', phone:'رقم التليفون',
+    national_id:'الرقم القومي (اختياري)', email:'البريد الإلكتروني (اختياري)',
+    source:'مصدر العميل', interested_project:'المشروع المهتم بيه',
+    unit_category:'الوحدة/الفئة', followup:'المتابعة',
+    followup_status:'حالة المتابعة', followup_date:'موعد Follow Up',
+    client_rating:'تقييم العميل', notes:'ملاحظات',
+    visits:'المعاينات', add_visit:'+ إضافة معاينة',
+    save:'حفظ', cancel:'إلغاء', delete_client:'🗑 حذف العميل',
+    write_name_phone:'اكتب الاسم والتليفون', saved:'تم الحفظ', deleted:'تم الحذف',
+    confirm_delete:'متأكد؟', transfer_done:'تم النقل إلى',
+    already_same_sales:'العميل ده بالفعل مع نفس السيلز',
+    notifications:'الإشعارات', no_notifications:'لا توجد إشعارات حالياً ✅',
+    followup_overdue:'Follow-up متأخر:', followup_soon:'Follow-up خلال ساعة:',
+    followup_today_notif:'Follow-up اليوم:', transferred_to_you:'تم تحويل عميل إليك:',
+    close:'✕ إغلاق', remaining:'الباقي:', installments_on:'قسط',
+    total_clients:'إجمالي العملاء', projects_label:'المشاريع',
+    bookings:'الحجوزات', conversion:'نسبة تحويل', clients_today:'عملاء اليوم',
+    followups_overdue:'Follow-ups متأخرة',
+    urgent_followup:'يحتاجون متابعة عاجلة', all_on_time:'كل المتابعات في موعدها',
+    client_status:'حالات العملاء', best_sales:'أفضل سيلز', top_project:'أكثر مشروع مطلوب',
+    confirmed_bookings:'حجز مؤكد', interested_clients:'عميل مهتم',
+    no_bookings_yet:'لا توجد حجوزات بعد', no_data_yet:'لا توجد بيانات بعد',
+    events_count:'حدث', no_activity:'لا يوجد نشاط مسجل بعد.',
+    settings_saved:'تم حفظ الإعدادات', project_saved:'تم إضافة المشروع',
+    edit_saved:'تم حفظ التعديلات', image_updated:'تم تحديث الصورة',
+    open_project_first:'افتح مشروع الأول', write_project_name:'اكتب اسم المشروع',
+    write_category_price:'اكتب الفئة على الأقل',
+    write_plan_fields:'اكتب اسم النظام ونسبة المقدم',
+    write_user_fields:'اكتب الاسم وكلمة المرور', user_exists:'الاسم ده موجود بالفعل',
+    user_added:'تم إضافة المستخدم', user_deleted:'تم الحذف', plan_saved:'تم حفظ نظام السداد',
+    unit_saved:'تم الحفظ',
+    price_quote:'عرض سعر', quote_date:'تاريخ العرض:', quote_unit:'الوحدة',
+    quote_floor:'الدور', quote_view:'الفيو', quote_area:'المساحة',
+    quote_finishing:'التشطيب', quote_delivery:'ميعاد التسليم',
+    quote_total_price:'سعر الوحدة', quote_plan:'نظام السداد', quote_down:'المقدم',
+    quote_monthly:'القسط', quote_cash:'سعر الكاش',
+    sales_agent:'بيانات مندوب المبيعات', agent_name:'الاسم:', agent_phone:'التليفون:', agent_email:'البريد:',
+    quote_disclaimer:'هذا العرض غير ملزم وقابل للتغيير حسب توفر الوحدة وسياسة المطور وقت الحجز.',
+  },
+  en: {
+    tab_search:'Search Units', tab_pipeline:'Pipeline', tab_calendar:'Calendar', tab_admin:'Admin',
+    search_title:'Find the Right Property for Your Client',
+    f_area:'Area', all_areas:'All Areas', f_type:'Type', all:'All',
+    f_dev:'Developer', all_devs:'All Developers', f_budget:'Max Budget', f_down:'Down Payment',
+    btn_search:'Search', btn_reset:'Reset',
+    rooms:'Beds', baths:'Baths', finishing:'Finishing',
+    fin_full:'Full Finish', fin_semi:'Semi Finish', fin_brick:'Core & Shell',
+    delivery:'Delivery', ready:'Ready',
+    more_filters:'More Filters', calculator:'Calculator', clear:'Clear',
+    max_monthly:'Max Monthly', no_limit:'No Limit',
+    payment_method:'Payment Method', cash:'Cash', installment:'Installment',
+    installment_calc:'Installment Calculator', unit_price:'Unit Price',
+    down_pct:'Down Payment %', years:'Years', year:'yr',
+    interest:'Interest % (optional)', monthly_installment:'Monthly Installment',
+    results:'results', sort_match:'Best Match',
+    sort_asc:'Price ↑ Low', sort_desc:'Price ↓ High', sort_units:'Most Units',
+    view_units:'View Units', no_results:'No Results Found',
+    no_results_hint:'Try relaxing filters or search in a different area',
+    login:'Login', login_hint:'Enter your credentials created by the admin.',
+    username:'Username', password:'Password', login_btn:'Login',
+    username_ph:'Your name', wrong_credentials:'Incorrect username or password',
+    pipeline_title:'Pipeline', upload_excel:'Upload Excel', template:'Template',
+    new_lead:'+ New Client', upload_leads_excel:'Upload Clients from Excel',
+    login_first:'Please log in from the Pipeline tab first.',
+    months_ar:['January','February','March','April','May','June','July','August','September','October','November','December'],
+    days_ar:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
+    no_followups:'No follow-ups scheduled for this day.',
+    btn_login:'Login', wrong_password:'Incorrect password',
+    dashboard:'Dashboard', last_updated:'Last updated:',
+    projects:'Projects', add_project:'+ Add New Project',
+    search_projects_ph:'Search by project name or area...',
+    company_settings:'Company Settings', save_settings:'Save Settings',
+    sales_users:'👥 Sales Users', add_user:'+ Add User',
+    all_clients:'All Clients', upload_from_excel:'⬆ Upload from Excel',
+    filter_by_status:'Filter by Status', filter_by_sales:'Filter by Sales',
+    s_new:'New', s_contact:'First Contact', s_interested:'Interested', s_booked:'Booked', s_declined:'Declined',
+    activity_timeline:'📋 Activity Timeline',
+    no_projects:'No projects yet.', select_project:'Select a project from the list.',
+    add_unit:'+ Unit', add_plan:'+ Payment Plan', transfer:'Transfer', no_data:'No data',
+    no_match:'No results found.', no_units:'No units match current filters.',
+    no_plans:'No payment plans added.',
+    export_pdf:'📄 Export Price Offer PDF',
+    new_client:'New Client', basic_info:'Basic Information',
+    name:'Name', phone:'Phone Number',
+    national_id:'National ID (optional)', email:'Email (optional)',
+    source:'Lead Source', interested_project:'Interested Project',
+    unit_category:'Unit / Category', followup:'Follow-up',
+    followup_status:'Follow-up Status', followup_date:'Follow-up Date',
+    client_rating:'Client Rating', notes:'Notes',
+    visits:'Site Visits', add_visit:'+ Add Visit',
+    save:'Save', cancel:'Cancel', delete_client:'🗑 Delete Client',
+    write_name_phone:'Please enter name and phone', saved:'Saved', deleted:'Deleted',
+    confirm_delete:'Are you sure?', transfer_done:'Transferred to',
+    already_same_sales:'Client already with this salesperson',
+    notifications:'Notifications', no_notifications:'No notifications right now ✅',
+    followup_overdue:'Overdue follow-up:', followup_soon:'Follow-up in 1 hour:',
+    followup_today_notif:"Today's follow-up:", transferred_to_you:'Client transferred to you:',
+    close:'✕ Close', remaining:'Remaining:', installments_on:'installments',
+    total_clients:'Total Clients', projects_label:'Projects',
+    bookings:'Bookings', conversion:'Conversion Rate', clients_today:"Today's Clients",
+    followups_overdue:'Overdue Follow-ups',
+    urgent_followup:'Need urgent follow-up', all_on_time:'All follow-ups on time',
+    client_status:'Client Status', best_sales:'Top Salesperson', top_project:'Most Requested Project',
+    confirmed_bookings:'confirmed bookings', interested_clients:'interested clients',
+    no_bookings_yet:'No bookings yet', no_data_yet:'No data available',
+    events_count:'events', no_activity:'No activity recorded yet.',
+    settings_saved:'Settings saved', project_saved:'Project added',
+    edit_saved:'Changes saved', image_updated:'Image updated',
+    open_project_first:'Open a project first', write_project_name:'Enter project name',
+    write_category_price:'Enter at least the category',
+    write_plan_fields:'Enter plan name and down payment %',
+    write_user_fields:'Enter name and password', user_exists:'Username already exists',
+    user_added:'User added', user_deleted:'Deleted', plan_saved:'Payment plan saved',
+    unit_saved:'Saved',
+    price_quote:'Price Offer', quote_date:'Date:', quote_unit:'Unit',
+    quote_floor:'Floor', quote_view:'View', quote_area:'Area',
+    quote_finishing:'Finishing', quote_delivery:'Delivery Date',
+    quote_total_price:'Unit Price', quote_plan:'Payment Plan', quote_down:'Down Payment',
+    quote_monthly:'Monthly', quote_cash:'Cash Price',
+    sales_agent:'Sales Agent', agent_name:'Name:', agent_phone:'Phone:', agent_email:'Email:',
+    quote_disclaimer:'This offer is non-binding and subject to change based on availability and developer policy at time of booking.',
+  }
+};
+
+function t(key) {
+  const dict = I18N[currentLang] || I18N.ar;
+  return dict[key] !== undefined ? dict[key] : (I18N.ar[key] !== undefined ? I18N.ar[key] : key);
+}
+
+/* ── LANG ── */
+let currentLang = localStorage.getItem('ycrm_lang') || 'ar';
+
+function applyLang(lang) {
+  currentLang = lang;
+  localStorage.setItem('ycrm_lang', lang);
+  document.documentElement.lang = lang;
+  document.body.dir = lang === 'ar' ? 'rtl' : 'ltr';
+
+  // Update static data-i18n elements
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const v = t(el.dataset.i18n);
+    if (v && v !== el.dataset.i18n) el.textContent = v;
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    const v = t(el.dataset.i18nPlaceholder);
+    if (v && v !== el.dataset.i18nPlaceholder) el.placeholder = v;
+  });
+
+  // Update dropdown UI
+  const flagEl = byId('lang-flag-display');
+  const labelEl = byId('lang-label-display');
+  if (flagEl)  flagEl.textContent  = lang === 'ar' ? '\uD83C\uDDF8\uD83C\uDDE6' : '\uD83C\uDDEC\uD83C\uDDE7';
+  if (labelEl) labelEl.textContent = lang === 'ar' ? 'العربية' : 'English';
+
+  document.querySelectorAll('.lang-option').forEach(o =>
+    o.classList.toggle('active', o.dataset.lang === lang));
+
+  // Re-render dynamic sections
+  if (adminUnlocked) {
+    renderDashboard();
+    renderAdminLeadsList();
+    renderActivityTimeline();
+    renderAdminProjectList();
+  }
+  if (currentSalesName) { renderKanban(); updateNotifBadge(); renderNotifications(); }
+  const calPanel = byId('panel-calendar');
+  if (calPanel && calPanel.classList.contains('active') && currentSalesName) renderCalendar();
+  const srPanel = byId('panel-search');
+  if (srPanel && srPanel.classList.contains('active')) setTimeout(performSearch, 50);
+}
+
+// Lang dropdown wiring
+const _langBtn  = byId('lang-dropdown-btn');
+const _langMenu = byId('lang-dropdown-menu');
+if (_langBtn && _langMenu) {
+  _langBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    const open = _langMenu.classList.toggle('open');
+    _langBtn.setAttribute('aria-expanded', String(open));
+  });
+  document.addEventListener('click', () => {
+    _langMenu.classList.remove('open');
+    _langBtn.setAttribute('aria-expanded', 'false');
+  });
+  _langMenu.addEventListener('click', e => e.stopPropagation());
+  _langMenu.querySelectorAll('.lang-option').forEach(opt => {
+    opt.addEventListener('click', () => {
+      applyLang(opt.dataset.lang);
+      _langMenu.classList.remove('open');
+      _langBtn.setAttribute('aria-expanded', 'false');
+    });
+  });
+  _langBtn.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); _langBtn.click(); }
+    if (e.key === 'Escape') { _langMenu.classList.remove('open'); _langBtn.setAttribute('aria-expanded','false'); }
+  });
+}
+applyLang(currentLang);
+
 /* ---- INIT ---- */
 initFirebase();
 
