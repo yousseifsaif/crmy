@@ -3262,8 +3262,13 @@ function calcUpdate(){
   byId('calc-years-val').textContent=years;
   byId('calc-int-val').textContent=parseFloat(byId('calc-interest')?.value)||0;
   byId('calc-monthly-output').textContent=Math.round(monthly).toLocaleString('ar-EG')+' ج.م';
-  byId('calc-total-output').textContent=t('remaining')+' '+remaining.toLocaleString(currentLang==='ar'?'ar-EG':'en-US')+' ج.م — '+years*12+' '+t('installments_on')+' '+years*12+;
-}
+byId('calc-total-output').textContent =
+  t('remaining') + ' ' +
+  remaining.toLocaleString(currentLang === 'ar' ? 'ar-EG' : 'en-US') +
+  ' ج.م — ' +
+  (years * 12) + ' ' +
+  t('installments_on') + ' ' +
+  (years * 12);}
 
 /* ---- COMPRESS IMAGE ---- */
 function compressImage(file, maxW=500, quality=0.65){
